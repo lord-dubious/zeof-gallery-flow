@@ -1,7 +1,7 @@
 import React from 'react';
 import Navigation from '@/components/Navigation';
 import { motion } from 'framer-motion';
-import { Facebook, Mail, Share2, Twitter, WhatsApp } from 'lucide-react';
+import { Facebook, Mail, Share2, Twitter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const About = () => {
@@ -66,8 +66,8 @@ const About = () => {
               onClick={shareHandlers.whatsapp}
               className="hover:bg-green-500 hover:text-white"
             >
-              <WhatsApp className="mr-2 h-4 w-4" />
-              Share
+              <Share2 className="mr-2 h-4 w-4" />
+              WhatsApp
             </Button>
             <Button
               variant="outline"
