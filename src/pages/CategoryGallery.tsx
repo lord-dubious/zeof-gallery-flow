@@ -52,7 +52,6 @@ const CategoryGallery = () => {
   );
 };
 
-// Sample data structure for the gallery items
 const categories = [
   {
     slug: "tropical-suits",
@@ -126,6 +125,106 @@ const categories = [
         title: "Business Casual Shirt",
         description: "Versatile shirt for any occasion",
         image: "https://images.unsplash.com/photo-1589310243389-96a5483213a8?q=80&w=1000&auto=format&fit=crop"
+      }
+    ]
+  },
+  {
+    slug: "casual-wear",
+    title: "Casual Wear",
+    description: "Sophisticated casual pieces for the modern gentleman",
+    items: [
+      {
+        id: 1,
+        title: "Casual Blazer",
+        description: "Unstructured blazer for a relaxed look",
+        image: "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=1000&auto=format&fit=crop"
+      },
+      {
+        id: 2,
+        title: "Polo Shirt",
+        description: "Premium cotton polo in navy",
+        image: "https://images.unsplash.com/photo-1585518419759-7fe2e0fbf8a6?q=80&w=1000&auto=format&fit=crop"
+      },
+      {
+        id: 3,
+        title: "Casual Chinos",
+        description: "Comfortable yet stylish chinos",
+        image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?q=80&w=1000&auto=format&fit=crop"
+      }
+    ]
+  },
+  {
+    slug: "shirts",
+    title: "Shirts Collection",
+    description: "From formal to casual, our comprehensive shirt collection",
+    items: [
+      {
+        id: 1,
+        title: "Dress Shirt",
+        description: "Classic fit dress shirt in white",
+        image: "https://images.unsplash.com/photo-1604695573706-53170668f6a6?q=80&w=1000&auto=format&fit=crop"
+      },
+      {
+        id: 2,
+        title: "Casual Shirt",
+        description: "Relaxed fit casual shirt",
+        image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=1000&auto=format&fit=crop"
+      },
+      {
+        id: 3,
+        title: "Linen Shirt",
+        description: "Summer linen shirt in beige",
+        image: "https://images.unsplash.com/photo-1621072156002-e2fccdc0b176?q=80&w=1000&auto=format&fit=crop"
+      }
+    ]
+  },
+  {
+    slug: "trousers",
+    title: "Trousers",
+    description: "Expertly tailored trousers for every occasion",
+    items: [
+      {
+        id: 1,
+        title: "Formal Trousers",
+        description: "Classic wool dress trousers",
+        image: "https://images.unsplash.com/photo-1594938328870-9623159c8c99?q=80&w=1000&auto=format&fit=crop"
+      },
+      {
+        id: 2,
+        title: "Casual Chinos",
+        description: "Versatile cotton chinos",
+        image: "https://images.unsplash.com/photo-1584865288642-42078afe6942?q=80&w=1000&auto=format&fit=crop"
+      },
+      {
+        id: 3,
+        title: "Linen Trousers",
+        description: "Lightweight summer trousers",
+        image: "https://images.unsplash.com/photo-1610652492500-ded49ceeb378?q=80&w=1000&auto=format&fit=crop"
+      }
+    ]
+  },
+  {
+    slug: "shoes",
+    title: "Shoes",
+    description: "Handcrafted footwear for the discerning gentleman",
+    items: [
+      {
+        id: 1,
+        title: "Oxford Shoes",
+        description: "Classic black Oxford shoes",
+        image: "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?q=80&w=1000&auto=format&fit=crop"
+      },
+      {
+        id: 2,
+        title: "Loafers",
+        description: "Comfortable leather loafers",
+        image: "https://images.unsplash.com/photo-1614251056216-f748f76cd228?q=80&w=1000&auto=format&fit=crop"
+      },
+      {
+        id: 3,
+        title: "Derby Shoes",
+        description: "Elegant brown Derby shoes",
+        image: "https://images.unsplash.com/photo-1613219413642-38a56f71c89e?q=80&w=1000&auto=format&fit=crop"
       }
     ]
   }

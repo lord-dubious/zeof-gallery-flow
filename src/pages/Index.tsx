@@ -152,6 +152,30 @@ const categories = [
     image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?q=80&w=1000&auto=format&fit=crop",
     slug: "bespoke-shirts"
   },
+  {
+    title: "Casual Wear",
+    description: "Sophisticated casual pieces for the modern gentleman",
+    image: "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=1000&auto=format&fit=crop",
+    slug: "casual-wear"
+  },
+  {
+    title: "Shirts Collection",
+    description: "From formal to casual, our comprehensive shirt collection",
+    image: "https://images.unsplash.com/photo-1604695573706-53170668f6a6?q=80&w=1000&auto=format&fit=crop",
+    slug: "shirts"
+  },
+  {
+    title: "Trousers",
+    description: "Expertly tailored trousers for every occasion",
+    image: "https://images.unsplash.com/photo-1594938328870-9623159c8c99?q=80&w=1000&auto=format&fit=crop",
+    slug: "trousers"
+  },
+  {
+    title: "Shoes",
+    description: "Handcrafted footwear for the discerning gentleman",
+    image: "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?q=80&w=1000&auto=format&fit=crop",
+    slug: "shoes"
+  }
 ];
 
 export default Index;
