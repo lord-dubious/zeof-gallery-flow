@@ -60,24 +60,25 @@ const Index = () => {
 
           <div className="grid md:grid-cols-3 gap-8">
             {categories.map((category, index) => (
-              <motion.div
-                key={category.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-                className="group cursor-pointer"
-              >
-                <div className="relative overflow-hidden rounded-lg mb-4">
-                  <img
-                    src={category.image}
-                    alt={category.title}
-                    className="w-full h-[400px] object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-20 transition-opacity duration-300 group-hover:bg-opacity-30" />
-                </div>
-                <h3 className="text-2xl font-serif mb-2">{category.title}</h3>
-                <p className="text-gray-600">{category.description}</p>
-              </motion.div>
+              <Link to={`/gallery/${category.slug}`} key={category.title}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.2 }}
+                  className="group cursor-pointer"
+                >
+                  <div className="relative overflow-hidden rounded-lg mb-4">
+                    <img
+                      src={category.image}
+                      alt={category.title}
+                      className="w-full h-[400px] object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-20 transition-opacity duration-300 group-hover:bg-opacity-30" />
+                  </div>
+                  <h3 className="text-2xl font-serif mb-2">{category.title}</h3>
+                  <p className="text-gray-600">{category.description}</p>
+                </motion.div>
+              </Link>
             ))}
           </div>
         </div>
@@ -137,16 +138,19 @@ const categories = [
     title: "Tropical Suits",
     description: "Elegance meets comfort in our signature tropical collection",
     image: "/tropical-suit.jpg",
+    slug: "tropical-suits"
   },
   {
     title: "African Suits",
     description: "Contemporary interpretations of traditional African aesthetics",
     image: "/african-suit.jpg",
+    slug: "african-suits"
   },
   {
     title: "Bespoke Shirts",
     description: "Perfectly tailored shirts for the distinguished gentleman",
     image: "/bespoke-shirt.jpg",
+    slug: "bespoke-shirts"
   },
 ];
 
