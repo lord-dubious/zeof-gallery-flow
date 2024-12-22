@@ -71,7 +71,12 @@ const categories = [
         description: "Refined cotton suit in light blue",
         image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?q=80&w=1000&auto=format&fit=crop"
       },
-      // Add more items as needed
+      {
+        id: 3,
+        title: "Tropical Wool Suit",
+        description: "Breathable wool suit perfect for warm climates",
+        image: "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?q=80&w=1000&auto=format&fit=crop"
+      }
     ]
   },
   {
@@ -91,7 +96,12 @@ const categories = [
         description: "Blazer featuring Kente-inspired designs",
         image: "https://images.unsplash.com/photo-1593032465175-481ac7f401a0?q=80&w=1000&auto=format&fit=crop"
       },
-      // Add more items as needed
+      {
+        id: 3,
+        title: "Contemporary African Suit",
+        description: "Modern take on traditional African formal wear",
+        image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=1000&auto=format&fit=crop"
+      }
     ]
   },
   {
@@ -111,7 +121,12 @@ const categories = [
         description: "Elegant dress shirt with French cuffs",
         image: "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?q=80&w=1000&auto=format&fit=crop"
       },
-      // Add more items as needed
+      {
+        id: 3,
+        title: "Business Casual Shirt",
+        description: "Versatile shirt for any occasion",
+        image: "https://images.unsplash.com/photo-1589310243389-96a5483213a8?q=80&w=1000&auto=format&fit=crop"
+      }
     ]
   }
 ];

@@ -137,19 +137,19 @@ const categories = [
   {
     title: "Tropical Suits",
     description: "Elegance meets comfort in our signature tropical collection",
-    image: "/tropical-suit.jpg",
+    image: "https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?q=80&w=1000&auto=format&fit=crop",
     slug: "tropical-suits"
   },
   {
     title: "African Suits",
     description: "Contemporary interpretations of traditional African aesthetics",
-    image: "/african-suit.jpg",
+    image: "https://images.unsplash.com/photo-1578932750294-f5075e85f44a?q=80&w=1000&auto=format&fit=crop",
     slug: "african-suits"
   },
   {
     title: "Bespoke Shirts",
     description: "Perfectly tailored shirts for the distinguished gentleman",
-    image: "/bespoke-shirt.jpg",
+    image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?q=80&w=1000&auto=format&fit=crop",
     slug: "bespoke-shirts"
   },
 ];
