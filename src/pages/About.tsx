@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import AboutHero from '@/components/about/AboutHero';
 import ProfileSection from '@/components/about/ProfileSection';
