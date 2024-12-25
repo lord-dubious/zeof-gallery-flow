@@ -15,12 +15,6 @@ const About = () => {
     twitter: () => {
       window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}`, '_blank');
     },
-    whatsapp: () => {
-      window.open(`https://wa.me/?text=${encodeURIComponent(title + ' ' + shareUrl)}`, '_blank');
-    },
-    telegram: () => {
-      window.open(`https://telegram.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}`, '_blank');
-    },
     email: () => {
       window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(shareUrl)}`;
     }
@@ -29,6 +23,18 @@ const About = () => {
   return (
     <div className="min-h-screen bg-white text-zeof-black">
       <Navigation />
+      
+      {/* Hero Section */}
+      <div className="relative h-[40vh] bg-zeof-black">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black/50">
+          <div className="container mx-auto h-full flex items-center justify-center">
+            <h1 className="text-5xl md:text-6xl text-white font-serif font-bold text-center">
+              The Story of Excellence
+            </h1>
+          </div>
+        </div>
+      </div>
+
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -36,29 +42,36 @@ const About = () => {
         className="container mx-auto px-4 py-16 lg:py-24"
       >
         <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-12">
-            <div className="md:col-span-4">
-              <div className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-xl">
+          {/* Profile Section */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-16">
+            <div className="md:col-span-5">
+              <div className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-2xl">
                 <img 
                   src="https://images.unsplash.com/photo-1581092795360-fd1ca04f0952"
                   alt="Chief Jideofor Ezeofor"
-                  className="object-cover w-full h-full"
+                  className="object-cover w-full h-full hover:scale-105 transition-transform duration-500"
                 />
               </div>
             </div>
-            <div className="md:col-span-8">
-              <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6 text-zeof-gold">
+            <div className="md:col-span-7 flex flex-col justify-center">
+              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6 text-zeof-gold">
                 Chief Jideofor Ezeofor
-              </h1>
+              </h2>
               <p className="text-xl mb-6 text-zeof-brown italic">
                 "I'm a lawyer by training and a tailor and artist by inclination."
               </p>
-              <div className="flex flex-wrap gap-2 mb-8">
+              <div className="prose prose-lg text-zeof-black/80 mb-8">
+                <p>
+                  From a distinguished lineage of lawyers to becoming a pioneering force in fashion, 
+                  Chief Jideofor Ezeofor's journey is a testament to following one's true calling.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={shareHandlers.facebook}
-                  className="hover:bg-blue-500 hover:text-white"
+                  className="hover:bg-blue-500 hover:text-white transition-colors"
                 >
                   <Facebook className="mr-2 h-4 w-4" />
                   Share
@@ -67,7 +80,7 @@ const About = () => {
                   variant="outline"
                   size="sm"
                   onClick={shareHandlers.twitter}
-                  className="hover:bg-sky-500 hover:text-white"
+                  className="hover:bg-sky-500 hover:text-white transition-colors"
                 >
                   <Twitter className="mr-2 h-4 w-4" />
                   Tweet
@@ -76,7 +89,7 @@ const About = () => {
                   variant="outline"
                   size="sm"
                   onClick={shareHandlers.email}
-                  className="hover:bg-gray-800 hover:text-white"
+                  className="hover:bg-gray-800 hover:text-white transition-colors"
                 >
                   <Mail className="mr-2 h-4 w-4" />
                   Email
@@ -85,63 +98,89 @@ const About = () => {
             </div>
           </div>
 
-          <div className="prose prose-lg max-w-none">
-            <section className="mb-12">
-              <h2 className="text-3xl font-serif font-semibold mb-6 text-zeof-gold">The Early Years</h2>
-              <p className="mb-6">
-                Coming from a lineage of lawyers, it was expected that Chief Jideofor Ezeofor would follow in his parents' footsteps. However, providence had different plans, leading him to find his true calling in the fashion industry.
-              </p>
-              <p className="mb-6">
-                Fashion became an allure to Ezeofor as a child. Even though nobody in his family showed a proclivity towards the art, he embraced it wholeheartedly. "I started designing clothes when I was very young, around 12 years old," he recalled. "All through my senior secondary school and university, I designed and made clothes. My initial clients were my schoolmates at the University of Ife, now Obafemi Awolowo University, Ile-Ife, where I studied law."
-              </p>
+          {/* Content Sections */}
+          <div className="space-y-16 prose prose-lg max-w-none">
+            <section>
+              <h3 className="text-3xl font-serif font-semibold mb-6 text-zeof-gold">
+                The Early Years
+              </h3>
+              <div className="bg-zeof-cream/50 p-8 rounded-lg border border-zeof-gold/20">
+                <p className="mb-4">
+                  Fashion became an allure to Ezeofor as a child. Even though nobody in his family showed 
+                  a proclivity towards the art, he embraced it wholeheartedly.
+                </p>
+                <blockquote className="border-l-4 border-zeof-gold pl-6 my-6 italic">
+                  "I started designing clothes when I was very young, around 12 years old. All through my 
+                  senior secondary school and university, I designed and made clothes. My initial clients 
+                  were my schoolmates at the University of Ife."
+                </blockquote>
+              </div>
             </section>
 
-            <section className="mb-12">
-              <h2 className="text-3xl font-serif font-semibold mb-6 text-zeof-gold">Legal Background</h2>
+            <section>
+              <h3 className="text-3xl font-serif font-semibold mb-6 text-zeof-gold">
+                Legal Heritage & Fashion Passion
+              </h3>
+              <p className="mb-6">
+                Coming from a family of distinguished legal practitioners, Ezeofor's journey took an 
+                unexpected turn. While serving as a Magistrate in Anambra State for five years, his 
+                artistic inclinations led him to make a bold decision.
+              </p>
               <blockquote className="border-l-4 border-zeof-gold pl-6 my-8 italic">
-                "I'm a lawyer by training and a tailor and artist by inclination. I didn't abandon the legal profession. I am a second-generation lawyer. My father and mother are lawyers. My father, Ichie Ezeofor is a life bencher of the Body of Benchers."
+                "I'm a lawyer by training and a tailor and artist by inclination. I didn't abandon the 
+                legal profession. I am a second-generation lawyer. My father and mother are lawyers. 
+                My father, Ichie Ezeofor is a life bencher of the Body of Benchers."
               </blockquote>
-              <p className="mb-6">
-                "Law also is in my veins. I was once a Magistrate in the Anambra State Judiciary. I served for five years at the Chief Magistrate Court Ogidi and Onitsha respectively. The fulfillment I got when I dispensed justice without fear or favour cannot be equated. I became conflicted when it was our turn to be elevated to the High Court. The artist in me couldn't keep still."
-              </p>
             </section>
 
-            <section className="mb-12">
-              <h2 className="text-3xl font-serif font-semibold mb-6 text-zeof-gold">The Fashion Journey</h2>
-              <p className="mb-6">
-                With over three decades in the industry, Ezeofor has expanded his fashion business significantly. His designer label, Zeof Excluzioni, now serves a diverse clientele across all segments of society, establishing itself as a top-end brand.
-              </p>
-              <p className="mb-6">
-                "We clothe captains of industries, bankers, professionals, top public servants, businessmen, governors, African presidents and upwardly mobile individuals with great sense of style. Over the years, our attention to detail in our outfit is second to none."
-              </p>
+            <section>
+              <h3 className="text-3xl font-serif font-semibold mb-6 text-zeof-gold">
+                Global Recognition
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <p className="mb-4">
+                    With over three decades in the industry, Ezeofor has expanded his fashion business 
+                    significantly. His designer label, Zeof Excluzioni, now serves a diverse clientele 
+                    across all segments of society.
+                  </p>
+                </div>
+                <div className="bg-zeof-cream/50 p-6 rounded-lg">
+                  <p className="italic text-zeof-brown">
+                    "We clothe captains of industries, bankers, professionals, top public servants, 
+                    businessmen, governors, African presidents and upwardly mobile individuals with 
+                    great sense of style."
+                  </p>
+                </div>
+              </div>
             </section>
 
-            <section className="mb-12">
-              <h2 className="text-3xl font-serif font-semibold mb-6 text-zeof-gold">Global Recognition</h2>
-              <p className="mb-6">
-                "Nigerian designers have matured in their craft over the years. When I started designing clothes in 1985, it wasn't popular; Nigerians preferred to buy ready-to-wear clothes imported from Europe and America. But now, we have matured in fashion content, just like our Afrobeat music. We have clients in Europe and America. The Nigerian fashion brand is international."
-              </p>
-              <p className="mb-6">
-                "We receive orders from abroad, package and ship them. Sometimes in 2007, I showcased how my Zeof tropical, hybrid and African suit is worn in the international fashion arena in the magic marketplace in Las Vegas, USA, organised by the US Commercial department."
-              </p>
+            <section>
+              <h3 className="text-3xl font-serif font-semibold mb-6 text-zeof-gold">
+                Legacy & Future Vision
+              </h3>
+              <div className="bg-gradient-to-r from-zeof-cream/50 to-transparent p-8 rounded-lg">
+                <p className="mb-6">
+                  Looking ahead, Ezeofor envisions Zeof expanding beyond its present status to become 
+                  a truly global brand. The legacy continues through his children, who have already 
+                  begun making their mark in the fashion industry.
+                </p>
+                <p className="text-zeof-brown">
+                  "My first son, who is an architect, is very much interested in continuing with the 
+                  business. They created a label known as Denzel Blake Imperial, which is an offshoot 
+                  of Zeof Excluzioni."
+                </p>
+              </div>
             </section>
 
-            <section className="mb-12">
-              <h2 className="text-3xl font-serif font-semibold mb-6 text-zeof-gold">Legacy and Future</h2>
-              <p className="mb-6">
-                While calling on the government to embed fashion designing and other vocational skills in the tertiary education curriculum, High Chief Ezeofor expressed optimism that in the next 30 years, Zeof will expand beyond its present status and become a global brand.
-              </p>
-              <p className="mb-6">
-                "My first son, who is an architect, is very much interested in continuing with the business. He has his design for the younger generation and his younger brother too. They created a label known as Denzel Blake Imperial, which is an offshoot of Zeof Excluzioni."
-              </p>
-            </section>
-
-            <div className="bg-zeof-cream p-8 rounded-lg border border-zeof-gold/20 mt-12">
-              <h2 className="text-2xl font-serif font-semibold mb-4 text-zeof-gold">
+            <div className="bg-zeof-black text-white p-8 rounded-lg mt-16">
+              <h3 className="text-2xl font-serif font-semibold mb-4 text-zeof-gold">
                 Words of Wisdom
-              </h2>
+              </h3>
               <p className="text-lg leading-relaxed italic">
-                "The fashion business is tough; you have to have the extra passion to be successful in the fashion business. The early years can be frustrating, but if you persist, you will gather experience and tenacity and success will be yours."
+                "The fashion business is tough; you have to have the extra passion to be successful 
+                in the fashion business. The early years can be frustrating, but if you persist, you 
+                will gather experience and tenacity and success will be yours."
               </p>
             </div>
           </div>
