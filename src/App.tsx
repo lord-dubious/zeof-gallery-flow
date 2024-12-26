@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -15,9 +15,14 @@ import Shop from "./pages/Shop";
 
 const queryClient = new QueryClient();
 
-// Initialize Apollo Client
+// Initialize Apollo Client with the correct Saleor demo endpoint
+const httpLink = createHttpLink({
+  uri: 'https://master.staging.saleor.cloud/graphql/',
+  credentials: 'include'
+});
+
 const client = new ApolloClient({
-  uri: 'https://demo.saleor.io/graphql/',
+  link: httpLink,
   cache: new InMemoryCache(),
 });
 

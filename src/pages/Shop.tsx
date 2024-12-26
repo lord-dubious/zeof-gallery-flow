@@ -36,6 +36,7 @@ const Shop = () => {
   const { loading, error, data } = useQuery(GET_PRODUCTS);
 
   if (error) {
+    console.error('Shop query error:', error);
     toast.error("Failed to load products");
     return <div>Error loading products</div>;
   }
