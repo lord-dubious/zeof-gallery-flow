@@ -18,33 +18,31 @@ const Navigation = () => {
 
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled || location.pathname !== "/" ? "bg-white shadow-md py-2" : "bg-transparent py-4"
+      className={`fixed w-full z-50 transition-all duration-500 ${
+        isScrolled || location.pathname !== "/" ? "bg-white/95 backdrop-blur-sm shadow-sm py-4" : "bg-transparent py-6"
       }`}
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-8">
         <div className="flex justify-between items-center">
           <Link
             to="/"
-            className={`text-2xl font-serif font-bold transition-colors ${
-              isScrolled || location.pathname !== "/" ? "text-zeof-gold" : "text-white"
-            } hover:opacity-80`}
+            className={`text-2xl font-serif tracking-wider transition-colors duration-300 ${
+              isScrolled || location.pathname !== "/" ? "text-zeof-black" : "text-white"
+            } hover:text-zeof-gold`}
           >
-            ZEOF EXCLUZIONI
+            ZEOF
           </Link>
 
-          {/* Mobile Menu Button */}
           <button
             className={`lg:hidden ${
               isScrolled || location.pathname !== "/" ? "text-zeof-black" : "text-white"
             }`}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
 
-          {/* Desktop Menu */}
-          <div className="hidden lg:flex space-x-8">
+          <div className="hidden lg:flex space-x-12">
             <NavLink to="/" isScrolled={isScrolled} currentPath={location.pathname}>
               Home
             </NavLink>
@@ -59,9 +57,8 @@ const Navigation = () => {
             </NavLink>
           </div>
 
-          {/* Mobile Menu */}
           {isMenuOpen && (
-            <div className="lg:hidden absolute top-full left-0 right-0 bg-white shadow-lg py-4 px-4 space-y-4">
+            <div className="lg:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-sm shadow-lg py-6 px-8 space-y-6">
               <MobileNavLink to="/" onClick={() => setIsMenuOpen(false)}>
                 Home
               </MobileNavLink>
@@ -95,7 +92,7 @@ const NavLink = ({
 }) => (
   <Link
     to={to}
-    className={`transition-colors duration-200 font-medium ${
+    className={`transition-colors duration-300 text-sm tracking-wider uppercase ${
       isScrolled || currentPath !== "/" 
         ? "text-zeof-black hover:text-zeof-gold" 
         : "text-white hover:text-zeof-gold"
@@ -117,7 +114,7 @@ const MobileNavLink = ({
   <Link
     to={to}
     onClick={onClick}
-    className="block text-zeof-black hover:text-zeof-gold transition-colors duration-200 font-medium"
+    className="block text-zeof-black hover:text-zeof-gold transition-colors duration-300 text-sm tracking-wider uppercase"
   >
     {children}
   </Link>
