@@ -52,6 +52,9 @@ const Navigation = () => {
             <NavLink to="/gallery" isScrolled={isScrolled} currentPath={location.pathname}>
               Gallery
             </NavLink>
+            <NavLink to="/shop" isScrolled={isScrolled} currentPath={location.pathname}>
+              Shop
+            </NavLink>
             <NavLink to="/contact" isScrolled={isScrolled} currentPath={location.pathname}>
               Contact
             </NavLink>
@@ -67,6 +70,9 @@ const Navigation = () => {
               </MobileNavLink>
               <MobileNavLink to="/gallery" onClick={() => setIsMenuOpen(false)}>
                 Gallery
+              </MobileNavLink>
+              <MobileNavLink to="/shop" onClick={() => setIsMenuOpen(false)}>
+                Shop
               </MobileNavLink>
               <MobileNavLink to="/contact" onClick={() => setIsMenuOpen(false)}>
                 Contact
