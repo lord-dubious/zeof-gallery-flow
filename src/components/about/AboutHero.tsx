@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 
 const AboutHero = () => {
   return (
-    <div className="relative h-[95vh] overflow-hidden">
+    <div className="relative h-[95vh] overflow-hidden pt-20">
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{ 
