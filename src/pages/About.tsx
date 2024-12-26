@@ -7,21 +7,6 @@ import ContentSections from '@/components/about/ContentSections';
 import ShopSection from '@/components/about/ShopSection';
 
 const About = () => {
-  const shareUrl = window.location.href;
-  const title = "About ZEOF EXCLUZIONI - A Legacy of Sartorial Excellence";
-  
-  const shareHandlers = {
-    facebook: () => {
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
-    },
-    twitter: () => {
-      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}`, '_blank');
-    },
-    email: () => {
-      window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(shareUrl)}`;
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
@@ -34,7 +19,7 @@ const About = () => {
         className="container mx-auto px-4 py-16 lg:py-24"
       >
         <div className="max-w-4xl mx-auto">
-          <ProfileSection shareHandlers={shareHandlers} />
+          <ProfileSection />
           <ContentSections />
           <ShopSection />
         </div>
