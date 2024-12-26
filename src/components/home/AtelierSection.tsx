@@ -11,12 +11,13 @@ const AtelierSection = () => {
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
+            className="pr-8"
           >
             <span className="text-zeof-gold font-serif italic mb-4 block">Our Atelier</span>
-            <h2 className="text-4xl font-serif mb-6">
+            <h2 className="text-4xl font-serif mb-6 text-zeof-black">
               The House of Zeof Legacy
             </h2>
-            <p className="text-gray-600 mb-6 font-light leading-relaxed">
+            <p className="text-gray-700 mb-6 font-light leading-relaxed">
               For over three decades, our atelier has been crafting exceptional garments for 
               distinguished gentlemen, heads of state, and connoisseurs of fine tailoring. 
               Each piece is a testament to our unwavering commitment to excellence and 
@@ -41,7 +42,7 @@ const AtelierSection = () => {
               alt="Atelier"
               className="w-full h-[600px] object-cover"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-20" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40" />
           </motion.div>
         </div>
       </div>

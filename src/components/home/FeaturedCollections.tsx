@@ -24,7 +24,7 @@ const collections = [
 
 const FeaturedCollections = () => {
   return (
-    <section className="py-24 bg-zeof-cream">
+    <section className="py-24 bg-zeof-black">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0 }}
@@ -33,8 +33,8 @@ const FeaturedCollections = () => {
           className="text-center mb-16"
         >
           <span className="text-zeof-gold font-serif italic mb-4 block">Collections</span>
-          <h2 className="text-4xl font-serif mb-4">Masterpieces of Craftsmanship</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto font-light">
+          <h2 className="text-4xl font-serif mb-4 text-white">Masterpieces of Craftsmanship</h2>
+          <p className="text-gray-300 max-w-2xl mx-auto font-light">
             Discover our curated collections, where each piece embodies the pinnacle of sartorial excellence
           </p>
         </motion.div>
@@ -54,10 +54,10 @@ const FeaturedCollections = () => {
                     alt={collection.title}
                     className="w-full h-[500px] object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-20 transition-opacity duration-300 group-hover:bg-opacity-30" />
+                  <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity duration-300 group-hover:bg-opacity-30" />
                 </div>
-                <h3 className="text-2xl font-serif mb-2">{collection.title}</h3>
-                <p className="text-gray-600 font-light">{collection.description}</p>
+                <h3 className="text-2xl font-serif mb-2 text-white">{collection.title}</h3>
+                <p className="text-gray-300 font-light">{collection.description}</p>
               </motion.div>
             </Link>
           ))}

@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 const ShopCategories = () => {
   return (
-    <section className="py-32 bg-white">
+    <section className="py-32 bg-zeof-cream">
       <div className="container mx-auto px-8">
         <motion.div
           initial={{ opacity: 0 }}
@@ -13,8 +13,8 @@ const ShopCategories = () => {
           className="text-center mb-24"
         >
           <span className="text-zeof-gold font-serif tracking-wider mb-4 block text-sm uppercase">Collections</span>
-          <h2 className="text-4xl font-serif mb-4">Discover Our Atelier</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto font-light tracking-wide">
+          <h2 className="text-4xl font-serif mb-4 text-zeof-black">Discover Our Atelier</h2>
+          <p className="text-gray-700 max-w-2xl mx-auto font-light tracking-wide">
             Experience the epitome of bespoke craftsmanship
           </p>
         </motion.div>
@@ -32,7 +32,7 @@ const ShopCategories = () => {
                 alt="Luxury Collection"
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-16 text-white">
                 <h3 className="text-5xl font-serif mb-6">The Complete Collection</h3>
                 <p className="text-lg mb-8 max-w-2xl font-light tracking-wide">
