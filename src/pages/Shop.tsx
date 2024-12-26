@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { categories } from "@/data/categories";
 
 const Shop = () => {
   return (

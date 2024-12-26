@@ -1,6 +1,16 @@
 import { motion } from 'framer-motion';
 
-const ProfileSection = () => {
+interface ShareHandlers {
+  facebook: () => void;
+  twitter: () => void;
+  email: () => void;
+}
+
+interface ProfileSectionProps {
+  shareHandlers: ShareHandlers;
+}
+
+const ProfileSection = ({ shareHandlers }: ProfileSectionProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-32">
       <div className="md:col-span-5">
