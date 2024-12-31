@@ -17,7 +17,7 @@ const Index = () => {
             transition={{ duration: 0.8 }}
             className="max-w-3xl"
           >
-            <span className="text-zeof-gold font-medium mb-4 block">
+            <span className="text-zeof-gold font-medium mb-4 block mt-20 lg:mt-0">
               Since 1985
             </span>
             <h1 className="text-5xl md:text-7xl font-serif text-white mb-6">
@@ -37,7 +37,7 @@ const Index = () => {
           </motion.div>
         </div>
       </section>
-
+      
       {/* Categories Preview */}
       <section className="py-20 bg-zeof-cream">
         <div className="container mx-auto px-4">
