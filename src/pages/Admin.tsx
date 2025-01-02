@@ -14,8 +14,9 @@ const AdminPage = () => {
   useEffect(() => {
     const checkAdminRole = async () => {
       if (!isLoading && session) {
-        const { data: { role } } = await supabase.auth.getUser();
-        if (role !== 'admin') {
+        const { data: { user } } = await supabase.auth.getUser();
+        // Check if user has admin role in their metadata
+        if (user?.app_metadata?.role !== 'admin') {
           navigate('/');
         }
       }
