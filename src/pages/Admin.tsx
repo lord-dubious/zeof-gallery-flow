@@ -5,17 +5,60 @@ import { useSessionContext } from "@supabase/auth-helpers-react";
 import AdminAuth from "@/components/admin/AdminAuth";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
 
 const AdminPage = () => {
   const navigate = useNavigate();
   const { session, isLoading } = useSessionContext();
   const [activeTab, setActiveTab] = useState("navigation");
 
+  // Fetch navigation items
+  const { data: navigationItems, isLoading: isLoadingNav } = useQuery({
+    queryKey: ['navigation-items'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('navigation_items')
+        .select('*')
+        .order('display_order', { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Fetch categories
+  const { data: categories, isLoading: isLoadingCategories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*, category_items(*)')
+        .order('display_order', { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Fetch images
+  const { data: images, isLoading: isLoadingImages } = useQuery({
+    queryKey: ['images'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('images')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
   useEffect(() => {
     const checkAdminRole = async () => {
       if (!isLoading && session) {
         const { data: { user } } = await supabase.auth.getUser();
-        // Check if user has admin role in their metadata
         if (user?.app_metadata?.role !== 'admin') {
           navigate('/');
         }
@@ -57,27 +100,102 @@ const AdminPage = () => {
         </TabsList>
 
         <TabsContent value="navigation" className="mt-6">
-          <h2 className="text-2xl font-serif mb-4">Navigation Management</h2>
-          <div className="space-y-4">
-            <p>Manage website navigation items here.</p>
-            {/* Navigation management implementation */}
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Navigation Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingNav ? (
+                <p>Loading navigation items...</p>
+              ) : (
+                <div className="space-y-4">
+                  {navigationItems?.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between p-4 border rounded">
+                      <div>
+                        <h3 className="font-medium">{item.title}</h3>
+                        <p className="text-sm text-gray-500">Path: {item.path}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">Edit</Button>
+                        <Button variant="destructive" size="sm">Delete</Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="categories" className="mt-6">
-          <h2 className="text-2xl font-serif mb-4">Categories Management</h2>
-          <div className="space-y-4">
-            <p>Manage product categories and subcategories here.</p>
-            {/* Categories management implementation */}
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Categories Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingCategories ? (
+                <p>Loading categories...</p>
+              ) : (
+                <div className="space-y-6">
+                  {categories?.map((category) => (
+                    <div key={category.id} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-medium">{category.title}</h3>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm">Edit</Button>
+                          <Button variant="destructive" size="sm">Delete</Button>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-500 mb-4">{category.description}</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {category.category_items?.map((item) => (
+                          <div key={item.id} className="border rounded p-3">
+                            <img 
+                              src={item.image_path} 
+                              alt={item.title}
+                              className="w-full h-32 object-cover rounded mb-2"
+                            />
+                            <h4 className="font-medium">{item.title}</h4>
+                            <p className="text-sm text-gray-500">{item.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="images" className="mt-6">
-          <h2 className="text-2xl font-serif mb-4">Images Management</h2>
-          <div className="space-y-4">
-            <p>Upload and manage website images here.</p>
-            {/* Images management implementation */}
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Images Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingImages ? (
+                <p>Loading images...</p>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {images?.map((image) => (
+                    <div key={image.id} className="border rounded-lg p-2">
+                      <img 
+                        src={image.url} 
+                        alt={image.title || 'Uploaded image'}
+                        className="w-full h-40 object-cover rounded mb-2"
+                      />
+                      <h4 className="font-medium truncate">{image.title || 'Untitled'}</h4>
+                      <div className="flex gap-2 mt-2">
+                        <Button variant="outline" size="sm" className="w-full">Edit</Button>
+                        <Button variant="destructive" size="sm" className="w-full">Delete</Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">
