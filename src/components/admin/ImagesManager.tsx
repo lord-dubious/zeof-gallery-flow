@@ -7,14 +7,16 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import type { Database } from "@/integrations/supabase/types";
+
+type Image = Database['public']['Tables']['images']['Row'];
+type ImageInsert = Database['public']['Tables']['images']['Insert'];
+type ImageUpdate = Database['public']['Tables']['images']['Update'];
 
 export const ImagesManager = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [editingImage, setEditingImage] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [editingImage, setEditingImage] = useState<Image | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 
   // Fetch images
@@ -27,17 +29,17 @@ export const ImagesManager = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data as Image[];
     }
   });
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async (image) => {
+    mutationFn: async ({ id, data }: { id: string; data: ImageUpdate }) => {
       const { error } = await supabase
         .from('images')
-        .update(image)
-        .eq('id', image.id);
+        .update(data)
+        .eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -59,7 +61,7 @@ export const ImagesManager = () => {
 
   // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: async (id) => {
+    mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('images')
         .delete()

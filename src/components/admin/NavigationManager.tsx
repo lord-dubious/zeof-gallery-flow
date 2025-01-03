@@ -8,15 +8,21 @@ import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import type { Database } from "@/integrations/supabase/types";
+
+type NavigationItem = Database['public']['Tables']['navigation_items']['Row'];
+type NavigationItemInsert = Database['public']['Tables']['navigation_items']['Insert'];
+type NavigationItemUpdate = Database['public']['Tables']['navigation_items']['Update'];
 
 export const NavigationManager = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [editingItem, setEditingItem] = useState(null);
-  const [newItem, setNewItem] = useState({
+  const [editingItem, setEditingItem] = useState<NavigationItem | null>(null);
+  const [newItem, setNewItem] = useState<Omit<NavigationItemInsert, 'id' | 'created_at' | 'updated_at'>>({
     title: "",
     path: "",
-    display_order: 0
+    display_order: 0,
+    is_active: true
   });
 
   // Fetch navigation items
@@ -29,13 +35,13 @@ export const NavigationManager = () => {
         .order('display_order', { ascending: true });
       
       if (error) throw error;
-      return data;
+      return data as NavigationItem[];
     }
   });
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (newItem) => {
+    mutationFn: async (newItem: NavigationItemInsert) => {
       const { error } = await supabase
         .from('navigation_items')
         .insert([newItem]);
@@ -59,11 +65,11 @@ export const NavigationManager = () => {
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async (item) => {
+    mutationFn: async ({ id, data }: { id: string; data: NavigationItemUpdate }) => {
       const { error } = await supabase
         .from('navigation_items')
-        .update(item)
-        .eq('id', item.id);
+        .update(data)
+        .eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -85,7 +91,7 @@ export const NavigationManager = () => {
 
   // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: async (id) => {
+    mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('navigation_items')
         .delete()
