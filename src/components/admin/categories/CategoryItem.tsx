@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Edit, Trash2, ChevronDown, ChevronUp, Image as ImageIcon } from "lucide-react";
 import { CategoryForm } from "./CategoryForm";
-import { Category, CategoryItem as CategoryItemType } from "../types";
+import { Category, CategoryFormData } from "../types";
 
 interface CategoryItemProps {
   category: Category;
-  onUpdate: (id: string, data: Partial<Category>) => void;
+  onUpdate: (id: string, data: CategoryFormData) => void;
   onDelete: (id: string) => void;
   isUpdating: boolean;
   isDeleting: boolean;
@@ -26,7 +26,13 @@ export const CategoryItem = ({
     <div className="border rounded-lg p-4 space-y-4">
       {isEditing ? (
         <CategoryForm
-          initialData={category}
+          initialData={{
+            title: category.title,
+            slug: category.slug,
+            description: category.description,
+            display_order: category.display_order,
+            image_url: category.image_url || undefined
+          }}
           onSubmit={(data) => {
             onUpdate(category.id, data);
             setIsEditing(false);
@@ -89,7 +95,7 @@ export const CategoryItem = ({
           )}
           {isExpanded && category.category_items && category.category_items.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-              {category.category_items.map((item: CategoryItemType) => (
+              {category.category_items.map((item) => (
                 <div key={item.id} className="border rounded p-3">
                   <img 
                     src={item.image_path} 

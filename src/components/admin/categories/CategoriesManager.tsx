@@ -8,7 +8,7 @@ import { Loader2, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CategoryForm } from "./CategoryForm";
 import { CategoryItem } from "./CategoryItem";
-import { Category } from "../types";
+import { Category, CategoryFormData } from "../types";
 
 export const CategoriesManager = () => {
   const { toast } = useToast();
@@ -49,7 +49,7 @@ export const CategoriesManager = () => {
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (newCategory: Partial<Category>) => {
+    mutationFn: async (newCategory: CategoryFormData) => {
       let imageUrl = newCategory.image_url;
       
       if (newCategory.image instanceof File) {
@@ -58,7 +58,13 @@ export const CategoriesManager = () => {
       
       const { error } = await supabase
         .from('categories')
-        .insert([{ ...newCategory, image_url: imageUrl }]);
+        .insert([{ 
+          title: newCategory.title,
+          slug: newCategory.slug,
+          description: newCategory.description,
+          display_order: newCategory.display_order,
+          image_url: imageUrl
+        }]);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -80,7 +86,7 @@ export const CategoriesManager = () => {
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<Category> }) => {
+    mutationFn: async ({ id, data }: { id: string; data: CategoryFormData }) => {
       let imageUrl = data.image_url;
       
       if (data.image instanceof File) {
@@ -89,7 +95,13 @@ export const CategoriesManager = () => {
       
       const { error } = await supabase
         .from('categories')
-        .update({ ...data, image_url: imageUrl })
+        .update({ 
+          title: data.title,
+          slug: data.slug,
+          description: data.description,
+          display_order: data.display_order,
+          image_url: imageUrl
+        })
         .eq('id', id);
       if (error) throw error;
     },

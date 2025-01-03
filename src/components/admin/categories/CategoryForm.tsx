@@ -4,17 +4,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2, Image as ImageIcon } from "lucide-react";
-import { Category } from "../types";
+import { CategoryFormData } from "../types";
 
 interface CategoryFormProps {
-  initialData?: Category;
-  onSubmit: (data: Partial<Category>) => void;
+  initialData?: CategoryFormData;
+  onSubmit: (data: CategoryFormData) => void;
   onCancel?: () => void;
   isLoading?: boolean;
 }
 
 export const CategoryForm = ({ initialData, onSubmit, onCancel, isLoading }: CategoryFormProps) => {
-  const [formData, setFormData] = useState<Partial<Category>>({
+  const [formData, setFormData] = useState<CategoryFormData>({
     title: initialData?.title || "",
     slug: initialData?.slug || "",
     description: initialData?.description || "",
@@ -31,7 +31,7 @@ export const CategoryForm = ({ initialData, onSubmit, onCancel, isLoading }: Cat
       setSelectedImage(file);
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
-      setFormData({ ...formData, image_url: url });
+      setFormData({ ...formData, image: file });
     }
   };
 
@@ -104,7 +104,7 @@ export const CategoryForm = ({ initialData, onSubmit, onCancel, isLoading }: Cat
       </div>
       <div className="flex gap-2">
         <Button 
-          onClick={() => onSubmit({ ...formData, image: selectedImage })}
+          onClick={() => onSubmit(formData)}
           disabled={isLoading}
         >
           {isLoading ? (
