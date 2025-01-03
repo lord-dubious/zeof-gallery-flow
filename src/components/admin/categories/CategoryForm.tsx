@@ -4,10 +4,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import { CategoryFormProps, NewCategory } from "./types";
+import { Category } from "../types";
+
+interface CategoryFormProps {
+  initialData?: Category;
+  onSubmit: (data: Partial<Category>) => void;
+  onCancel?: () => void;
+  isLoading?: boolean;
+}
 
 export const CategoryForm = ({ initialData, onSubmit, onCancel, isLoading }: CategoryFormProps) => {
-  const [formData, setFormData] = useState<NewCategory>({
+  const [formData, setFormData] = useState<Partial<Category>>({
     title: initialData?.title || "",
     slug: initialData?.slug || "",
     description: initialData?.description || "",

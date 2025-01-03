@@ -4,11 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CategoryForm } from "./CategoryForm";
 import { CategoryItem } from "./CategoryItem";
-import { Category, NewCategory } from "./types";
+import { Category } from "../types";
 
 export const CategoriesManager = () => {
   const { toast } = useToast();
@@ -25,13 +25,13 @@ export const CategoriesManager = () => {
         .order('display_order', { ascending: true });
       
       if (error) throw error;
-      return data;
+      return data as Category[];
     }
   });
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (newCategory: NewCategory) => {
+    mutationFn: async (newCategory: Partial<Category>) => {
       const { error } = await supabase
         .from('categories')
         .insert([newCategory]);
@@ -56,7 +56,7 @@ export const CategoriesManager = () => {
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: NewCategory }) => {
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Category> }) => {
       const { error } = await supabase
         .from('categories')
         .update(data)
@@ -118,7 +118,10 @@ export const CategoriesManager = () => {
         <CardTitle>Categories Management</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>Add New</Button>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add New
+            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -133,11 +136,10 @@ export const CategoriesManager = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {categories?.map((category: Category) => (
+          {categories?.map((category) => (
             <CategoryItem
               key={category.id}
               category={category}
-              items={category.category_items}
               onUpdate={(id, data) => updateMutation.mutate({ id, data })}
               onDelete={(id) => deleteMutation.mutate(id)}
               isUpdating={updateMutation.isPending}
