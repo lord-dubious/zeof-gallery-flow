@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { NavigationItem, NavigationItemUpdate } from "../types";
+import type { Database } from "@/integrations/supabase/types";
+
+type NavigationItem = Database['public']['Tables']['navigation_items']['Row'];
+type NavigationItemUpdate = Database['public']['Tables']['navigation_items']['Update'];
 
 export const NavigationManager = () => {
   const { toast } = useToast();

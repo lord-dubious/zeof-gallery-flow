@@ -4,13 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { Database } from "@/integrations/supabase/types";
 
 type Image = Database['public']['Tables']['images']['Row'];
-type ImageInsert = Database['public']['Tables']['images']['Insert'];
 type ImageUpdate = Database['public']['Tables']['images']['Update'];
 
 export const ImagesManager = () => {
@@ -35,11 +34,16 @@ export const ImagesManager = () => {
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: ImageUpdate }) => {
+    mutationFn: async (image: Image) => {
       const { error } = await supabase
         .from('images')
-        .update(data)
-        .eq('id', id);
+        .update({
+          title: image.title,
+          description: image.description,
+          is_published: image.is_published,
+          metadata: image.metadata
+        })
+        .eq('id', image.id);
       if (error) throw error;
     },
     onSuccess: () => {
