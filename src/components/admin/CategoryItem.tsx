@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { CategoryForm } from "./CategoryForm";
-import type { Category, CategoryUpdate } from "./types";
+import type { Category, CategoryFormData } from "./types";
 
 interface CategoryItemProps {
   category: Category;
-  onUpdate: (data: CategoryUpdate) => void;
+  onUpdate: (data: CategoryFormData) => void;
   onDelete: () => void;
   isUpdating: boolean;
   isDeleting: boolean;
@@ -26,7 +26,14 @@ export const CategoryItem = ({
     <div className="border rounded-lg p-4 space-y-4">
       {isEditing ? (
         <CategoryForm
-          initialData={category}
+          initialData={{
+            title: category.title,
+            slug: category.slug,
+            description: category.description || "",
+            display_order: category.display_order,
+            image_url: category.image_url || "",
+            is_active: category.is_active || true
+          }}
           onSubmit={(data) => {
             onUpdate(data);
             setIsEditing(false);

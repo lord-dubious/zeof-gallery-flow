@@ -4,18 +4,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import type { Database } from "@/integrations/supabase/types";
-
-type CategoryInsert = Database['public']['Tables']['categories']['Insert'];
+import type { CategoryFormData } from "./types";
 
 interface CategoryFormProps {
-  initialData?: CategoryInsert;
-  onSubmit: (data: CategoryInsert) => void;
+  initialData?: CategoryFormData;
+  onSubmit: (data: CategoryFormData) => void;
   isLoading?: boolean;
 }
 
 export const CategoryForm = ({ initialData, onSubmit, isLoading }: CategoryFormProps) => {
-  const [formData, setFormData] = useState<CategoryInsert>({
+  const [formData, setFormData] = useState<CategoryFormData>({
     title: initialData?.title || "",
     slug: initialData?.slug || "",
     description: initialData?.description || "",
