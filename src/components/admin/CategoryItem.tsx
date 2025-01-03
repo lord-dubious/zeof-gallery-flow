@@ -1,16 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
-import type { Database } from "@/integrations/supabase/types";
 import { CategoryForm } from "./CategoryForm";
-
-type Category = Database['public']['Tables']['categories']['Row'];
-type CategoryUpdate = Database['public']['Tables']['categories']['Update'];
+import type { Category, CategoryUpdate } from "./types";
 
 interface CategoryItemProps {
   category: Category;
-  onUpdate: (id: string, data: CategoryUpdate) => void;
-  onDelete: (id: string) => void;
+  onUpdate: (data: CategoryUpdate) => void;
+  onDelete: () => void;
   isUpdating: boolean;
   isDeleting: boolean;
 }
@@ -31,7 +28,7 @@ export const CategoryItem = ({
         <CategoryForm
           initialData={category}
           onSubmit={(data) => {
-            onUpdate(category.id, data);
+            onUpdate(data);
             setIsEditing(false);
           }}
           isLoading={isUpdating}
@@ -55,7 +52,7 @@ export const CategoryItem = ({
               <Button 
                 variant="destructive" 
                 size="sm"
-                onClick={() => onDelete(category.id)}
+                onClick={onDelete}
                 disabled={isDeleting}
               >
                 {isDeleting ? (

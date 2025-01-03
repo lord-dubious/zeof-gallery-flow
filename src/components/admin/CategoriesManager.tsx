@@ -8,11 +8,7 @@ import { Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CategoryForm } from "./CategoryForm";
 import { CategoryItem } from "./CategoryItem";
-import type { Database } from "@/integrations/supabase/types";
-
-type Category = Database['public']['Tables']['categories']['Row'];
-type CategoryInsert = Database['public']['Tables']['categories']['Insert'];
-type CategoryUpdate = Database['public']['Tables']['categories']['Update'];
+import type { Category, CategoryInsert, CategoryUpdate } from "./types";
 
 export const CategoriesManager = () => {
   const { toast } = useToast();
