@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, Edit, Trash2, ChevronDown, ChevronUp, Image as ImageIcon } from "lucide-react";
+import { Loader2, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { CategoryForm } from "./CategoryForm";
 import { Category, CategoryFormData } from "../types";
 
@@ -29,7 +29,7 @@ export const CategoryItem = ({
           initialData={{
             title: category.title,
             slug: category.slug,
-            description: category.description,
+            description: category.description || "",
             display_order: category.display_order,
             image_url: category.image_url || undefined
           }}

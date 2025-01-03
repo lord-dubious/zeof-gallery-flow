@@ -84,8 +84,8 @@ export const ImagesManager = () => {
     },
   });
 
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     setUploadingImage(true);
@@ -126,7 +126,6 @@ export const ImagesManager = () => {
       });
     } finally {
       setUploadingImage(false);
-      setSelectedFile(null);
     }
   };
 
