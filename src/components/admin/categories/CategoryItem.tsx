@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Edit, Trash2, ChevronDown, ChevronUp, Image as ImageIcon } from "lucide-react";
 import { CategoryForm } from "./CategoryForm";
 import { Category, CategoryItem as CategoryItemType } from "../types";
 
@@ -75,6 +75,15 @@ export const CategoryItem = ({
               </Button>
             </div>
           </div>
+          {category.image_url && (
+            <div className="relative w-full h-48">
+              <img 
+                src={category.image_url} 
+                alt={category.title}
+                className="w-full h-full object-cover rounded-md"
+              />
+            </div>
+          )}
           {category.description && (
             <p className="text-sm text-gray-500">{category.description}</p>
           )}

@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { Loader2, Image as ImageIcon } from "lucide-react";
 import { Category } from "../types";
 
 interface CategoryFormProps {
@@ -18,8 +18,22 @@ export const CategoryForm = ({ initialData, onSubmit, onCancel, isLoading }: Cat
     title: initialData?.title || "",
     slug: initialData?.slug || "",
     description: initialData?.description || "",
-    display_order: initialData?.display_order || 0
+    display_order: initialData?.display_order || 0,
+    image_url: initialData?.image_url || ""
   });
+
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>(initialData?.image_url || "");
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      setFormData({ ...formData, image_url: url });
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -56,9 +70,41 @@ export const CategoryForm = ({ initialData, onSubmit, onCancel, isLoading }: Cat
           onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) })}
         />
       </div>
+      <div>
+        <Label htmlFor="image">Category Image</Label>
+        <div className="mt-2 space-y-4">
+          {previewUrl && (
+            <div className="relative w-full h-48">
+              <img 
+                src={previewUrl} 
+                alt="Category preview" 
+                className="w-full h-full object-cover rounded-md"
+              />
+            </div>
+          )}
+          <div className="flex items-center gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => document.getElementById('image-upload')?.click()}
+              className="w-full"
+            >
+              <ImageIcon className="h-4 w-4 mr-2" />
+              {previewUrl ? 'Change Image' : 'Upload Image'}
+            </Button>
+            <Input
+              id="image-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+          </div>
+        </div>
+      </div>
       <div className="flex gap-2">
         <Button 
-          onClick={() => onSubmit(formData)}
+          onClick={() => onSubmit({ ...formData, image: selectedImage })}
           disabled={isLoading}
         >
           {isLoading ? (

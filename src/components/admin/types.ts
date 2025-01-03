@@ -7,6 +7,8 @@ export interface Category {
   is_active: boolean | null;
   created_at: string;
   updated_at: string;
+  image_url?: string;
+  image?: File;
   category_items?: CategoryItem[];
 }
 

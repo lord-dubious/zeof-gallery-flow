@@ -29,12 +29,36 @@ export const CategoriesManager = () => {
     }
   });
 
+  // Handle file upload
+  const uploadImage = async (file: File) => {
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${crypto.randomUUID()}.${fileExt}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('images')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('images')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
   // Create mutation
   const createMutation = useMutation({
     mutationFn: async (newCategory: Partial<Category>) => {
+      let imageUrl = newCategory.image_url;
+      
+      if (newCategory.image instanceof File) {
+        imageUrl = await uploadImage(newCategory.image);
+      }
+      
       const { error } = await supabase
         .from('categories')
-        .insert([newCategory]);
+        .insert([{ ...newCategory, image_url: imageUrl }]);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -57,9 +81,15 @@ export const CategoriesManager = () => {
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<Category> }) => {
+      let imageUrl = data.image_url;
+      
+      if (data.image instanceof File) {
+        imageUrl = await uploadImage(data.image);
+      }
+      
       const { error } = await supabase
         .from('categories')
-        .update(data)
+        .update({ ...data, image_url: imageUrl })
         .eq('id', id);
       if (error) throw error;
     },
