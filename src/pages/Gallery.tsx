@@ -40,7 +40,7 @@ const Gallery = () => {
 
     // Initialize turn.js with a slight delay to ensure DOM is ready
     const timer = setTimeout(() => {
-      if (magazineRef.current) {
+      if (magazineRef.current && images && images.length > 0) {
         try {
           $(magazineRef.current).turn({
             display: 'double',
@@ -77,7 +77,7 @@ const Gallery = () => {
         console.error('Error destroying Turn.js:', error);
       }
     };
-  }, []);
+  }, [images]); // Add images as a dependency
 
   // Handle window resize
   useEffect(() => {
@@ -97,7 +97,7 @@ const Gallery = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !images) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-zeof-gold" />
@@ -105,10 +105,18 @@ const Gallery = () => {
     );
   }
 
+  if (images.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl text-gray-500">No images available in the gallery</p>
+      </div>
+    );
+  }
+
   // Group images into pairs for double-page spread
-  const imageGroups = images ? Array.from({ length: Math.ceil(images.length / 2) }, (_, i) =>
+  const imageGroups = Array.from({ length: Math.ceil(images.length / 2) }, (_, i) =>
     images.slice(i * 2, i * 2 + 2)
-  ) : [];
+  );
 
   return (
     <div className="min-h-screen bg-zeof-cream flex items-center justify-center p-4">
