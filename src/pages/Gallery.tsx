@@ -21,6 +21,7 @@ const Gallery = () => {
   const magazineRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   const { data: images, error } = useQuery({
     queryKey: ['gallery-images'],
@@ -47,38 +48,45 @@ const Gallery = () => {
   }, [error, toast]);
 
   useEffect(() => {
+    const calculateDimensions = () => {
+      const viewportWidth = Math.min(window.innerWidth * 0.9, 1200);
+      const viewportHeight = window.innerHeight * 0.8;
+      const aspectRatio = 1.4; // Standard magazine aspect ratio
+      
+      let width = viewportWidth;
+      let height = width / 2 * aspectRatio;
+      
+      if (height > viewportHeight) {
+        height = viewportHeight;
+        width = (height / aspectRatio) * 2;
+      }
+
+      setDimensions({ width, height });
+    };
+
+    calculateDimensions();
+    window.addEventListener('resize', calculateDimensions);
+    return () => window.removeEventListener('resize', calculateDimensions);
+  }, []);
+
+  useEffect(() => {
     // Hide navigation during gallery view
     const nav = document.querySelector("nav");
     if (nav) nav.style.display = "none";
 
     const initializeTurn = () => {
-      if (magazineRef.current && images && images.length > 0) {
+      if (magazineRef.current && images && images.length > 0 && dimensions.width > 0) {
         try {
           const $magazine = $(magazineRef.current);
           
-          // Calculate dimensions based on viewport
-          const viewportWidth = Math.min(window.innerWidth * 0.9, 1200);
-          const viewportHeight = window.innerHeight * 0.8;
-          const aspectRatio = 1.4; // Standard magazine aspect ratio
-          
-          // Calculate dimensions maintaining aspect ratio
-          let width = viewportWidth;
-          let height = width / 2 * aspectRatio;
-          
-          // Adjust if height exceeds viewport
-          if (height > viewportHeight) {
-            height = viewportHeight;
-            width = (height / aspectRatio) * 2;
-          }
-
           $magazine.turn({
             display: 'double',
             acceleration: true,
             gradients: true,
             elevation: 50,
             autoCenter: true,
-            width: width,
-            height: height,
+            width: dimensions.width,
+            height: dimensions.height,
             when: {
               turning: function(event: Event, page: number) {
                 const book = $(this);
@@ -86,32 +94,19 @@ const Gallery = () => {
                   event.preventDefault();
                 }
               },
-              turned: function(event: Event, page: number) {
-                console.log('Current page:', page);
+              turned: function() {
                 setIsLoading(false);
               }
             }
           });
-
-          // Handle window resize
-          const handleResize = () => {
-            const newWidth = Math.min(window.innerWidth * 0.9, 1200);
-            const newHeight = (newWidth / 2) * 1.4;
-            $magazine.turn('size', newWidth, newHeight);
-          };
-
-          window.addEventListener('resize', handleResize);
-          return () => window.removeEventListener('resize', handleResize);
         } catch (error) {
           console.error('Error initializing Turn.js:', error);
           setIsLoading(false);
         }
-      } else {
-        setIsLoading(false);
       }
     };
 
-    if (images && images.length > 0) {
+    if (images && images.length > 0 && dimensions.width > 0) {
       // Wait for images to be loaded
       const timer = setTimeout(initializeTurn, 1000);
       return () => clearTimeout(timer);
@@ -130,7 +125,7 @@ const Gallery = () => {
         console.error('Error destroying Turn.js:', error);
       }
     };
-  }, [images]);
+  }, [images, dimensions]);
 
   if (error) {
     return (
@@ -170,6 +165,11 @@ const Gallery = () => {
       <div 
         ref={magazineRef}
         className="magazine turn-shadow"
+        style={{
+          width: dimensions.width,
+          height: dimensions.height,
+          visibility: isLoading ? 'hidden' : 'visible'
+        }}
       >
         <MagazineCover />
         <MagazineContents />

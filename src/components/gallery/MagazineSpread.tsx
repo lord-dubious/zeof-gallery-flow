@@ -7,8 +7,8 @@ interface MagazineSpreadProps {
 
 export const MagazineSpread = ({ leftImage, rightImage }: MagazineSpreadProps) => {
   const renderPage = (image: Image) => (
-    <div className="h-full">
-      <div className="relative h-full">
+    <div className="h-full w-full">
+      <div className="relative h-full w-full">
         <img
           src={image.url}
           alt={image.title || 'Gallery image'}
@@ -31,9 +31,9 @@ export const MagazineSpread = ({ leftImage, rightImage }: MagazineSpreadProps) =
   );
 
   return (
-    <div className="page-wrapper">
+    <>
       {renderPage(leftImage)}
       {rightImage && renderPage(rightImage)}
-    </div>
+    </>
   );
 };
