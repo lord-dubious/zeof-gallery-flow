@@ -17,13 +17,15 @@ const Gallery = () => {
   const magazineRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch all images without filtering by published status
+  // Fetch only published images from the gallery bucket
   const { data: images } = useQuery({
     queryKey: ['gallery-images'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('images')
         .select('*')
+        .eq('is_published', true)
+        .like('url', '%/gallery/%') // Filter for images from the gallery bucket
         .order('created_at', { ascending: false });
       
       if (error) throw error;
