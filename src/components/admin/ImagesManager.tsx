@@ -6,8 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Loader2, Upload } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ImageUpload } from "./images/ImageUpload";
+import { useImageUpload } from "@/hooks/use-image-upload";
 import type { Image } from "./types/images";
 
 export const ImagesManager = () => {
@@ -15,6 +17,7 @@ export const ImagesManager = () => {
   const queryClient = useQueryClient();
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { uploadImage, isUploading } = useImageUpload();
 
   // Fetch images
   const { data: images, isLoading } = useQuery({
@@ -69,7 +72,11 @@ export const ImagesManager = () => {
       <CardHeader>
         <CardTitle>Images Management</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
+        <div className="mb-6">
+          <ImageUpload onUpload={uploadImage} isUploading={isUploading} />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {images?.map((image) => (
             <div key={image.id} className="relative group">
