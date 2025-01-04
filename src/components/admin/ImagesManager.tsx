@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import type { Image } from "./types/images";
 import { ImageCard } from "./images/ImageCard";
+import { ImageUpload } from "./images/ImageUpload";
 
 export const ImagesManager = () => {
   const { toast } = useToast();
@@ -44,7 +44,6 @@ export const ImagesManager = () => {
     try {
       for (const image of images) {
         if (!image.url.includes('storage.googleapis.com')) {
-          // Only migrate external URLs
           const filename = image.url.split('/').pop() || 'image.jpg';
           const file = await urlToFile(image.url, filename);
           const filePath = `${crypto.randomUUID()}.${filename.split('.').pop()}`;
@@ -119,7 +118,6 @@ export const ImagesManager = () => {
     mutationFn: async (id: string) => {
       const image = images?.find(img => img.id === id);
       if (image) {
-        // Delete from storage if it's a storage URL
         if (image.url.includes('storage.googleapis.com')) {
           const filePath = image.url.split('/').pop();
           if (filePath) {
@@ -152,10 +150,7 @@ export const ImagesManager = () => {
     },
   });
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  const handleFileUpload = async (file: File) => {
     setUploadingImage(true);
     try {
       const fileExt = file.name.split('.').pop();
@@ -225,14 +220,10 @@ export const ImagesManager = () => {
               'Migrate External Images'
             )}
           </Button>
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-            disabled={uploadingImage}
-            className="max-w-[200px]"
+          <ImageUpload
+            onUpload={handleFileUpload}
+            isUploading={uploadingImage}
           />
-          {uploadingImage && <Loader2 className="h-4 w-4 animate-spin" />}
         </div>
       </CardHeader>
       <CardContent>
