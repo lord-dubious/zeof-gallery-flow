@@ -102,15 +102,6 @@ const Gallery = () => {
     );
   }
 
-  // Create pairs of images for each spread
-  const spreads = [];
-  for (let i = 0; i < images.length; i += 2) {
-    spreads.push({
-      leftImage: images[i],
-      rightImage: images[i + 1]
-    });
-  }
-
   return (
     <div className="min-h-screen bg-zeof-cream flex items-center justify-center p-4">
       <div 
@@ -133,6 +124,17 @@ const Gallery = () => {
           className="magazine"
           ref={bookRef}
           style={{ background: 'transparent' }}
+          startPage={0}
+          drawShadow={true}
+          flippingTime={1000}
+          usePortrait={false}
+          startZIndex={0}
+          autoSize={true}
+          maxShadowOpacity={0.5}
+          useMouseEvents={true}
+          clickEventForward={true}
+          swipeDistance={30}
+          showPageCorners={true}
         >
           <div className="page">
             <MagazineCover />
