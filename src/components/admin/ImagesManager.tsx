@@ -8,24 +8,30 @@ import type { Image } from "./types/images";
 import { ImageUpload } from "./images/ImageUpload";
 import { ImageGrid } from "./images/ImageGrid";
 import { useImageUpload } from "@/hooks/use-image-upload";
+import { useSessionContext } from "@supabase/auth-helpers-react";
 
 export const ImagesManager = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { uploadImage, isUploading } = useImageUpload();
+  const { session } = useSessionContext();
 
-  // Fetch images
+  // Fetch images for the current user
   const { data: images, isLoading } = useQuery({
     queryKey: ['images'],
     queryFn: async () => {
+      if (!session?.user?.id) return [];
+      
       const { data, error } = await supabase
         .from('images')
         .select('*')
+        .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data as Image[];
-    }
+    },
+    enabled: !!session?.user?.id
   });
 
   // Update mutation
@@ -39,7 +45,8 @@ export const ImagesManager = () => {
           is_published: image.is_published,
           metadata: image.metadata
         })
-        .eq('id', image.id);
+        .eq('id', image.id)
+        .eq('user_id', session?.user?.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -74,7 +81,8 @@ export const ImagesManager = () => {
       const { error } = await supabase
         .from('images')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', session?.user?.id);
       if (error) throw error;
     },
     onSuccess: () => {

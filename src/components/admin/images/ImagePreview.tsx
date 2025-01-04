@@ -13,7 +13,7 @@ export const ImagePreview = ({ image }: ImagePreviewProps) => {
 
   return (
     <>
-      <div className="relative aspect-square mb-2 group">
+      <div className="relative aspect-square mb-4 group">
         <img 
           src={image.thumbnail_url || image.url} 
           alt={image.title || 'Preview'}
@@ -29,6 +29,11 @@ export const ImagePreview = ({ image }: ImagePreviewProps) => {
             <Maximize2 className="h-6 w-6" />
           </Button>
         </div>
+        {!image.is_published && (
+          <div className="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded">
+            Hidden
+          </div>
+        )}
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

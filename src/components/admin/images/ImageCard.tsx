@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Trash2 } from "lucide-react";
+import { Edit2, Eye, EyeOff, Loader2, Trash2 } from "lucide-react";
 import type { Image } from "../types/images";
 import { ImagePreview } from "./ImagePreview";
 import { ImageMetadata } from "./ImageMetadata";
@@ -22,6 +22,13 @@ export const ImageCard = ({
   isUpdating 
 }: ImageCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
+
+  const handleVisibilityToggle = () => {
+    onUpdate({
+      ...image,
+      is_published: !image.is_published
+    });
+  };
 
   return (
     <Card>
@@ -46,23 +53,45 @@ export const ImageCard = ({
             <div className="flex gap-2">
               <Button 
                 variant="outline" 
-                size="sm" 
-                className="w-full"
+                size="sm"
                 onClick={() => setIsEditing(true)}
+                className="flex-1"
               >
+                <Edit2 className="h-4 w-4 mr-2" />
                 Edit
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleVisibilityToggle}
+                className="flex-1"
+              >
+                {image.is_published ? (
+                  <>
+                    <EyeOff className="h-4 w-4 mr-2" />
+                    Hide
+                  </>
+                ) : (
+                  <>
+                    <Eye className="h-4 w-4 mr-2" />
+                    Show
+                  </>
+                )}
               </Button>
               <Button 
                 variant="destructive" 
-                size="sm" 
-                className="w-full"
+                size="sm"
                 onClick={() => onDelete(image.id)}
                 disabled={isDeleting}
+                className="flex-1"
               >
                 {isDeleting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Trash2 className="h-4 w-4" />
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </>
                 )}
               </Button>
             </div>
