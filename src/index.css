@@ -39,6 +39,35 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
   }
+
+  /* Magazine Styles */
+  .magazine {
+    background-size: 100% 100%;
+  }
+
+  .magazine .page {
+    background-color: white;
+    background-size: 100% 100%;
+  }
+
+  .magazine .hard {
+    background-color: #1A1A1A;
+    color: white;
+  }
+
+  /* Turn.js Shadows */
+  .turn-shadow {
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+  }
+
+  .turn-page-wrapper {
+    perspective: 2000px;
+  }
+
+  /* Page Transitions */
+  .page-wrapper {
+    transition: transform 0.5s;
+  }
 }
 
 .hero-section {

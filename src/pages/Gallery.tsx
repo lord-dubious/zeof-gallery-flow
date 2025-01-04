@@ -1,49 +1,128 @@
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
 import { categories } from "../data/categories";
+import $ from "jquery";
+import "turn.js";
+
+declare global {
+  interface JQuery {
+    turn(options: any): JQuery;
+    turn(method: string): JQuery;
+  }
+}
 
 const Gallery = () => {
-  return (
-    <div className="min-h-screen bg-zeof-cream py-24">
-      <div className="container mx-auto px-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
-        >
-          <span className="text-zeof-gold font-serif italic mb-4 block">Collections</span>
-          <h1 className="text-4xl md:text-5xl font-serif text-zeof-black mb-4">
-            Masterpieces of Craftsmanship
-          </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto font-light">
-            Explore our curated collections, where each piece embodies the pinnacle of sartorial excellence
-          </p>
-        </motion.div>
+  const magazineRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {categories.map((category, index) => (
-            <Link to={`/gallery/${category.slug}`} key={category.slug}>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.2 }}
-                className="group cursor-pointer bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
-              >
-                <div className="relative h-80 overflow-hidden">
-                  <img 
-                    src={category.items[0].image} 
-                    alt={category.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+  useEffect(() => {
+    // Hide navigation when entering the gallery
+    const nav = document.querySelector("nav");
+    if (nav) nav.style.display = "none";
+
+    // Initialize turn.js
+    if (magazineRef.current) {
+      $(magazineRef.current).turn({
+        display: 'double',
+        acceleration: true,
+        gradients: true,
+        elevation: 50,
+        when: {
+          turned: function(e: Event, page: number) {
+            console.log('Current page: ' + page);
+          }
+        }
+      });
+      setIsLoading(false);
+    }
+
+    // Cleanup
+    return () => {
+      if (nav) nav.style.display = "block";
+      $(magazineRef.current).turn("destroy");
+    };
+  }, []);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (magazineRef.current) {
+        const width = Math.min(window.innerWidth * 0.9, 1200);
+        const height = (width / 2) * 1.4; // Maintain magazine aspect ratio
+        $(magazineRef.current).turn("size", width, height);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-zeof-gold"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-zeof-cream flex items-center justify-center p-4">
+      <div 
+        ref={magazineRef}
+        className="magazine w-[90vw] max-w-[1200px] h-[80vh] bg-white shadow-2xl"
+      >
+        {/* Cover */}
+        <div className="hard relative bg-zeof-black text-white">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+            <h1 className="text-4xl md:text-6xl font-serif mb-4">ZEOF Collection</h1>
+            <p className="text-lg md:text-xl font-light">A Journey Through Elegance</p>
+          </div>
+        </div>
+
+        {/* Table of Contents */}
+        <div className="p-8 bg-white">
+          <h2 className="text-3xl font-serif mb-6 text-zeof-black">Contents</h2>
+          <div className="space-y-4">
+            {categories.map((category, index) => (
+              <div key={category.slug} className="flex items-center">
+                <span className="text-zeof-gold mr-4">{index + 1}</span>
+                <span className="text-lg font-serif">{category.title}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Category Pages */}
+        {categories.map((category) => (
+          <div key={category.slug} className="p-8 bg-white">
+            <h2 className="text-3xl font-serif mb-6 text-zeof-black">{category.title}</h2>
+            <div className="grid grid-cols-2 gap-4">
+              {category.items.map((item) => (
+                <div key={item.id} className="relative aspect-[3/4] overflow-hidden">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-20 transition-opacity duration-300 group-hover:bg-opacity-30" />
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                    <h3 className="text-white text-lg font-serif">{item.title}</h3>
+                    <p className="text-white/80 text-sm">{item.description}</p>
+                  </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-serif text-zeof-black mb-2">{category.title}</h3>
-                  <p className="text-gray-600 font-light">{category.description}</p>
-                </div>
-              </motion.div>
-            </Link>
-          ))}
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {/* Back Cover */}
+        <div className="hard relative bg-zeof-black text-white">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <img
+              src="/logo.png"
+              alt="ZEOF Logo"
+              className="w-24 h-24 opacity-50"
+            />
+          </div>
         </div>
       </div>
     </div>
