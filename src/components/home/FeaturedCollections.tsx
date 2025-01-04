@@ -1,28 +1,50 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const collections = [
   {
     title: "Bespoke Suits",
     description: "Tailored perfection for the distinguished gentleman",
-    image: "https://images.unsplash.com/photo-1594938328870-9623159c8c99?q=80&w=2680",
+    imageRole: "suits_collection",
     link: "/gallery/suits"
   },
   {
     title: "Evening Wear",
     description: "Sophistication for memorable occasions",
-    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=2671",
+    imageRole: "evening_collection",
     link: "/gallery/evening-wear"
   },
   {
     title: "Accessories",
     description: "Finishing touches of refinement",
-    image: "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?q=80&w=2573",
+    imageRole: "accessories_collection",
     link: "/gallery/accessories"
   }
 ];
 
 const FeaturedCollections = () => {
+  const { data: images, isLoading } = useQuery({
+    queryKey: ['featured-collection-images'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('images')
+        .select('*')
+        .in('image_role', ['suits_collection', 'evening_collection', 'accessories_collection'])
+        .eq('is_published', true);
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const getImageUrl = (imageRole: string) => {
+    const image = images?.find(img => img.image_role === imageRole);
+    return image?.url || 'https://images.unsplash.com/photo-1594938328870-9623159c8c99?q=80&w=2680';
+  };
+
   return (
     <section className="py-24 bg-zeof-black">
       <div className="container mx-auto px-4">
@@ -49,11 +71,15 @@ const FeaturedCollections = () => {
                 className="group cursor-pointer"
               >
                 <div className="relative overflow-hidden mb-4">
-                  <img
-                    src={collection.image}
-                    alt={collection.title}
-                    className="w-full h-[500px] object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                  {isLoading ? (
+                    <Skeleton className="w-full h-[500px]" />
+                  ) : (
+                    <img
+                      src={getImageUrl(collection.imageRole)}
+                      alt={collection.title}
+                      className="w-full h-[500px] object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  )}
                   <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity duration-300 group-hover:bg-opacity-30" />
                 </div>
                 <h3 className="text-2xl font-serif mb-2 text-white">{collection.title}</h3>

@@ -94,7 +94,9 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          image_role: string | null
           is_published: boolean | null
+          magazine_title: string | null
           metadata: Json | null
           thumbnail_url: string | null
           title: string | null
@@ -106,7 +108,9 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          image_role?: string | null
           is_published?: boolean | null
+          magazine_title?: string | null
           metadata?: Json | null
           thumbnail_url?: string | null
           title?: string | null
@@ -118,7 +122,9 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          image_role?: string | null
           is_published?: boolean | null
+          magazine_title?: string | null
           metadata?: Json | null
           thumbnail_url?: string | null
           title?: string | null
