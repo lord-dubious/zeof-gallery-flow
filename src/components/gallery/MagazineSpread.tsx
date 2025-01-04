@@ -18,14 +18,6 @@ export const MagazineSpread = ({ leftImage }: MagazineSpreadProps) => {
             e.currentTarget.src = '/placeholder.svg';
           }}
         />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-          <h3 className="text-white text-lg font-serif">
-            {leftImage.title || 'Untitled'}
-          </h3>
-          {leftImage.description && (
-            <p className="text-white/80 text-sm">{leftImage.description}</p>
-          )}
-        </div>
       </div>
     </div>
   );

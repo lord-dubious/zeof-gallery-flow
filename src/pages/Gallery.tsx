@@ -53,7 +53,7 @@ const Gallery = () => {
         width = (height / aspectRatio) * 2;
       }
 
-      setDimensions({ width: width / 2, height }); // Divide width by 2 since we're showing single pages
+      setDimensions({ width: width / 2, height });
     };
 
     calculateDimensions();
@@ -62,12 +62,10 @@ const Gallery = () => {
   }, []);
 
   useEffect(() => {
-    // Hide navigation during gallery view
     const nav = document.querySelector("nav");
     if (nav) nav.style.display = "none";
 
     return () => {
-      // Show navigation when leaving gallery
       if (nav) nav.style.display = "block";
     };
   }, []);
@@ -135,6 +133,7 @@ const Gallery = () => {
           clickEventForward={true}
           swipeDistance={30}
           showPageCorners={true}
+          disableFlipByClick={false}
         >
           <div className="page">
             <MagazineCover />
