@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader2, Trash2 } from "lucide-react";
 import type { Image } from "../types/images";
+import { ImagePreview } from "./ImagePreview";
+import { ImageMetadata } from "./ImageMetadata";
 
 interface ImageCardProps {
   image: Image;
@@ -13,82 +14,61 @@ interface ImageCardProps {
   isUpdating: boolean;
 }
 
-export const ImageCard = ({ image, onUpdate, onDelete, isDeleting, isUpdating }: ImageCardProps) => {
-  const [editingImage, setEditingImage] = useState<Image | null>(null);
+export const ImageCard = ({ 
+  image, 
+  onUpdate, 
+  onDelete, 
+  isDeleting, 
+  isUpdating 
+}: ImageCardProps) => {
+  const [isEditing, setIsEditing] = useState(false);
 
   return (
-    <div className="border rounded-lg p-2">
-      {editingImage ? (
-        <div className="space-y-2">
-          <Input
-            value={editingImage.title}
-            onChange={(e) => setEditingImage({ ...editingImage, title: e.target.value })}
-            placeholder="Title"
+    <Card>
+      <CardContent className="p-4">
+        <ImagePreview image={image} />
+        
+        {isEditing ? (
+          <ImageMetadata
+            image={image}
+            onUpdate={(updatedImage) => {
+              onUpdate(updatedImage);
+              setIsEditing(false);
+            }}
+            isUpdating={isUpdating}
           />
-          <Textarea
-            value={editingImage.description}
-            onChange={(e) => setEditingImage({ ...editingImage, description: e.target.value })}
-            placeholder="Description"
-          />
-          <div className="flex gap-2">
-            <Button 
-              size="sm"
-              onClick={() => onUpdate(editingImage)}
-              disabled={isUpdating}
-            >
-              {isUpdating ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                'Save'
-              )}
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setEditingImage(null)}
-            >
-              Cancel
-            </Button>
+        ) : (
+          <div className="space-y-2">
+            <h4 className="font-medium truncate">{image.title || 'Untitled'}</h4>
+            {image.description && (
+              <p className="text-sm text-gray-500 line-clamp-2">{image.description}</p>
+            )}
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full"
+                onClick={() => setIsEditing(true)}
+              >
+                Edit
+              </Button>
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                className="w-full"
+                onClick={() => onDelete(image.id)}
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <>
-          <div className="relative aspect-square mb-2">
-            <img 
-              src={image.thumbnail_url || image.url} 
-              alt={image.title || 'Uploaded image'}
-              className="w-full h-full object-cover rounded"
-            />
-          </div>
-          <h4 className="font-medium truncate">{image.title || 'Untitled'}</h4>
-          {image.description && (
-            <p className="text-sm text-gray-500 truncate">{image.description}</p>
-          )}
-          <div className="flex gap-2 mt-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full"
-              onClick={() => setEditingImage(image)}
-            >
-              Edit
-            </Button>
-            <Button 
-              variant="destructive" 
-              size="sm" 
-              className="w-full"
-              onClick={() => onDelete(image.id)}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                'Delete'
-              )}
-            </Button>
-          </div>
-        </>
-      )}
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
