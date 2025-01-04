@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import $ from "jquery";
-import "turn.js";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -9,11 +7,14 @@ import { useToast } from "@/hooks/use-toast";
 import { MagazineCover } from "@/components/gallery/MagazineCover";
 import { MagazineContents } from "@/components/gallery/MagazineContents";
 import { MagazineSpread } from "@/components/gallery/MagazineSpread";
+import "jquery";
+import "turn.js";
 
+// Declare the turn.js types
 declare global {
   interface JQuery {
     turn(options: any): JQuery;
-    turn(method: string): JQuery;
+    turn(method: string, ...args: any[]): JQuery;
   }
 }
 
@@ -74,11 +75,25 @@ const Gallery = () => {
     const nav = document.querySelector("nav");
     if (nav) nav.style.display = "none";
 
+    // Make sure jQuery and turn.js are loaded
     const initializeTurn = () => {
       if (magazineRef.current && images && images.length > 0 && dimensions.width > 0) {
         try {
-          const $magazine = $(magazineRef.current);
+          // Ensure jQuery is available
+          if (!window.jQuery) {
+            console.error('jQuery not loaded');
+            return;
+          }
+
+          const $magazine = window.jQuery(magazineRef.current);
           
+          // Destroy existing instance if any
+          try {
+            $magazine.turn('destroy');
+          } catch (e) {
+            // Ignore destroy errors
+          }
+
           $magazine.turn({
             display: 'double',
             acceleration: true,
@@ -106,9 +121,10 @@ const Gallery = () => {
       }
     };
 
+    // Wait for both images and dimensions to be ready
     if (images && images.length > 0 && dimensions.width > 0) {
-      // Wait for images to be loaded
-      const timer = setTimeout(initializeTurn, 1000);
+      // Add a longer delay to ensure everything is loaded
+      const timer = setTimeout(initializeTurn, 2000);
       return () => clearTimeout(timer);
     }
 
