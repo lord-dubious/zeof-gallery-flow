@@ -7,13 +7,17 @@ interface MagazineSpreadProps {
 export const MagazineSpread = ({ images }: MagazineSpreadProps) => {
   return (
     <div className="p-8 bg-white flex">
-      {images.map((image) => (
+      {images.map((image, index) => (
         <div key={image.id} className="flex-1 p-4">
           <div className="relative aspect-[3/4] overflow-hidden rounded-lg shadow-lg">
             <img
               src={image.url}
               alt={image.title || 'Gallery image'}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                console.error('Error loading image:', image.url);
+                e.currentTarget.src = '/placeholder.svg';
+              }}
             />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
               <h3 className="text-white text-lg font-serif">

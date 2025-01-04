@@ -56,12 +56,17 @@ const Gallery = () => {
       if (magazineRef.current && images && images.length > 0) {
         try {
           const $magazine = $(magazineRef.current);
+          const width = Math.min(window.innerWidth * 0.9, 1200);
+          const height = (width / 2) * 1.4;
+          
           $magazine.turn({
             display: 'double',
             acceleration: true,
             gradients: true,
             elevation: 50,
             autoCenter: true,
+            width: width,
+            height: height,
             when: {
               turning: (event: Event, page: number) => {
                 console.log('Turning to page:', page);
@@ -76,13 +81,18 @@ const Gallery = () => {
           console.error('Error initializing Turn.js:', error);
           setIsLoading(false);
         }
+      } else {
+        setIsLoading(false);
       }
     };
 
-    const timer = setTimeout(initializeTurn, 1000);
+    // Wait for images to be loaded before initializing Turn.js
+    if (images && images.length > 0) {
+      const timer = setTimeout(initializeTurn, 1000);
+      return () => clearTimeout(timer);
+    }
 
     return () => {
-      clearTimeout(timer);
       if (nav) nav.style.display = "block";
       try {
         if (magazineRef.current) {
@@ -94,22 +104,13 @@ const Gallery = () => {
     };
   }, [images]);
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (magazineRef.current) {
-        try {
-          const width = Math.min(window.innerWidth * 0.9, 1200);
-          const height = (width / 2) * 1.4;
-          $(magazineRef.current).turn("size", width, height);
-        } catch (error) {
-          console.error('Error resizing Turn.js:', error);
-        }
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl text-red-500">Error loading gallery images</p>
+      </div>
+    );
+  }
 
   if (isLoading || !images) {
     return (
