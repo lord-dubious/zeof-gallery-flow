@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { categories } from "../data/categories";
 import $ from "jquery";
 import "turn.js";
@@ -20,26 +19,44 @@ const Gallery = () => {
     const nav = document.querySelector("nav");
     if (nav) nav.style.display = "none";
 
-    // Initialize turn.js
-    if (magazineRef.current) {
-      $(magazineRef.current).turn({
-        display: 'double',
-        acceleration: true,
-        gradients: true,
-        elevation: 50,
-        when: {
-          turned: function(e: Event, page: number) {
-            console.log('Current page: ' + page);
-          }
+    // Initialize turn.js with a slight delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      if (magazineRef.current) {
+        try {
+          $(magazineRef.current).turn({
+            display: 'double',
+            acceleration: true,
+            gradients: true,
+            elevation: 50,
+            autoCenter: true,
+            when: {
+              turning: function(event: Event, page: number, view: number[]) {
+                console.log('Turning to page:', page);
+              },
+              turned: function(event: Event, page: number, view: number[]) {
+                console.log('Current page:', page);
+              }
+            }
+          });
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Error initializing Turn.js:', error);
+          setIsLoading(false);
         }
-      });
-      setIsLoading(false);
-    }
+      }
+    }, 1000);
 
     // Cleanup
     return () => {
+      clearTimeout(timer);
       if (nav) nav.style.display = "block";
-      $(magazineRef.current).turn("destroy");
+      try {
+        if (magazineRef.current) {
+          $(magazineRef.current).turn("destroy");
+        }
+      } catch (error) {
+        console.error('Error destroying Turn.js:', error);
+      }
     };
   }, []);
 
@@ -47,9 +64,13 @@ const Gallery = () => {
   useEffect(() => {
     const handleResize = () => {
       if (magazineRef.current) {
-        const width = Math.min(window.innerWidth * 0.9, 1200);
-        const height = (width / 2) * 1.4; // Maintain magazine aspect ratio
-        $(magazineRef.current).turn("size", width, height);
+        try {
+          const width = Math.min(window.innerWidth * 0.9, 1200);
+          const height = (width / 2) * 1.4; // Maintain magazine aspect ratio
+          $(magazineRef.current).turn("size", width, height);
+        } catch (error) {
+          console.error('Error resizing Turn.js:', error);
+        }
       }
     };
 
