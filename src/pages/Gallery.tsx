@@ -110,13 +110,13 @@ const Gallery = () => {
     <div className="min-h-screen bg-gradient-to-b from-zeof-black/90 to-zeof-black/95 flex flex-col items-center justify-center p-2 md:p-8 space-y-4 md:space-y-8 relative scrollbar-none overflow-hidden">
       <Link 
         to="/" 
-        className="absolute top-4 md:top-8 left-4 md:left-8 text-white hover:text-zeof-gold transition-colors duration-300 flex items-center gap-2 z-50"
+        className="fixed top-4 md:top-8 left-4 md:left-8 text-white hover:text-zeof-gold transition-colors duration-300 flex items-center gap-2 z-50"
       >
         <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
         <span className="text-xl md:text-2xl font-serif tracking-wider">ZEOF</span>
       </Link>
       
-      <div className="text-center max-w-2xl mx-auto mb-2 md:mb-8 animate-fadeIn px-4">
+      <div className="text-center max-w-2xl mx-auto mt-16 md:mt-20 mb-2 md:mb-8 animate-fadeIn px-4">
         <h1 className="text-xl md:text-3xl lg:text-4xl font-serif text-white mb-2 md:mb-4">Our Collection Gallery</h1>
         <p className="text-sm md:text-lg text-gray-300 font-light leading-relaxed">
           {isMobile ? 
