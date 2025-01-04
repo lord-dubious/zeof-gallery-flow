@@ -43,7 +43,7 @@ const Gallery = () => {
     const calculateDimensions = () => {
       const viewportWidth = Math.min(window.innerWidth * 0.9, 1200);
       const viewportHeight = window.innerHeight * 0.8;
-      const aspectRatio = 1.4; // Standard magazine aspect ratio
+      const aspectRatio = 1.4;
       
       let width = viewportWidth;
       let height = width / 2 * aspectRatio;
@@ -101,8 +101,15 @@ const Gallery = () => {
   }
 
   return (
-    <div className="min-h-screen bg-zeof-cream flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F1F0FB] flex flex-col items-center justify-center p-4 space-y-6">
+      <div className="text-center mb-4 max-w-md">
+        <p className="text-[#1A1F2C] text-lg font-light animate-fadeIn">
+          Browse through our collection by clicking and dragging the page corners to flip through the magazine
+        </p>
+      </div>
+      
       <div 
+        className="relative shadow-2xl rounded-lg overflow-hidden"
         style={{
           width: dimensions.width * 2,
           height: dimensions.height,
