@@ -7,10 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2 } from "lucide-react";
 
 const ContentManager = () => {
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState("home");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const { data: siteContent, refetch } = useQuery({
     queryKey: ["site-content"],
@@ -26,25 +28,56 @@ const ContentManager = () => {
   });
 
   const updateContent = async (id: string, updates: any) => {
-    const { error } = await supabase
-      .from("site_content")
-      .update(updates)
-      .eq("id", id);
+    setIsUpdating(true);
+    try {
+      const { error } = await supabase
+        .from("site_content")
+        .update(updates)
+        .eq("id", id);
 
-    if (error) {
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to update content",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Content updated successfully",
+      });
+      refetch();
+    } catch (error) {
+      console.error("Error updating content:", error);
       toast({
         title: "Error",
-        description: "Failed to update content",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
-      return;
+    } finally {
+      setIsUpdating(false);
     }
+  };
 
-    toast({
-      title: "Success",
-      description: "Content updated successfully",
-    });
-    refetch();
+  const handleContentChange = (id: string, field: string, value: any) => {
+    if (field === 'content') {
+      try {
+        // If it's a string, try to parse it as JSON
+        const parsedContent = typeof value === 'string' ? JSON.parse(value) : value;
+        updateContent(id, { [field]: parsedContent });
+      } catch (error) {
+        console.error("Invalid JSON format");
+        toast({
+          title: "Error",
+          description: "Invalid JSON format",
+          variant: "destructive",
+        });
+      }
+    } else {
+      updateContent(id, { [field]: value });
+    }
   };
 
   const renderContentEditor = (content: any) => (
@@ -57,9 +90,8 @@ const ContentManager = () => {
           <label className="block text-sm font-medium mb-1">Title</label>
           <Input
             value={content.title || ""}
-            onChange={(e) =>
-              updateContent(content.id, { title: e.target.value })
-            }
+            onChange={(e) => handleContentChange(content.id, "title", e.target.value)}
+            disabled={isUpdating}
           />
         </div>
         {content.subtitle !== null && (
@@ -67,9 +99,8 @@ const ContentManager = () => {
             <label className="block text-sm font-medium mb-1">Subtitle</label>
             <Input
               value={content.subtitle || ""}
-              onChange={(e) =>
-                updateContent(content.id, { subtitle: e.target.value })
-              }
+              onChange={(e) => handleContentChange(content.id, "subtitle", e.target.value)}
+              disabled={isUpdating}
             />
           </div>
         )}
@@ -77,41 +108,38 @@ const ContentManager = () => {
           <label className="block text-sm font-medium mb-1">Description</label>
           <Textarea
             value={content.description || ""}
-            onChange={(e) =>
-              updateContent(content.id, { description: e.target.value })
-            }
+            onChange={(e) => handleContentChange(content.id, "description", e.target.value)}
+            disabled={isUpdating}
           />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Image URL</label>
           <Input
             value={content.image_url || ""}
-            onChange={(e) =>
-              updateContent(content.id, { image_url: e.target.value })
-            }
+            onChange={(e) => handleContentChange(content.id, "image_url", e.target.value)}
+            disabled={isUpdating}
           />
         </div>
-        {content.content && Object.keys(content.content).length > 0 && (
+        {content.content && (
           <div>
             <label className="block text-sm font-medium mb-1">
-              Additional Content
+              Additional Content (JSON)
             </label>
             <Textarea
-              value={JSON.stringify(content.content, null, 2)}
-              onChange={(e) => {
-                try {
-                  const parsedContent = JSON.parse(e.target.value);
-                  updateContent(content.id, { content: parsedContent });
-                } catch (error) {
-                  console.error("Invalid JSON");
-                }
-              }}
+              value={typeof content.content === 'object' ? JSON.stringify(content.content, null, 2) : content.content}
+              onChange={(e) => handleContentChange(content.id, "content", e.target.value)}
               className="font-mono"
               rows={10}
+              disabled={isUpdating}
             />
           </div>
         )}
       </div>
+      {isUpdating && (
+        <div className="flex items-center justify-center mt-4">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </div>
+      )}
     </Card>
   );
 
