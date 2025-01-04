@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MagazineCover } from "@/components/gallery/MagazineCover";
 import { MagazineContents } from "@/components/gallery/MagazineContents";
 import { MagazineSpread } from "@/components/gallery/MagazineSpread";
+import { useIsMobile } from "@/hooks/use-mobile";
 import HTMLFlipBook from 'react-pageflip';
 
 const Gallery = () => {
@@ -15,6 +16,7 @@ const Gallery = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const isMobile = useIsMobile();
 
   const { data: images, error } = useQuery({
     queryKey: ['gallery-images'],
@@ -42,25 +44,28 @@ const Gallery = () => {
 
   useEffect(() => {
     const calculateDimensions = () => {
-      const viewportWidth = Math.min(window.innerWidth * 0.9, 1200);
+      const viewportWidth = Math.min(window.innerWidth * (isMobile ? 0.95 : 0.9), 1200);
       const viewportHeight = window.innerHeight * 0.8;
       const aspectRatio = 1.4;
       
       let width = viewportWidth;
-      let height = width / 2 * aspectRatio;
+      let height = width / (isMobile ? 1 : 2) * aspectRatio;
       
       if (height > viewportHeight) {
         height = viewportHeight;
-        width = (height / aspectRatio) * 2;
+        width = (height / aspectRatio) * (isMobile ? 1 : 2);
       }
 
-      setDimensions({ width: width / 2, height });
+      setDimensions({ 
+        width: isMobile ? width : width / 2, 
+        height 
+      });
     };
 
     calculateDimensions();
     window.addEventListener('resize', calculateDimensions);
     return () => window.removeEventListener('resize', calculateDimensions);
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
     const nav = document.querySelector("nav");
@@ -102,8 +107,7 @@ const Gallery = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zeof-black/90 to-zeof-black/95 flex flex-col items-center justify-center p-8 space-y-8 relative">
-      {/* Navigation */}
+    <div className="min-h-screen bg-gradient-to-b from-zeof-black/90 to-zeof-black/95 flex flex-col items-center justify-center p-4 md:p-8 space-y-8 relative">
       <Link 
         to="/" 
         className="absolute top-8 left-8 text-white hover:text-zeof-gold transition-colors duration-300 flex items-center gap-2 z-50"
@@ -113,16 +117,19 @@ const Gallery = () => {
       </Link>
       
       <div className="text-center max-w-2xl mx-auto mb-8 animate-fadeIn">
-        <h1 className="text-3xl md:text-4xl font-serif text-white mb-4">Our Collection Gallery</h1>
-        <p className="text-lg text-gray-300 font-light leading-relaxed">
-          Immerse yourself in our curated collection. Click and drag the corners to flip through the pages of our digital magazine.
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif text-white mb-4">Our Collection Gallery</h1>
+        <p className="text-base md:text-lg text-gray-300 font-light leading-relaxed">
+          {isMobile ? 
+            "Swipe through our digital collection to explore our work." :
+            "Click and drag the corners to flip through the pages of our digital magazine."
+          }
         </p>
       </div>
       
       <div 
         className="relative shadow-2xl rounded-lg overflow-hidden backdrop-blur-sm bg-white/5 p-4"
         style={{
-          width: dimensions.width * 2,
+          width: isMobile ? dimensions.width : dimensions.width * 2,
           height: dimensions.height,
           visibility: isLoading ? 'hidden' : 'visible'
         }}
@@ -149,9 +156,9 @@ const Gallery = () => {
           maxShadowOpacity={0.5}
           useMouseEvents={true}
           clickEventForward={true}
-          swipeDistance={30}
-          showPageCorners={true}
-          disableFlipByClick={false}
+          swipeDistance={isMobile ? 10 : 30}
+          showPageCorners={!isMobile}
+          singlePage={isMobile}
         >
           <div className="page">
             <MagazineCover />
@@ -171,7 +178,7 @@ const Gallery = () => {
       </div>
 
       <div className="text-center mt-8 text-gray-400/80 text-sm animate-fadeIn delay-300">
-        <p>Use your mouse or touch to navigate through the pages</p>
+        <p>{isMobile ? "Swipe to navigate pages" : "Use your mouse or touch to navigate through the pages"}</p>
       </div>
     </div>
   );
