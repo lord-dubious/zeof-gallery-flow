@@ -150,7 +150,7 @@ const Gallery = () => {
           startPage={0}
           drawShadow={true}
           flippingTime={1000}
-          usePortrait={false}
+          usePortrait={isMobile}
           startZIndex={0}
           autoSize={true}
           maxShadowOpacity={0.5}
@@ -158,7 +158,6 @@ const Gallery = () => {
           clickEventForward={true}
           swipeDistance={isMobile ? 10 : 30}
           showPageCorners={!isMobile}
-          singlePage={isMobile}
         >
           <div className="page">
             <MagazineCover />
