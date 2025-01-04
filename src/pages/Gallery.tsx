@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { categories } from "../data/categories";
 import $ from "jquery";
 import "turn.js";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
+import type { Image } from "@/components/admin/types/images";
 
 declare global {
   interface JQuery {
@@ -13,6 +16,21 @@ declare global {
 const Gallery = () => {
   const magazineRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch published images
+  const { data: images } = useQuery({
+    queryKey: ['gallery-images'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('images')
+        .select('*')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as Image[];
+    }
+  });
 
   useEffect(() => {
     // Hide navigation when entering the gallery
@@ -81,10 +99,15 @@ const Gallery = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-zeof-gold"></div>
+        <Loader2 className="h-12 w-12 animate-spin text-zeof-gold" />
       </div>
     );
   }
+
+  // Group images into pairs for double-page spread
+  const imageGroups = images ? Array.from({ length: Math.ceil(images.length / 2) }, (_, i) =>
+    images.slice(i * 2, i * 2 + 2)
+  ) : [];
 
   return (
     <div className="min-h-screen bg-zeof-cream flex items-center justify-center p-4">
@@ -102,36 +125,34 @@ const Gallery = () => {
 
         {/* Table of Contents */}
         <div className="p-8 bg-white">
-          <h2 className="text-3xl font-serif mb-6 text-zeof-black">Contents</h2>
-          <div className="space-y-4">
-            {categories.map((category, index) => (
-              <div key={category.slug} className="flex items-center">
-                <span className="text-zeof-gold mr-4">{index + 1}</span>
-                <span className="text-lg font-serif">{category.title}</span>
-              </div>
-            ))}
-          </div>
+          <h2 className="text-3xl font-serif mb-6 text-zeof-black">Our Gallery</h2>
+          <p className="text-lg text-gray-600">
+            Browse through our collection of curated images, each telling a unique story of style and sophistication.
+          </p>
         </div>
 
-        {/* Category Pages */}
-        {categories.map((category) => (
-          <div key={category.slug} className="p-8 bg-white">
-            <h2 className="text-3xl font-serif mb-6 text-zeof-black">{category.title}</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {category.items.map((item) => (
-                <div key={item.id} className="relative aspect-[3/4] overflow-hidden">
+        {/* Image Pages */}
+        {imageGroups.map((group, index) => (
+          <div key={index} className="p-8 bg-white flex">
+            {group.map((image, imageIndex) => (
+              <div key={image.id} className="flex-1 p-4">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-lg shadow-lg">
                   <img
-                    src={item.image}
-                    alt={item.title}
+                    src={image.url}
+                    alt={image.title || 'Gallery image'}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                    <h3 className="text-white text-lg font-serif">{item.title}</h3>
-                    <p className="text-white/80 text-sm">{item.description}</p>
+                    <h3 className="text-white text-lg font-serif">
+                      {image.title || 'Untitled'}
+                    </h3>
+                    {image.description && (
+                      <p className="text-white/80 text-sm">{image.description}</p>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         ))}
 
