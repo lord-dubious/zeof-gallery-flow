@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import type { Image } from "@/components/admin/types/images";
+import { useToast } from "@/hooks/use-toast";
 
 declare global {
   interface JQuery {
@@ -16,22 +17,39 @@ declare global {
 const Gallery = () => {
   const magazineRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
-  // Fetch only published images from the gallery bucket
-  const { data: images } = useQuery({
+  // Fetch only published images
+  const { data: images, error } = useQuery({
     queryKey: ['gallery-images'],
     queryFn: async () => {
+      console.log('Fetching published images...');
       const { data, error } = await supabase
         .from('images')
         .select('*')
         .eq('is_published', true)
-        .like('url', '%/gallery/%') // Filter for images from the gallery bucket
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching images:', error);
+        throw error;
+      }
+      
+      console.log('Fetched images:', data);
       return data as Image[];
     }
   });
+
+  // Show error toast if query fails
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load gallery images",
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
 
   useEffect(() => {
     // Hide navigation when entering the gallery
@@ -77,7 +95,7 @@ const Gallery = () => {
         console.error('Error destroying Turn.js:', error);
       }
     };
-  }, [images]); // Add images as a dependency
+  }, [images]);
 
   // Handle window resize
   useEffect(() => {
@@ -108,7 +126,7 @@ const Gallery = () => {
   if (images.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-gray-500">No images available in the gallery</p>
+        <p className="text-xl text-gray-500">No published images available in the gallery</p>
       </div>
     );
   }
