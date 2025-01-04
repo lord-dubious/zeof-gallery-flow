@@ -14,6 +14,10 @@ export const useImageUpload = () => {
     
     setIsUploading(true);
     try {
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User must be logged in to upload images');
+
       // Compress the image before upload
       const compressedFile = await compressImage(file);
       
@@ -36,7 +40,8 @@ export const useImageUpload = () => {
           title: file.name,
           url: publicUrl,
           thumbnail_url: publicUrl,
-          is_published: true
+          is_published: true,
+          user_id: user.id // Set the user_id when inserting
         }]);
 
       if (dbError) throw dbError;
