@@ -7,19 +7,10 @@ import { useToast } from "@/hooks/use-toast";
 import { MagazineCover } from "@/components/gallery/MagazineCover";
 import { MagazineContents } from "@/components/gallery/MagazineContents";
 import { MagazineSpread } from "@/components/gallery/MagazineSpread";
-import jQuery from "jquery";
-import "turn.js";
-
-// Declare the turn.js types
-declare global {
-  interface JQuery {
-    turn(options: any): JQuery;
-    turn(method: string, ...args: any[]): JQuery;
-  }
-}
+import HTMLFlipBook from 'react-pageflip';
 
 const Gallery = () => {
-  const magazineRef = useRef<HTMLDivElement>(null);
+  const bookRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -62,7 +53,7 @@ const Gallery = () => {
         width = (height / aspectRatio) * 2;
       }
 
-      setDimensions({ width, height });
+      setDimensions({ width: width / 2, height }); // Divide width by 2 since we're showing single pages
     };
 
     calculateDimensions();
@@ -75,66 +66,16 @@ const Gallery = () => {
     const nav = document.querySelector("nav");
     if (nav) nav.style.display = "none";
 
-    // Make sure jQuery and turn.js are loaded
-    const initializeTurn = () => {
-      if (magazineRef.current && images && images.length > 0 && dimensions.width > 0) {
-        try {
-          const $magazine = jQuery(magazineRef.current);
-          
-          // Destroy existing instance if any
-          try {
-            $magazine.turn('destroy');
-          } catch (e) {
-            // Ignore destroy errors
-          }
-
-          $magazine.turn({
-            display: 'double',
-            acceleration: true,
-            gradients: true,
-            elevation: 50,
-            autoCenter: true,
-            width: dimensions.width,
-            height: dimensions.height,
-            when: {
-              turning: function(event: Event, page: number) {
-                const book = jQuery(this);
-                if (book.turn('hasPage', page)) {
-                  event.preventDefault();
-                }
-              },
-              turned: function() {
-                setIsLoading(false);
-              }
-            }
-          });
-        } catch (error) {
-          console.error('Error initializing Turn.js:', error);
-          setIsLoading(false);
-        }
-      }
-    };
-
-    // Wait for both images and dimensions to be ready
-    if (images && images.length > 0 && dimensions.width > 0) {
-      // Add a longer delay to ensure everything is loaded
-      const timer = setTimeout(initializeTurn, 2000);
-      return () => clearTimeout(timer);
-    }
-
     return () => {
       // Show navigation when leaving gallery
       if (nav) nav.style.display = "block";
-      
-      // Cleanup Turn.js
-      try {
-        if (magazineRef.current) {
-          jQuery(magazineRef.current).turn('destroy');
-        }
-      } catch (error) {
-        console.error('Error destroying Turn.js:', error);
-      }
     };
+  }, []);
+
+  useEffect(() => {
+    if (images && dimensions.width > 0) {
+      setIsLoading(false);
+    }
   }, [images, dimensions]);
 
   if (error) {
@@ -173,24 +114,41 @@ const Gallery = () => {
   return (
     <div className="min-h-screen bg-zeof-cream flex items-center justify-center p-4">
       <div 
-        ref={magazineRef}
-        className="magazine turn-shadow"
         style={{
-          width: dimensions.width,
+          width: dimensions.width * 2,
           height: dimensions.height,
           visibility: isLoading ? 'hidden' : 'visible'
         }}
       >
-        <MagazineCover />
-        <MagazineContents />
-        {spreads.map((spread, index) => (
-          <MagazineSpread 
-            key={index}
-            leftImage={spread.leftImage}
-            rightImage={spread.rightImage}
-          />
-        ))}
-        <MagazineCover isBack />
+        <HTMLFlipBook
+          width={dimensions.width}
+          height={dimensions.height}
+          size="stretch"
+          minWidth={300}
+          maxWidth={1000}
+          minHeight={400}
+          maxHeight={1533}
+          showCover={true}
+          mobileScrollSupport={true}
+          className="magazine"
+          ref={bookRef}
+          style={{ background: 'transparent' }}
+        >
+          <div className="page">
+            <MagazineCover />
+          </div>
+          <div className="page">
+            <MagazineContents />
+          </div>
+          {images.map((image, index) => (
+            <div key={image.id} className="page">
+              <MagazineSpread leftImage={image} />
+            </div>
+          ))}
+          <div className="page">
+            <MagazineCover isBack />
+          </div>
+        </HTMLFlipBook>
       </div>
     </div>
   );
