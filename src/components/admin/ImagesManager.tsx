@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,14 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import type { Image } from "./types/images";
-import { ImageCard } from "./images/ImageCard";
 import { ImageUpload } from "./images/ImageUpload";
+import { ImageGrid } from "./images/ImageGrid";
+import { useImageUpload } from "@/hooks/use-image-upload";
 
 export const ImagesManager = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [migratingImages, setMigratingImages] = useState(false);
+  const { uploadImage, isUploading } = useImageUpload();
 
   // Fetch images
   const { data: images, isLoading } = useQuery({
@@ -28,60 +27,6 @@ export const ImagesManager = () => {
       return data as Image[];
     }
   });
-
-  // Function to download an image from URL and convert to File
-  const urlToFile = async (url: string, filename: string): Promise<File> => {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return new File([blob], filename, { type: blob.type });
-  };
-
-  // Migrate existing images to storage
-  const migrateImages = async () => {
-    if (!images) return;
-    setMigratingImages(true);
-    
-    try {
-      for (const image of images) {
-        if (!image.url.includes('storage.googleapis.com')) {
-          const filename = image.url.split('/').pop() || 'image.jpg';
-          const file = await urlToFile(image.url, filename);
-          const filePath = `${crypto.randomUUID()}.${filename.split('.').pop()}`;
-          
-          const { error: uploadError } = await supabase.storage
-            .from('images')
-            .upload(filePath, file);
-
-          if (uploadError) throw uploadError;
-
-          const { data: { publicUrl } } = supabase.storage
-            .from('images')
-            .getPublicUrl(filePath);
-
-          const { error: updateError } = await supabase
-            .from('images')
-            .update({ url: publicUrl, thumbnail_url: publicUrl })
-            .eq('id', image.id);
-
-          if (updateError) throw updateError;
-        }
-      }
-      
-      queryClient.invalidateQueries({ queryKey: ['images'] });
-      toast({
-        title: "Success",
-        description: "Images migrated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to migrate images",
-        variant: "destructive",
-      });
-    } finally {
-      setMigratingImages(false);
-    }
-  };
 
   // Update mutation
   const updateMutation = useMutation({
@@ -104,7 +49,7 @@ export const ImagesManager = () => {
         description: "Image updated successfully",
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to update image",
@@ -117,14 +62,12 @@ export const ImagesManager = () => {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const image = images?.find(img => img.id === id);
-      if (image) {
-        if (image.url.includes('storage.googleapis.com')) {
-          const filePath = image.url.split('/').pop();
-          if (filePath) {
-            await supabase.storage
-              .from('images')
-              .remove([filePath]);
-          }
+      if (image?.url.includes('storage.googleapis.com')) {
+        const filePath = image.url.split('/').pop();
+        if (filePath) {
+          await supabase.storage
+            .from('images')
+            .remove([filePath]);
         }
       }
       
@@ -141,7 +84,7 @@ export const ImagesManager = () => {
         description: "Image deleted successfully",
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to delete image",
@@ -149,49 +92,6 @@ export const ImagesManager = () => {
       });
     },
   });
-
-  const handleFileUpload = async (file: File) => {
-    setUploadingImage(true);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${crypto.randomUUID()}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('images')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('images')
-        .getPublicUrl(filePath);
-
-      const { error: dbError } = await supabase
-        .from('images')
-        .insert([{
-          title: file.name,
-          url: publicUrl,
-          thumbnail_url: publicUrl,
-          is_published: true
-        }]);
-
-      if (dbError) throw dbError;
-
-      queryClient.invalidateQueries({ queryKey: ['images'] });
-      toast({
-        title: "Success",
-        description: "Image uploaded successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to upload image",
-        variant: "destructive",
-      });
-    } finally {
-      setUploadingImage(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -205,40 +105,19 @@ export const ImagesManager = () => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Images Management</CardTitle>
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            onClick={migrateImages}
-            disabled={migratingImages}
-          >
-            {migratingImages ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Migrating...
-              </>
-            ) : (
-              'Migrate External Images'
-            )}
-          </Button>
-          <ImageUpload
-            onUpload={handleFileUpload}
-            isUploading={uploadingImage}
-          />
-        </div>
+        <ImageUpload
+          onUpload={uploadImage}
+          isUploading={isUploading}
+        />
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {images?.map((image) => (
-            <ImageCard
-              key={image.id}
-              image={image}
-              onUpdate={updateMutation.mutate}
-              onDelete={deleteMutation.mutate}
-              isUpdating={updateMutation.isPending}
-              isDeleting={deleteMutation.isPending}
-            />
-          ))}
-        </div>
+        <ImageGrid
+          images={images || []}
+          onUpdate={updateMutation.mutate}
+          onDelete={deleteMutation.mutate}
+          isUpdating={updateMutation.isPending}
+          isDeleting={deleteMutation.isPending}
+        />
       </CardContent>
     </Card>
   );
