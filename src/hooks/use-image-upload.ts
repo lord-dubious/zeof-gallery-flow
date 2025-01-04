@@ -18,14 +18,15 @@ export const useImageUpload = () => {
       const fileExt = compressedFile.name.split('.').pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
       
+      // Upload to the gallery bucket instead of images
       const { error: uploadError } = await supabase.storage
-        .from('images')
+        .from('gallery')
         .upload(filePath, compressedFile);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('images')
+        .from('gallery')
         .getPublicUrl(filePath);
 
       const { error: dbError } = await supabase
@@ -45,6 +46,7 @@ export const useImageUpload = () => {
         description: "Image uploaded successfully",
       });
     } catch (error) {
+      console.error('Upload error:', error);
       toast({
         title: "Error",
         description: "Failed to upload image",

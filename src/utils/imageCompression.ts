@@ -1,16 +1,10 @@
 export const compressImage = async (file: File, maxSizeMB = 1): Promise<File> => {
-  // If the file is smaller than maxSizeMB, return it as is
-  if (file.size / 1024 / 1024 < maxSizeMB) {
-    return file;
-  }
-
-  // Create a canvas element to compress the image
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const img = new Image();
-
-  // Create a promise to handle the image loading
   return new Promise((resolve, reject) => {
+    // Create a canvas element to compress the image
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
     img.onload = () => {
       // Calculate new dimensions while maintaining aspect ratio
       let width = img.width;
@@ -25,6 +19,7 @@ export const compressImage = async (file: File, maxSizeMB = 1): Promise<File> =>
         height = maxDimension;
       }
 
+      // Set canvas dimensions
       canvas.width = width;
       canvas.height = height;
 
@@ -35,10 +30,15 @@ export const compressImage = async (file: File, maxSizeMB = 1): Promise<File> =>
       canvas.toBlob(
         (blob) => {
           if (blob) {
+            // Create a new compressed file
             const compressedFile = new File([blob], file.name, {
               type: 'image/jpeg',
               lastModified: Date.now(),
             });
+            
+            console.log('Original size:', file.size / 1024 / 1024, 'MB');
+            console.log('Compressed size:', compressedFile.size / 1024 / 1024, 'MB');
+            
             resolve(compressedFile);
           } else {
             reject(new Error('Failed to compress image'));
