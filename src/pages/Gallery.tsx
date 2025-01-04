@@ -25,7 +25,6 @@ const Gallery = () => {
   const { data: images, error } = useQuery({
     queryKey: ['gallery-images'],
     queryFn: async () => {
-      console.log('Fetching published images...');
       const { data, error } = await supabase
         .from('images')
         .select('*')
@@ -56,9 +55,11 @@ const Gallery = () => {
       if (magazineRef.current && images && images.length > 0) {
         try {
           const $magazine = $(magazineRef.current);
+          
+          // Calculate dimensions based on viewport
           const width = Math.min(window.innerWidth * 0.9, 1200);
           const height = (width / 2) * 1.4;
-          
+
           $magazine.turn({
             display: 'double',
             acceleration: true,
@@ -86,8 +87,8 @@ const Gallery = () => {
       }
     };
 
-    // Wait for images to be loaded before initializing Turn.js
     if (images && images.length > 0) {
+      // Wait for images to be loaded
       const timer = setTimeout(initializeTurn, 1000);
       return () => clearTimeout(timer);
     }
@@ -128,10 +129,14 @@ const Gallery = () => {
     );
   }
 
-  // Group images into pairs for double-page spread
-  const imageGroups = Array.from({ length: Math.ceil(images.length / 2) }, (_, i) =>
-    images.slice(i * 2, i * 2 + 2)
-  );
+  // Create pairs of images for each spread
+  const spreads = [];
+  for (let i = 0; i < images.length; i += 2) {
+    spreads.push({
+      leftImage: images[i],
+      rightImage: images[i + 1]
+    });
+  }
 
   return (
     <div className="min-h-screen bg-zeof-cream flex items-center justify-center p-4">
@@ -141,8 +146,12 @@ const Gallery = () => {
       >
         <MagazineCover />
         <MagazineContents />
-        {imageGroups.map((group, index) => (
-          <MagazineSpread key={index} images={group} />
+        {spreads.map((spread, index) => (
+          <MagazineSpread 
+            key={index}
+            leftImage={spread.leftImage}
+            rightImage={spread.rightImage}
+          />
         ))}
         <MagazineCover isBack />
       </div>
