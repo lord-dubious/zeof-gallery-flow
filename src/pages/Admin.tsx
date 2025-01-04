@@ -9,6 +9,7 @@ import { NavigationManager } from "@/components/admin/NavigationManager";
 import { CategoriesManager } from "@/components/admin/CategoriesManager";
 import { ImagesManager } from "@/components/admin/ImagesManager";
 import { SettingsManager } from "@/components/admin/SettingsManager";
+import ContentManager from "@/components/admin/ContentManager";
 
 const AdminPage = () => {
   const navigate = useNavigate();
@@ -52,10 +53,11 @@ const AdminPage = () => {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
           <TabsTrigger value="navigation">Navigation</TabsTrigger>
           <TabsTrigger value="categories">Categories</TabsTrigger>
           <TabsTrigger value="images">Images</TabsTrigger>
+          <TabsTrigger value="content">Content</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
@@ -69,6 +71,10 @@ const AdminPage = () => {
 
         <TabsContent value="images" className="mt-6">
           <ImagesManager />
+        </TabsContent>
+
+        <TabsContent value="content" className="mt-6">
+          <ContentManager />
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">
