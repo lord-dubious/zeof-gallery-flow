@@ -10,6 +10,8 @@ export const useImageUpload = () => {
   const queryClient = useQueryClient();
 
   const uploadImage = async (file: File) => {
+    if (isUploading) return; // Prevent multiple simultaneous uploads
+    
     setIsUploading(true);
     try {
       // Compress the image before upload
@@ -18,7 +20,6 @@ export const useImageUpload = () => {
       const fileExt = compressedFile.name.split('.').pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
       
-      // Upload to the gallery bucket instead of images
       const { error: uploadError } = await supabase.storage
         .from('gallery')
         .upload(filePath, compressedFile);

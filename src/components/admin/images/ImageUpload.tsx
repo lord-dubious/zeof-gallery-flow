@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Upload } from "lucide-react";
 import { compressImage } from "@/utils/imageCompression";
@@ -13,23 +12,29 @@ interface ImageUploadProps {
 
 export const ImageUpload = ({ onUpload, isUploading }: ImageUploadProps) => {
   const [dragActive, setDragActive] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [compressionInfo, setCompressionInfo] = useState<string | null>(null);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [compressionInfo, setCompressionInfo] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = async (file: File) => {
-    if (file && file.type.startsWith('image/')) {
+  const handleFiles = async (files: FileList) => {
+    const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+    
+    setPreviewUrls([]); // Clear existing previews
+    setCompressionInfo([]); // Clear existing compression info
+    
+    for (const file of imageFiles) {
       const originalSize = (file.size / 1024 / 1024).toFixed(2);
       const compressedFile = await compressImage(file);
       const compressedSize = (compressedFile.size / 1024 / 1024).toFixed(2);
       
-      setCompressionInfo(
-        `Original: ${originalSize}MB → Compressed: ${compressedSize}MB`
-      );
+      setCompressionInfo(prev => [
+        ...prev,
+        `${file.name}: ${originalSize}MB → ${compressedSize}MB`
+      ]);
       
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
+        setPreviewUrls(prev => [...prev, reader.result as string]);
       };
       reader.readAsDataURL(compressedFile);
       
@@ -52,13 +57,13 @@ export const ImageUpload = ({ onUpload, isUploading }: ImageUploadProps) => {
     e.stopPropagation();
     setDragActive(false);
 
-    const file = e.dataTransfer.files?.[0];
-    if (file) handleFile(file);
+    const { files } = e.dataTransfer;
+    if (files?.length) handleFiles(files);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFile(file);
+    const { files } = e.target;
+    if (files?.length) handleFiles(files);
   };
 
   const handleButtonClick = () => {
@@ -75,16 +80,23 @@ export const ImageUpload = ({ onUpload, isUploading }: ImageUploadProps) => {
           onDrop={handleDrop}
           className="text-center"
         >
-          {previewUrl ? (
+          {previewUrls.length > 0 ? (
             <div className="space-y-4">
-              <img 
-                src={previewUrl} 
-                alt="Preview" 
-                className="max-h-40 mx-auto rounded"
-              />
-              {compressionInfo && (
-                <p className="text-sm text-gray-500">{compressionInfo}</p>
-              )}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {previewUrls.map((url, index) => (
+                  <img 
+                    key={index}
+                    src={url} 
+                    alt={`Preview ${index + 1}`} 
+                    className="h-20 w-20 object-cover rounded"
+                  />
+                ))}
+              </div>
+              <div className="text-sm text-gray-500 space-y-1">
+                {compressionInfo.map((info, index) => (
+                  <p key={index}>{info}</p>
+                ))}
+              </div>
             </div>
           ) : (
             <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
@@ -92,12 +104,13 @@ export const ImageUpload = ({ onUpload, isUploading }: ImageUploadProps) => {
           
           <div className="space-y-2">
             <p className="text-sm text-gray-500">
-              Drag and drop your image here, or click to select
+              Drag and drop your images here, or click to select multiple files
             </p>
             <Input
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple
               onChange={handleChange}
               disabled={isUploading}
               className="hidden"
@@ -114,7 +127,7 @@ export const ImageUpload = ({ onUpload, isUploading }: ImageUploadProps) => {
                   Uploading...
                 </>
               ) : (
-                'Select Image'
+                'Select Images'
               )}
             </Button>
           </div>
