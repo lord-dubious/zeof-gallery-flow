@@ -1,52 +1,42 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import type { Image } from "./types/images";
-import { ImageUpload } from "./images/ImageUpload";
-import { ImageGrid } from "./images/ImageGrid";
-import { useImageUpload } from "@/hooks/use-image-upload";
-import { useSessionContext } from "@supabase/auth-helpers-react";
 
 export const ImagesManager = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { uploadImage, isUploading } = useImageUpload();
-  const { session } = useSessionContext();
+  const [selectedImage, setSelectedImage] = useState<Image | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Fetch images for the current user
+  // Fetch images
   const { data: images, isLoading } = useQuery({
     queryKey: ['images'],
     queryFn: async () => {
-      if (!session?.user?.id) return [];
-      
       const { data, error } = await supabase
         .from('images')
         .select('*')
-        .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data as Image[];
-    },
-    enabled: !!session?.user?.id
+    }
   });
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async (image: Image) => {
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Image> }) => {
       const { error } = await supabase
         .from('images')
-        .update({
-          title: image.title,
-          description: image.description,
-          is_published: image.is_published,
-          metadata: image.metadata
-        })
-        .eq('id', image.id)
-        .eq('user_id', session?.user?.id);
+        .update(data)
+        .eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -55,47 +45,12 @@ export const ImagesManager = () => {
         title: "Success",
         description: "Image updated successfully",
       });
+      setIsDialogOpen(false);
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: "Error",
         description: "Failed to update image",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const image = images?.find(img => img.id === id);
-      if (image?.url.includes('storage.googleapis.com')) {
-        const filePath = image.url.split('/').pop();
-        if (filePath) {
-          await supabase.storage
-            .from('images')
-            .remove([filePath]);
-        }
-      }
-      
-      const { error } = await supabase
-        .from('images')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', session?.user?.id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['images'] });
-      toast({
-        title: "Success",
-        description: "Image deleted successfully",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to delete image",
         variant: "destructive",
       });
     },
@@ -111,21 +66,87 @@ export const ImagesManager = () => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader>
         <CardTitle>Images Management</CardTitle>
-        <ImageUpload
-          onUpload={uploadImage}
-          isUploading={isUploading}
-        />
       </CardHeader>
       <CardContent>
-        <ImageGrid
-          images={images || []}
-          onUpdate={updateMutation.mutate}
-          onDelete={deleteMutation.mutate}
-          isUpdating={updateMutation.isPending}
-          isDeleting={deleteMutation.isPending}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {images?.map((image) => (
+            <div key={image.id} className="relative group">
+              <img
+                src={image.url}
+                alt={image.magazine_title || 'Gallery image'}
+                className="w-full aspect-[3/4] object-cover rounded-lg shadow-md"
+              />
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex flex-col justify-end p-4">
+                <h3 className="text-lg font-serif text-white mb-2">
+                  {image.magazine_title || 'Untitled'}
+                </h3>
+                <Button
+                  onClick={() => {
+                    setSelectedImage(image);
+                    setIsDialogOpen(true);
+                  }}
+                  variant="secondary"
+                  className="w-full"
+                >
+                  Edit Details
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Edit Image Details</DialogTitle>
+            </DialogHeader>
+            {selectedImage && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Magazine Title</label>
+                  <Input
+                    defaultValue={selectedImage.magazine_title || ''}
+                    onChange={(e) => {
+                      if (selectedImage) {
+                        updateMutation.mutate({
+                          id: selectedImage.id,
+                          data: { magazine_title: e.target.value }
+                        });
+                      }
+                    }}
+                    className="text-base sm:text-lg md:text-xl"
+                    placeholder="Enter a title for the magazine spread"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Description</label>
+                  <Textarea
+                    defaultValue={selectedImage.description || ''}
+                    onChange={(e) => {
+                      if (selectedImage) {
+                        updateMutation.mutate({
+                          id: selectedImage.id,
+                          data: { description: e.target.value }
+                        });
+                      }
+                    }}
+                    className="text-base sm:text-lg"
+                    placeholder="Enter a description for the image"
+                    rows={4}
+                  />
+                </div>
+                <Button
+                  onClick={() => setIsDialogOpen(false)}
+                  className="w-full"
+                >
+                  Done
+                </Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
