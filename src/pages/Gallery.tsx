@@ -86,7 +86,7 @@ const Gallery = () => {
 
   if (isLoading || !images) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-zeof-cream to-white flex items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-zeof-gold" />
       </div>
     );
@@ -94,22 +94,23 @@ const Gallery = () => {
 
   if (images.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-gray-500">No published images available in the gallery</p>
+      <div className="min-h-screen bg-gradient-to-b from-zeof-cream to-white flex items-center justify-center">
+        <p className="text-xl text-gray-500 font-serif italic">No published images available in the gallery</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F1F0FB] flex flex-col items-center justify-center p-4 space-y-6">
-      <div className="text-center mb-4 max-w-md">
-        <p className="text-[#1A1F2C] text-lg font-light animate-fadeIn">
-          Browse through our collection by clicking and dragging the page corners to flip through the magazine
+    <div className="min-h-screen bg-gradient-to-b from-zeof-cream to-white flex flex-col items-center justify-center p-8 space-y-8">
+      <div className="text-center max-w-2xl mx-auto mb-8 animate-fadeIn">
+        <h1 className="text-3xl md:text-4xl font-serif text-zeof-black mb-4">Our Collection Gallery</h1>
+        <p className="text-lg text-zeof-brown font-light leading-relaxed">
+          Immerse yourself in our curated collection. Click and drag the corners to flip through the pages of our digital magazine.
         </p>
       </div>
       
       <div 
-        className="relative shadow-2xl rounded-lg overflow-hidden"
+        className="relative shadow-2xl rounded-lg overflow-hidden backdrop-blur-sm bg-white/30 p-4"
         style={{
           width: dimensions.width * 2,
           height: dimensions.height,
@@ -157,6 +158,10 @@ const Gallery = () => {
             <MagazineCover isBack />
           </div>
         </HTMLFlipBook>
+      </div>
+
+      <div className="text-center mt-8 text-zeof-brown/80 text-sm animate-fadeIn delay-300">
+        <p>Use your mouse or touch to navigate through the pages</p>
       </div>
     </div>
   );
