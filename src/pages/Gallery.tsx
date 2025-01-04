@@ -32,7 +32,6 @@ const Gallery = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      console.log('Fetched images:', data);
       return data as Image[];
     }
   });
@@ -48,6 +47,7 @@ const Gallery = () => {
   }, [error, toast]);
 
   useEffect(() => {
+    // Hide navigation during gallery view
     const nav = document.querySelector("nav");
     if (nav) nav.style.display = "none";
 
@@ -57,8 +57,19 @@ const Gallery = () => {
           const $magazine = $(magazineRef.current);
           
           // Calculate dimensions based on viewport
-          const width = Math.min(window.innerWidth * 0.9, 1200);
-          const height = (width / 2) * 1.4;
+          const viewportWidth = Math.min(window.innerWidth * 0.9, 1200);
+          const viewportHeight = window.innerHeight * 0.8;
+          const aspectRatio = 1.4; // Standard magazine aspect ratio
+          
+          // Calculate dimensions maintaining aspect ratio
+          let width = viewportWidth;
+          let height = width / 2 * aspectRatio;
+          
+          // Adjust if height exceeds viewport
+          if (height > viewportHeight) {
+            height = viewportHeight;
+            width = (height / aspectRatio) * 2;
+          }
 
           $magazine.turn({
             display: 'double',
@@ -69,15 +80,28 @@ const Gallery = () => {
             width: width,
             height: height,
             when: {
-              turning: (event: Event, page: number) => {
-                console.log('Turning to page:', page);
+              turning: function(event: Event, page: number) {
+                const book = $(this);
+                if (book.turn('hasPage', page)) {
+                  event.preventDefault();
+                }
               },
-              turned: (event: Event, page: number) => {
+              turned: function(event: Event, page: number) {
                 console.log('Current page:', page);
                 setIsLoading(false);
               }
             }
           });
+
+          // Handle window resize
+          const handleResize = () => {
+            const newWidth = Math.min(window.innerWidth * 0.9, 1200);
+            const newHeight = (newWidth / 2) * 1.4;
+            $magazine.turn('size', newWidth, newHeight);
+          };
+
+          window.addEventListener('resize', handleResize);
+          return () => window.removeEventListener('resize', handleResize);
         } catch (error) {
           console.error('Error initializing Turn.js:', error);
           setIsLoading(false);
@@ -94,10 +118,13 @@ const Gallery = () => {
     }
 
     return () => {
+      // Show navigation when leaving gallery
       if (nav) nav.style.display = "block";
+      
+      // Cleanup Turn.js
       try {
         if (magazineRef.current) {
-          $(magazineRef.current).turn("destroy");
+          $(magazineRef.current).turn('destroy');
         }
       } catch (error) {
         console.error('Error destroying Turn.js:', error);
@@ -142,7 +169,7 @@ const Gallery = () => {
     <div className="min-h-screen bg-zeof-cream flex items-center justify-center p-4">
       <div 
         ref={magazineRef}
-        className="magazine w-[90vw] max-w-[1200px] h-[80vh] bg-white shadow-2xl"
+        className="magazine turn-shadow"
       >
         <MagazineCover />
         <MagazineContents />

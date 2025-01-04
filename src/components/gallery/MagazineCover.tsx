@@ -4,7 +4,7 @@ interface MagazineCoverProps {
 
 export const MagazineCover = ({ isBack }: MagazineCoverProps) => {
   return (
-    <div className="hard relative bg-zeof-black text-white">
+    <div className="hard relative bg-zeof-black text-white h-full">
       {isBack ? (
         <div className="absolute inset-0 flex items-center justify-center">
           <img
