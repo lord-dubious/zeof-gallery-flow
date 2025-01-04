@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { Image } from "@/components/admin/types/images";
 import { useToast } from "@/hooks/use-toast";
 import { MagazineCover } from "@/components/gallery/MagazineCover";
@@ -101,16 +102,25 @@ const Gallery = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zeof-cream to-white flex flex-col items-center justify-center p-8 space-y-8">
+    <div className="min-h-screen bg-gradient-to-b from-zeof-black/90 to-zeof-black/95 flex flex-col items-center justify-center p-8 space-y-8 relative">
+      {/* Navigation */}
+      <Link 
+        to="/" 
+        className="absolute top-8 left-8 text-white hover:text-zeof-gold transition-colors duration-300 flex items-center gap-2 z-50"
+      >
+        <ArrowLeft className="w-5 h-5" />
+        <span className="text-2xl font-serif tracking-wider">ZEOF</span>
+      </Link>
+      
       <div className="text-center max-w-2xl mx-auto mb-8 animate-fadeIn">
-        <h1 className="text-3xl md:text-4xl font-serif text-zeof-black mb-4">Our Collection Gallery</h1>
-        <p className="text-lg text-zeof-brown font-light leading-relaxed">
+        <h1 className="text-3xl md:text-4xl font-serif text-white mb-4">Our Collection Gallery</h1>
+        <p className="text-lg text-gray-300 font-light leading-relaxed">
           Immerse yourself in our curated collection. Click and drag the corners to flip through the pages of our digital magazine.
         </p>
       </div>
       
       <div 
-        className="relative shadow-2xl rounded-lg overflow-hidden backdrop-blur-sm bg-white/30 p-4"
+        className="relative shadow-2xl rounded-lg overflow-hidden backdrop-blur-sm bg-white/5 p-4"
         style={{
           width: dimensions.width * 2,
           height: dimensions.height,
@@ -160,7 +170,7 @@ const Gallery = () => {
         </HTMLFlipBook>
       </div>
 
-      <div className="text-center mt-8 text-zeof-brown/80 text-sm animate-fadeIn delay-300">
+      <div className="text-center mt-8 text-gray-400/80 text-sm animate-fadeIn delay-300">
         <p>Use your mouse or touch to navigate through the pages</p>
       </div>
     </div>

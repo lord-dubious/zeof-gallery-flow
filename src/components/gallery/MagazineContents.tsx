@@ -1,6 +1,6 @@
 export const MagazineContents = () => {
   return (
-    <div className="h-full bg-white flex flex-col items-center justify-center p-8 md:p-12 bg-opacity-95">
+    <div className="h-full bg-gradient-to-br from-white to-gray-50 flex flex-col items-center justify-center p-8 md:p-12">
       <div className="w-full max-w-2xl text-center">
         <h2 className="text-3xl md:text-4xl font-serif mb-6 text-zeof-black">Our Gallery</h2>
         <div className="w-16 h-0.5 bg-zeof-gold mx-auto mb-6"></div>
