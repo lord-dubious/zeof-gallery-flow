@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ export const ImageUpload = ({ onUpload, isUploading }: ImageUploadProps) => {
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [compressionInfo, setCompressionInfo] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
     if (file && file.type.startsWith('image/')) {
@@ -60,6 +61,10 @@ export const ImageUpload = ({ onUpload, isUploading }: ImageUploadProps) => {
     if (file) handleFile(file);
   };
 
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <Card className={`border-2 border-dashed ${dragActive ? 'border-primary' : 'border-gray-300'}`}>
       <CardContent className="p-6">
@@ -89,30 +94,29 @@ export const ImageUpload = ({ onUpload, isUploading }: ImageUploadProps) => {
             <p className="text-sm text-gray-500">
               Drag and drop your image here, or click to select
             </p>
-            <Label htmlFor="image-upload" className="cursor-pointer">
-              <Input
-                id="image-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleChange}
-                disabled={isUploading}
-                className="hidden"
-              />
-              <Button 
-                type="button" 
-                variant="outline" 
-                disabled={isUploading}
-              >
-                {isUploading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Uploading...
-                  </>
-                ) : (
-                  'Select Image'
-                )}
-              </Button>
-            </Label>
+            <Input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleChange}
+              disabled={isUploading}
+              className="hidden"
+            />
+            <Button 
+              type="button" 
+              variant="outline" 
+              disabled={isUploading}
+              onClick={handleButtonClick}
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Uploading...
+                </>
+              ) : (
+                'Select Image'
+              )}
+            </Button>
           </div>
         </div>
       </CardContent>
