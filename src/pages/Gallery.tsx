@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MagazineCover } from "@/components/gallery/MagazineCover";
 import { MagazineContents } from "@/components/gallery/MagazineContents";
 import { MagazineSpread } from "@/components/gallery/MagazineSpread";
-import "jquery";
+import jQuery from "jquery";
 import "turn.js";
 
 // Declare the turn.js types
@@ -79,13 +79,7 @@ const Gallery = () => {
     const initializeTurn = () => {
       if (magazineRef.current && images && images.length > 0 && dimensions.width > 0) {
         try {
-          // Ensure jQuery is available
-          if (!window.jQuery) {
-            console.error('jQuery not loaded');
-            return;
-          }
-
-          const $magazine = window.jQuery(magazineRef.current);
+          const $magazine = jQuery(magazineRef.current);
           
           // Destroy existing instance if any
           try {
@@ -104,7 +98,7 @@ const Gallery = () => {
             height: dimensions.height,
             when: {
               turning: function(event: Event, page: number) {
-                const book = $(this);
+                const book = jQuery(this);
                 if (book.turn('hasPage', page)) {
                   event.preventDefault();
                 }
@@ -135,7 +129,7 @@ const Gallery = () => {
       // Cleanup Turn.js
       try {
         if (magazineRef.current) {
-          $(magazineRef.current).turn('destroy');
+          jQuery(magazineRef.current).turn('destroy');
         }
       } catch (error) {
         console.error('Error destroying Turn.js:', error);
