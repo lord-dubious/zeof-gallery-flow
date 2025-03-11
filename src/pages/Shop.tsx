@@ -1,25 +1,22 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
-import ProductGrid from "../components/shop/ProductGrid";
-import ShopFilters from "../components/shop/ShopFilters";
-import { useProducts } from "../hooks/use-products";
+import { 
+  ShopProvider, 
+  SearchResultsProvider,
+  ProductListingPage 
+} from 'react-storefront';
+import { Helmet } from 'react-helmet';
 
 const Shop = () => {
-  const [currentCategory, setCurrentCategory] = useState<string | null>(null);
-  const { products, isLoading, error } = useProducts();
-
-  const handleCategoryChange = (category: string | null) => {
-    setCurrentCategory(category);
-  };
-
-  const filteredProducts = currentCategory
-    ? products.filter(product => product.category === currentCategory)
-    : products;
-
   return (
     <div className="min-h-screen bg-white">
+      {/* SEO */}
+      <Helmet>
+        <title>ZEOF - Shop</title>
+        <meta name="description" content="Discover our handcrafted luxury apparel and accessories." />
+      </Helmet>
+
       {/* Hero Section */}
       <section className="pt-32 pb-16 bg-zeof-cream">
         <div className="container mx-auto px-8">
@@ -45,30 +42,11 @@ const Shop = () => {
       {/* Shop Content */}
       <section className="py-16">
         <div className="container mx-auto px-8">
-          <div className="flex flex-col lg:flex-row gap-8">
-            <div className="w-full lg:w-1/4">
-              <ShopFilters 
-                currentCategory={currentCategory} 
-                onCategoryChange={handleCategoryChange} 
-              />
-            </div>
-
-            <div className="w-full lg:w-3/4">
-              {isLoading ? (
-                <div className="flex items-center justify-center h-64">
-                  <Loader2 className="w-8 h-8 animate-spin text-zeof-gold" />
-                </div>
-              ) : error ? (
-                <div className="text-center p-8 bg-red-50 rounded-lg">
-                  <p className="text-red-600">
-                    We're experiencing some difficulties loading our products. Please try again later.
-                  </p>
-                </div>
-              ) : (
-                <ProductGrid products={filteredProducts} />
-              )}
-            </div>
-          </div>
+          <ShopProvider apiHost="/api">
+            <SearchResultsProvider>
+              <ProductListingPage />
+            </SearchResultsProvider>
+          </ShopProvider>
         </div>
       </section>
     </div>
