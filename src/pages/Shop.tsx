@@ -1,42 +1,77 @@
+
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { categories } from "@/data/categories";
+import { Loader2 } from "lucide-react";
+import ProductGrid from "../components/shop/ProductGrid";
+import ShopFilters from "../components/shop/ShopFilters";
+import { useProducts } from "../hooks/use-products";
 
 const Shop = () => {
+  const [currentCategory, setCurrentCategory] = useState<string | null>(null);
+  const { products, isLoading, error } = useProducts();
+
+  const handleCategoryChange = (category: string | null) => {
+    setCurrentCategory(category);
+  };
+
+  const filteredProducts = currentCategory
+    ? products.filter(product => product.category === currentCategory)
+    : products;
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="min-h-screen bg-white"
-    >
-      <div className="container mx-auto px-8 py-24">
-        <h1 className="text-5xl md:text-7xl font-serif text-zeof-black mb-12">
-          Our Collections
-        </h1>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {categories.map((category) => (
-            <motion.div
-              key={category.slug}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="group cursor-pointer"
-            >
-              <div className="relative overflow-hidden mb-4">
-                <img
-                  src={category.items[0].image}
-                  alt={category.title}
-                  className="w-full aspect-[3/4] object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-20 transition-opacity duration-300 group-hover:bg-opacity-30" />
-              </div>
-              <h3 className="text-2xl font-serif mb-2">{category.title}</h3>
-              <p className="text-gray-600">{category.description}</p>
-            </motion.div>
-          ))}
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="pt-32 pb-16 bg-zeof-cream">
+        <div className="container mx-auto px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
+          >
+            <span className="text-zeof-gold font-serif tracking-wider mb-4 block text-sm uppercase">
+              Our Collections
+            </span>
+            <h1 className="text-5xl font-serif mb-6 text-zeof-black">
+              Luxury Apparel & Accessories
+            </h1>
+            <p className="text-gray-700 max-w-2xl mx-auto font-light tracking-wide">
+              Discover our handcrafted pieces created with exceptional materials and uncompromising attention to detail.
+            </p>
+          </motion.div>
         </div>
-      </div>
-    </motion.div>
+      </section>
+
+      {/* Shop Content */}
+      <section className="py-16">
+        <div className="container mx-auto px-8">
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="w-full lg:w-1/4">
+              <ShopFilters 
+                currentCategory={currentCategory} 
+                onCategoryChange={handleCategoryChange} 
+              />
+            </div>
+
+            <div className="w-full lg:w-3/4">
+              {isLoading ? (
+                <div className="flex items-center justify-center h-64">
+                  <Loader2 className="w-8 h-8 animate-spin text-zeof-gold" />
+                </div>
+              ) : error ? (
+                <div className="text-center p-8 bg-red-50 rounded-lg">
+                  <p className="text-red-600">
+                    We're experiencing some difficulties loading our products. Please try again later.
+                  </p>
+                </div>
+              ) : (
+                <ProductGrid products={filteredProducts} />
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 };
 

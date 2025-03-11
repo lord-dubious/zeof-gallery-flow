@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -8,6 +9,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Gallery from "./pages/Gallery";
 import CategoryGallery from "./pages/CategoryGallery";
+import Shop from "./pages/Shop";
 import Admin from "./pages/Admin";
 import { supabase } from "./integrations/supabase/client";
 
@@ -35,6 +37,7 @@ function App() {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/gallery/:category" element={<CategoryGallery />} />
+                <Route path="/shop" element={<Shop />} />
                 <Route path="/admin" element={<Admin />} />
               </Routes>
             </main>
