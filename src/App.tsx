@@ -30,6 +30,33 @@ const rsfConfig = {
   imageService: {
     provider: 'simple',
     parameters: {}
+  },
+  api: {
+    base: '/api'
+  },
+  site: {
+    title: 'ZEOF Shop',
+    description: 'Discover our handcrafted luxury apparel and accessories.'
+  },
+  theme: {
+    primaryColor: '#B8860B', // Gold color for ZEOF branding
+    fontFamily: {
+      body: '"Inter", sans-serif',
+      heading: '"Playfair Display", serif'
+    }
+  },
+  analytics: {
+    enabled: true,
+    provider: 'default'
+  },
+  search: {
+    instant: true,
+    debounceTime: 300
+  },
+  plp: {
+    // Product Listing Page configuration
+    itemsPerPage: 12,
+    itemsPerRow: 3
   }
 };
 
