@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,11 +9,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
+import { ImageUpload } from "./images/ImageUpload";
+import { useImageUpload } from "@/hooks/use-image-upload";
 
 const ContentManager = () => {
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState("home");
   const [isUpdating, setIsUpdating] = useState(false);
+  const { uploadImage, isUploading } = useImageUpload();
 
   const { data: siteContent, refetch } = useQuery({
     queryKey: ["site-content"],
@@ -80,6 +84,23 @@ const ContentManager = () => {
     }
   };
 
+  const handleImageUpload = async (file: File, contentId: string) => {
+    try {
+      await uploadImage(file);
+      // After a successful upload, the URL will be returned by the hook and can be used to update image_url
+      toast({
+        title: "Image uploaded",
+        description: "The image has been uploaded and will be attached to this content after processing.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    }
+  };
+
   const renderContentEditor = (content: any) => (
     <Card key={content.id} className="p-6 mb-6">
       <h3 className="text-lg font-medium mb-4">
@@ -113,12 +134,34 @@ const ContentManager = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Image URL</label>
-          <Input
-            value={content.image_url || ""}
-            onChange={(e) => handleContentChange(content.id, "image_url", e.target.value)}
-            disabled={isUpdating}
-          />
+          <label className="block text-sm font-medium mb-1">Image</label>
+          <div className="space-y-2">
+            {content.image_url && (
+              <div className="w-full max-w-md">
+                <img 
+                  src={content.image_url} 
+                  alt={content.title || "Content image"} 
+                  className="w-full h-40 object-cover rounded-md border border-gray-300"
+                />
+              </div>
+            )}
+            <div>
+              <label className="block text-sm font-medium mb-1">Upload New Image</label>
+              <ImageUpload 
+                onUpload={(file) => handleImageUpload(file, content.id)} 
+                isUploading={isUploading} 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Or Enter Image URL</label>
+              <Input
+                value={content.image_url || ""}
+                onChange={(e) => handleContentChange(content.id, "image_url", e.target.value)}
+                disabled={isUpdating}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+          </div>
         </div>
         {content.content && (
           <div>
