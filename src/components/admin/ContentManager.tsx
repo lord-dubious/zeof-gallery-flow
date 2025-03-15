@@ -14,7 +14,7 @@ import { useImageUpload } from "@/hooks/use-image-upload";
 
 const ContentManager = () => {
   const { toast } = useToast();
-  const [activeSection, setActiveSection] = useState("home");
+  const [activeSection, setActiveSection] = useState("hero");
   const [isUpdating, setIsUpdating] = useState(false);
   const { uploadImage, isUploading } = useImageUpload();
 
@@ -86,12 +86,21 @@ const ContentManager = () => {
 
   const handleImageUpload = async (file: File, contentId: string) => {
     try {
-      await uploadImage(file);
-      // After a successful upload, the URL will be returned by the hook and can be used to update image_url
-      toast({
-        title: "Image uploaded",
-        description: "The image has been uploaded and will be attached to this content after processing.",
-      });
+      const { data: imageUrl } = await uploadImage(file);
+      
+      // After successful upload, update the content with the new image URL
+      if (imageUrl) {
+        await updateContent(contentId, { image_url: imageUrl });
+        toast({
+          title: "Success",
+          description: "Image uploaded and attached to content successfully",
+        });
+      } else {
+        toast({
+          title: "Image uploaded",
+          description: "The image has been uploaded but couldn't be automatically attached to the content.",
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -190,13 +199,20 @@ const ContentManager = () => {
     <div className="space-y-6">
       <Tabs value={activeSection} onValueChange={setActiveSection}>
         <TabsList>
-          <TabsTrigger value="home">Home Page</TabsTrigger>
+          <TabsTrigger value="hero">Hero</TabsTrigger>
+          <TabsTrigger value="home">Home Content</TabsTrigger>
           <TabsTrigger value="about">About Page</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="hero" className="mt-6">
+          {siteContent
+            ?.filter((content) => content.section === "hero")
+            .map(renderContentEditor)}
+        </TabsContent>
+
         <TabsContent value="home" className="mt-6">
           {siteContent
-            ?.filter((content) => content.page === "home")
+            ?.filter((content) => content.page === "home" && content.section !== "hero")
             .map(renderContentEditor)}
         </TabsContent>
 
