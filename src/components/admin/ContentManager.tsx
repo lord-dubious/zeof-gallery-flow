@@ -161,15 +161,18 @@ const ContentManager = () => {
                 isUploading={isUploading} 
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Or Enter Image URL</label>
-              <Input
-                value={content.image_url || ""}
-                onChange={(e) => handleContentChange(content.id, "image_url", e.target.value)}
-                disabled={isUpdating}
-                placeholder="https://example.com/image.jpg"
-              />
-            </div>
+            {/* Only show the URL input for non-hero sections or if specifically needed */}
+            {(activeSection !== "hero" || !content.image_url) && (
+              <div>
+                <label className="block text-sm font-medium mb-1">Or Enter Image URL</label>
+                <Input
+                  value={content.image_url || ""}
+                  onChange={(e) => handleContentChange(content.id, "image_url", e.target.value)}
+                  disabled={isUpdating}
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+            )}
           </div>
         </div>
         {content.content && (
