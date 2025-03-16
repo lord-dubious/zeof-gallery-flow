@@ -16,7 +16,6 @@ export const useImageUpload = () => {
 
     return new Promise((resolve, reject) => {
       img.onload = () => {
-        // Set thumbnail dimensions (max 200px width/height while maintaining aspect ratio)
         const maxDimension = 200;
         let width = img.width;
         let height = img.height;
@@ -32,7 +31,6 @@ export const useImageUpload = () => {
         canvas.width = width;
         canvas.height = height;
 
-        // Draw and compress the image
         ctx?.drawImage(img, 0, 0, width, height);
         
         canvas.toBlob(
@@ -57,38 +55,33 @@ export const useImageUpload = () => {
     });
   };
 
-  const uploadImage = async (file: File) => {
-    if (isUploading) return;
+  const uploadImage = async (file: File): Promise<{ data: string | null; error: Error | null }> => {
+    if (isUploading) return { data: null, error: null };
     
     setIsUploading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User must be logged in to upload images');
 
-      // Compress the main image
       const compressedFile = await compressImage(file);
       
-      // Create thumbnail
       const thumbnailFile = await createThumbnail(compressedFile);
       
       const fileExt = compressedFile.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const thumbnailName = `thumbnails/${fileName}`;
       
-      // Upload main image
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('gallery')
         .upload(fileName, compressedFile);
 
       if (uploadError) throw uploadError;
 
-      // Upload thumbnail
       const { error: thumbnailError } = await supabase.storage
         .from('gallery')
         .upload(thumbnailName, thumbnailFile);
 
       if (thumbnailError) {
-        // If thumbnail upload fails, delete the main image
         await supabase.storage.from('gallery').remove([fileName]);
         throw thumbnailError;
       }
@@ -118,6 +111,8 @@ export const useImageUpload = () => {
         title: "Success",
         description: "Image uploaded successfully",
       });
+      
+      return { data: publicUrl, error: null };
     } catch (error) {
       console.error('Upload error:', error);
       toast({
@@ -125,6 +120,7 @@ export const useImageUpload = () => {
         description: "Failed to upload image",
         variant: "destructive",
       });
+      return { data: null, error: error as Error };
     } finally {
       setIsUploading(false);
     }

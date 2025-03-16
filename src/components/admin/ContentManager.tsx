@@ -86,10 +86,10 @@ const ContentManager = () => {
 
   const handleImageUpload = async (file: File, contentId: string) => {
     try {
-      const { data: imageUrl } = await uploadImage(file);
+      const { data: imageUrl, error } = await uploadImage(file);
       
       // After successful upload, update the content with the new image URL
-      if (imageUrl) {
+      if (imageUrl && !error) {
         await updateContent(contentId, { image_url: imageUrl });
         toast({
           title: "Success",
