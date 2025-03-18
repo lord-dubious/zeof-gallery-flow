@@ -74,18 +74,16 @@ export const ContentEditorCard = ({
                 isUploading={isUploading} 
               />
             </div>
-            {/* Only show the URL input for non-hero sections or if specifically needed */}
-            {(activeSection !== "hero" || !content.image_url) && (
-              <div>
-                <label className="block text-sm font-medium mb-1">Or Enter Image URL</label>
-                <Input
-                  value={content.image_url || ""}
-                  onChange={(e) => onContentChange(content.id, "image_url", e.target.value)}
-                  disabled={isUpdating}
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
-            )}
+            {/* Make the URL input field always available as a fallback */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Or Enter Image URL</label>
+              <Input
+                value={content.image_url || ""}
+                onChange={(e) => onContentChange(content.id, "image_url", e.target.value)}
+                disabled={isUpdating}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
           </div>
         </div>
         {content.content && (
