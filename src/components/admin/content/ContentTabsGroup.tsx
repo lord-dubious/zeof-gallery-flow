@@ -49,6 +49,13 @@ export const ContentTabsGroup = ({
       <TabsContent value="home" className="mt-6">
         {siteContent
           ?.filter((content) => content.page === "home" && content.section !== "hero")
+          .sort((a, b) => {
+            // Sort by display_order if available, otherwise by section name
+            if (a.display_order !== undefined && b.display_order !== undefined) {
+              return a.display_order - b.display_order;
+            }
+            return a.section.localeCompare(b.section);
+          })
           .map((content) => (
             <ContentEditorCard
               key={content.id}
@@ -65,6 +72,13 @@ export const ContentTabsGroup = ({
       <TabsContent value="about" className="mt-6">
         {siteContent
           ?.filter((content) => content.page === "about")
+          .sort((a, b) => {
+            // Sort by display_order if available, otherwise by section name
+            if (a.display_order !== undefined && b.display_order !== undefined) {
+              return a.display_order - b.display_order;
+            }
+            return a.section.localeCompare(b.section);
+          })
           .map((content) => (
             <ContentEditorCard
               key={content.id}

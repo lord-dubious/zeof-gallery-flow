@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
+import { Loader2, Image as ImageIcon } from "lucide-react";
 import { ImageUpload } from "../images/ImageUpload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -26,10 +26,16 @@ export const ContentEditorCard = ({
 }: ContentEditorCardProps) => {
   const [imageTab, setImageTab] = useState<string>("upload");
 
+  // Format the section name for display
+  const formatSectionName = (section: string) => {
+    return section.charAt(0).toUpperCase() + section.slice(1);
+  };
+  
   return (
     <Card key={content.id} className="p-6 mb-6">
       <h3 className="text-lg font-medium mb-4">
-        {content.section.charAt(0).toUpperCase() + content.section.slice(1)} Section
+        {formatSectionName(content.section)} Section
+        {content.page && content.page !== "home" && ` (${formatSectionName(content.page)} Page)`}
       </h3>
       <div className="space-y-4">
         <div>
@@ -59,7 +65,10 @@ export const ContentEditorCard = ({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Image</label>
+          <label className="block text-sm font-medium mb-1 flex items-center">
+            <ImageIcon className="w-4 h-4 mr-2" />
+            Image
+          </label>
           <div className="space-y-2">
             {content.image_url && (
               <div className="w-full max-w-md">
