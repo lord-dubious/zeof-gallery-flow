@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { ImageUpload } from "../images/ImageUpload";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ContentEditorCardProps {
   content: any;
@@ -23,6 +24,8 @@ export const ContentEditorCard = ({
   onContentChange,
   onImageUpload,
 }: ContentEditorCardProps) => {
+  const [imageTab, setImageTab] = useState<string>("upload");
+
   return (
     <Card key={content.id} className="p-6 mb-6">
       <h3 className="text-lg font-medium mb-4">
@@ -67,23 +70,32 @@ export const ContentEditorCard = ({
                 />
               </div>
             )}
-            <div>
-              <label className="block text-sm font-medium mb-1">Upload New Image</label>
-              <ImageUpload 
-                onUpload={(file) => onImageUpload(file, content.id)} 
-                isUploading={isUploading} 
-              />
-            </div>
-            {/* Make the URL input field always available as a fallback */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Or Enter Image URL</label>
-              <Input
-                value={content.image_url || ""}
-                onChange={(e) => onContentChange(content.id, "image_url", e.target.value)}
-                disabled={isUpdating}
-                placeholder="https://example.com/image.jpg"
-              />
-            </div>
+            
+            <Tabs value={imageTab} onValueChange={setImageTab} className="w-full max-w-md">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="upload">Upload Image</TabsTrigger>
+                <TabsTrigger value="url">Image URL</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="upload" className="pt-4">
+                <ImageUpload 
+                  onUpload={(file) => onImageUpload(file, content.id)} 
+                  isUploading={isUploading} 
+                />
+              </TabsContent>
+              
+              <TabsContent value="url" className="pt-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Enter Image URL</label>
+                  <Input
+                    value={content.image_url || ""}
+                    onChange={(e) => onContentChange(content.id, "image_url", e.target.value)}
+                    disabled={isUpdating}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
         {content.content && (
