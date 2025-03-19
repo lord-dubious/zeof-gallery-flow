@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,7 +59,7 @@ export const useImageUpload = () => {
   };
 
   const uploadImage = async (file: File) => {
-    if (isUploading) return;
+    if (isUploading) return null;
     
     setIsUploading(true);
     try {
@@ -101,23 +102,29 @@ export const useImageUpload = () => {
         .from('gallery')
         .getPublicUrl(thumbnailName);
 
-      const { error: dbError } = await supabase
-        .from('images')
-        .insert([{
-          title: file.name,
-          url: publicUrl,
-          thumbnail_url: thumbnailUrl,
-          is_published: true,
-          user_id: user.id
-        }]);
+      // For content sections, we'll just return the URLs without storing in the images table
+      if (!file.name.startsWith('content_')) {
+        const { error: dbError } = await supabase
+          .from('images')
+          .insert([{
+            title: file.name,
+            url: publicUrl,
+            thumbnail_url: thumbnailUrl,
+            is_published: true,
+            user_id: user.id
+          }]);
 
-      if (dbError) throw dbError;
+        if (dbError) throw dbError;
+        
+        queryClient.invalidateQueries({ queryKey: ['images'] });
+      }
 
-      queryClient.invalidateQueries({ queryKey: ['images'] });
       toast({
         title: "Success",
         description: "Image uploaded successfully",
       });
+      
+      return { publicUrl, thumbnailUrl };
     } catch (error) {
       console.error('Upload error:', error);
       toast({
@@ -125,6 +132,7 @@ export const useImageUpload = () => {
         description: "Failed to upload image",
         variant: "destructive",
       });
+      return null;
     } finally {
       setIsUploading(false);
     }

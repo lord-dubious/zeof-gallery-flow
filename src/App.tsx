@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -9,6 +10,7 @@ import Contact from "./pages/Contact";
 import Gallery from "./pages/Gallery";
 import CategoryGallery from "./pages/CategoryGallery";
 import Admin from "./pages/Admin";
+import Shop from "./pages/Shop";
 import { supabase } from "./integrations/supabase/client";
 
 // Create a client
@@ -36,6 +38,7 @@ function App() {
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/gallery/:category" element={<CategoryGallery />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/shop" element={<Shop />} />
               </Routes>
             </main>
             <Footer />
