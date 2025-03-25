@@ -32,10 +32,19 @@ const AdminPage = () => {
     checkAdminRole();
   }, [session, isLoading, navigate]);
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
-  };
+  // Hide the site navigation in admin panel
+  useEffect(() => {
+    const mainNav = document.querySelector('nav');
+    const footer = document.querySelector('footer');
+    
+    if (mainNav) mainNav.style.display = 'none';
+    if (footer) footer.style.display = 'none';
+    
+    return () => {
+      if (mainNav) mainNav.style.display = '';
+      if (footer) footer.style.display = '';
+    };
+  }, []);
 
   if (isLoading) {
     return <div className="container mx-auto py-8">Loading...</div>;
@@ -52,8 +61,8 @@ const AdminPage = () => {
   const isDark = theme === 'dark';
 
   return (
-    <div id="admin-container" className={`container mx-auto py-8 ${isDark ? 'bg-gray-900 text-white' : ''}`}>
-      <div className="flex justify-between items-center mb-8">
+    <div id="admin-container" className={`min-h-screen py-6 px-4 md:px-6 ${isDark ? 'bg-gray-900 text-white' : ''}`}>
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-4xl font-serif">Admin Dashboard</h1>
         <div className="flex gap-2">
           <Button 

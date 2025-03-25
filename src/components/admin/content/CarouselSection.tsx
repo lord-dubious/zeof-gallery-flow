@@ -64,6 +64,8 @@ export const CarouselSection = ({
     updateContent(content.id, { content: newContent });
   };
 
+  const isDark = theme === 'dark';
+
   return (
     <div className="space-y-4 border-t pt-4 mt-4">
       <div className="flex items-center justify-between">
@@ -90,7 +92,7 @@ export const CarouselSection = ({
               }
             }}
             disabled={isUploading}
-            className={theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white max-w-60' : 'max-w-60'}
+            className={isDark ? 'bg-gray-700 border-gray-600 text-white max-w-60' : 'max-w-60'}
           />
         </div>
         

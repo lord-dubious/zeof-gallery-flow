@@ -19,21 +19,13 @@ export const useTheme = () => {
   useEffect(() => {
     localStorage.setItem('admin-theme', theme);
     
-    // Apply theme to the admin section
-    const adminElement = document.getElementById('admin-container');
-    if (adminElement) {
-      if (theme === 'dark') {
-        adminElement.classList.add('dark-mode');
-      } else {
-        adminElement.classList.remove('dark-mode');
-      }
-    }
-    
-    // Add theme classes to body for global styling
+    // Apply theme to the body for global styling
     if (theme === 'dark') {
       document.body.classList.add('admin-dark-mode');
+      document.documentElement.classList.add('dark');
     } else {
       document.body.classList.remove('admin-dark-mode');
+      document.documentElement.classList.remove('dark');
     }
   }, [theme]);
 
