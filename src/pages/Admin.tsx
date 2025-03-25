@@ -10,7 +10,7 @@ import { NavigationManager } from "@/components/admin/NavigationManager";
 import { CategoriesManager } from "@/components/admin/CategoriesManager";
 import { ImagesManager } from "@/components/admin/ImagesManager";
 import { SettingsManager } from "@/components/admin/SettingsManager";
-import ContentManager from "@/components/admin/ContentManager";
+import ContentManager from "@/components/admin/content/ContentManager";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 
