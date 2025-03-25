@@ -58,7 +58,7 @@ export const useImageUpload = () => {
     });
   };
 
-  const uploadImage = async (file: File) => {
+  const uploadImage = async (file: File, type: 'gallery' | 'design' = 'gallery') => {
     if (isUploading) return null;
     
     setIsUploading(true);
@@ -76,48 +76,58 @@ export const useImageUpload = () => {
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const thumbnailName = `thumbnails/${fileName}`;
       
+      // Determine which bucket to use
+      const bucket = type === 'design' ? 'design' : 'gallery';
+      
       // Upload main image
       const { error: uploadError, data: uploadData } = await supabase.storage
-        .from('gallery')
+        .from(bucket)
         .upload(fileName, compressedFile);
 
       if (uploadError) throw uploadError;
 
       // Upload thumbnail
       const { error: thumbnailError } = await supabase.storage
-        .from('gallery')
+        .from(bucket)
         .upload(thumbnailName, thumbnailFile);
 
       if (thumbnailError) {
         // If thumbnail upload fails, delete the main image
-        await supabase.storage.from('gallery').remove([fileName]);
+        await supabase.storage.from(bucket).remove([fileName]);
         throw thumbnailError;
       }
 
       const { data: { publicUrl } } = supabase.storage
-        .from('gallery')
+        .from(bucket)
         .getPublicUrl(fileName);
 
       const { data: { publicUrl: thumbnailUrl } } = supabase.storage
-        .from('gallery')
+        .from(bucket)
         .getPublicUrl(thumbnailName);
 
       // For content sections, we'll just return the URLs without storing in the images table
-      if (!file.name.startsWith('content_')) {
-        const { error: dbError } = await supabase
-          .from('images')
-          .insert([{
-            title: file.name,
-            url: publicUrl,
-            thumbnail_url: thumbnailUrl,
-            is_published: true,
-            user_id: user.id
-          }]);
-
-        if (dbError) throw dbError;
-        
-        queryClient.invalidateQueries({ queryKey: ['images'] });
+      if (type === 'design' || file.name.startsWith('content_')) {
+        toast({
+          title: "Success",
+          description: "Image uploaded successfully",
+        });
+        return { publicUrl, thumbnailUrl };
       }
+      
+      // Store gallery images in the database
+      const { error: dbError } = await supabase
+        .from('images')
+        .insert([{
+          title: file.name,
+          url: publicUrl,
+          thumbnail_url: thumbnailUrl,
+          is_published: true,
+          user_id: user.id
+        }]);
+
+      if (dbError) throw dbError;
+      
+      queryClient.invalidateQueries({ queryKey: ['images'] });
 
       toast({
         title: "Success",

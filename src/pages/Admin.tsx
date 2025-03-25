@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,11 +11,14 @@ import { CategoriesManager } from "@/components/admin/CategoriesManager";
 import { ImagesManager } from "@/components/admin/ImagesManager";
 import { SettingsManager } from "@/components/admin/SettingsManager";
 import ContentManager from "@/components/admin/ContentManager";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "@/hooks/use-theme";
 
 const AdminPage = () => {
   const navigate = useNavigate();
   const { session, isLoading } = useSessionContext();
   const [activeTab, setActiveTab] = useState("navigation");
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const checkAdminRole = async () => {
@@ -45,20 +49,67 @@ const AdminPage = () => {
     );
   }
 
+  const isDark = theme === 'dark';
+
   return (
-    <div className="container mx-auto py-8">
+    <div id="admin-container" className={`container mx-auto py-8 ${isDark ? 'bg-gray-900 text-white' : ''}`}>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-serif">Admin Dashboard</h1>
-        <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={toggleTheme}
+            className={isDark ? 'bg-gray-800 border-gray-700' : ''}
+          >
+            {isDark ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleSignOut}
+            className={isDark ? 'bg-gray-800 border-gray-700' : ''}
+          >
+            Sign Out
+          </Button>
+        </div>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
-          <TabsTrigger value="navigation">Navigation</TabsTrigger>
-          <TabsTrigger value="categories">Categories</TabsTrigger>
-          <TabsTrigger value="images">Images</TabsTrigger>
-          <TabsTrigger value="content">Content</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+      <Tabs 
+        value={activeTab} 
+        onValueChange={setActiveTab} 
+        className={`w-full ${isDark ? 'text-white' : ''}`}
+      >
+        <TabsList className={`grid w-full grid-cols-5 lg:w-auto ${isDark ? 'bg-gray-800' : ''}`}>
+          <TabsTrigger 
+            value="navigation" 
+            className={isDark ? 'data-[state=active]:bg-gray-700 data-[state=active]:text-white' : ''}
+          >
+            Navigation
+          </TabsTrigger>
+          <TabsTrigger 
+            value="categories" 
+            className={isDark ? 'data-[state=active]:bg-gray-700 data-[state=active]:text-white' : ''}
+          >
+            Categories
+          </TabsTrigger>
+          <TabsTrigger 
+            value="images" 
+            className={isDark ? 'data-[state=active]:bg-gray-700 data-[state=active]:text-white' : ''}
+          >
+            Images
+          </TabsTrigger>
+          <TabsTrigger 
+            value="content" 
+            className={isDark ? 'data-[state=active]:bg-gray-700 data-[state=active]:text-white' : ''}
+          >
+            Content
+          </TabsTrigger>
+          <TabsTrigger 
+            value="settings" 
+            className={isDark ? 'data-[state=active]:bg-gray-700 data-[state=active]:text-white' : ''}
+          >
+            Settings
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="navigation" className="mt-6">

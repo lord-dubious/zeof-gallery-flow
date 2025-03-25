@@ -12,6 +12,7 @@ import CategoryGallery from "./pages/CategoryGallery";
 import Admin from "./pages/Admin";
 import Shop from "./pages/Shop";
 import { supabase } from "./integrations/supabase/client";
+import { Toaster } from "./components/ui/toaster";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -43,6 +44,7 @@ function App() {
             </main>
             <Footer />
           </div>
+          <Toaster />
         </Router>
       </SessionContextProvider>
     </QueryClientProvider>

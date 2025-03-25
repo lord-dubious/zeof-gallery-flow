@@ -8,16 +8,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Image as ImageIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useImageUpload } from "@/hooks/use-image-upload";
+import { useTheme } from "@/hooks/use-theme";
 
 const ContentManager = () => {
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState("home");
   const [isUpdating, setIsUpdating] = useState(false);
   const { uploadImage, isUploading } = useImageUpload();
+  const { theme } = useTheme();
 
   const { data: siteContent, refetch } = useQuery({
     queryKey: ["site-content"],
@@ -88,7 +90,7 @@ const ContentManager = () => {
 
   const handleImageUpload = async (id: string, file: File) => {
     try {
-      const uploadedImage = await uploadImage(file);
+      const uploadedImage = await uploadImage(file, 'design');
       if (uploadedImage?.publicUrl) {
         updateContent(id, { image_url: uploadedImage.publicUrl });
       }
@@ -104,7 +106,7 @@ const ContentManager = () => {
 
   const handleMultipleImageUpload = async (id: string, file: File, contentObj: any) => {
     try {
-      const uploadedImage = await uploadImage(file);
+      const uploadedImage = await uploadImage(file, 'design');
       if (uploadedImage?.publicUrl) {
         const currentContent = typeof contentObj === 'object' ? contentObj : {};
         const images = currentContent.images || [];
@@ -148,13 +150,27 @@ const ContentManager = () => {
     updateContent(id, { content: newContent });
   };
 
+  const updateHeroText = (id: string, contentObj: any, key: string, value: string) => {
+    const currentContent = typeof contentObj === 'object' ? contentObj : {};
+    const newContent = {
+      ...currentContent,
+      heroText: {
+        ...(currentContent.heroText || {}),
+        [key]: value
+      }
+    };
+    
+    updateContent(id, { content: newContent });
+  };
+
   const renderContentEditor = (content: any) => {
     const sectionName = content.section.charAt(0).toUpperCase() + content.section.slice(1);
     const contentObj = content.content || {};
     const hasMultipleImages = contentObj.images && contentObj.images.length > 0;
+    const heroText = contentObj.heroText || {};
     
     return (
-      <Card key={content.id} className="p-6 mb-6">
+      <Card key={content.id} className={`p-6 mb-6 ${theme === 'dark' ? 'bg-gray-800 text-white' : ''}`}>
         <h3 className="text-lg font-medium mb-4">
           {sectionName} Section
         </h3>
@@ -165,6 +181,7 @@ const ContentManager = () => {
               value={content.title || ""}
               onChange={(e) => handleContentChange(content.id, "title", e.target.value)}
               disabled={isUpdating}
+              className={theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : ''}
             />
           </div>
           {content.subtitle !== null && (
@@ -174,6 +191,7 @@ const ContentManager = () => {
                 value={content.subtitle || ""}
                 onChange={(e) => handleContentChange(content.id, "subtitle", e.target.value)}
                 disabled={isUpdating}
+                className={theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : ''}
               />
             </div>
           )}
@@ -183,15 +201,18 @@ const ContentManager = () => {
               value={content.description || ""}
               onChange={(e) => handleContentChange(content.id, "description", e.target.value)}
               disabled={isUpdating}
+              className={theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : ''}
             />
           </div>
           
           <div className="space-y-2">
-            <label className="block text-sm font-medium mb-1">Image</label>
+            <label className="block text-sm font-medium mb-1 flex items-center">
+              <ImageIcon className="h-4 w-4 mr-1" /> Image
+            </label>
             <Tabs defaultValue="upload" className="w-full">
-              <TabsList>
-                <TabsTrigger value="upload">Upload Image</TabsTrigger>
-                <TabsTrigger value="url">Image URL</TabsTrigger>
+              <TabsList className={theme === 'dark' ? 'bg-gray-700' : ''}>
+                <TabsTrigger value="upload" className={theme === 'dark' ? 'data-[state=active]:bg-gray-600' : ''}>Upload Image</TabsTrigger>
+                <TabsTrigger value="url" className={theme === 'dark' ? 'data-[state=active]:bg-gray-600' : ''}>Image URL</TabsTrigger>
               </TabsList>
               <TabsContent value="upload" className="pt-2">
                 <Input
@@ -203,6 +224,7 @@ const ContentManager = () => {
                     }
                   }}
                   disabled={isUploading || isUpdating}
+                  className={theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : ''}
                 />
               </TabsContent>
               <TabsContent value="url" className="pt-2">
@@ -211,6 +233,7 @@ const ContentManager = () => {
                   onChange={(e) => handleContentChange(content.id, "image_url", e.target.value)}
                   disabled={isUpdating}
                   placeholder="Enter image URL"
+                  className={theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : ''}
                 />
               </TabsContent>
             </Tabs>
@@ -225,6 +248,48 @@ const ContentManager = () => {
               </div>
             )}
           </div>
+
+          {content.section === 'hero' && (
+            <div className="space-y-4 border-t pt-4 mt-4">
+              <h4 className="text-md font-medium">Hero Text Customization</h4>
+              <div>
+                <label className="block text-sm font-medium mb-1">Heading</label>
+                <Input
+                  value={heroText.heading || ""}
+                  onChange={(e) => updateHeroText(content.id, contentObj, "heading", e.target.value)}
+                  placeholder="Main heading text"
+                  className={theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : ''}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Subheading</label>
+                <Input
+                  value={heroText.subheading || ""}
+                  onChange={(e) => updateHeroText(content.id, contentObj, "subheading", e.target.value)}
+                  placeholder="Subheading text"
+                  className={theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : ''}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Button Text</label>
+                <Input
+                  value={heroText.buttonText || ""}
+                  onChange={(e) => updateHeroText(content.id, contentObj, "buttonText", e.target.value)}
+                  placeholder="Call to action button text"
+                  className={theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : ''}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Button URL</label>
+                <Input
+                  value={heroText.buttonUrl || ""}
+                  onChange={(e) => updateHeroText(content.id, contentObj, "buttonUrl", e.target.value)}
+                  placeholder="/page-url"
+                  className={theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : ''}
+                />
+              </div>
+            </div>
+          )}
 
           <div className="space-y-4 border-t pt-4 mt-4">
             <div className="flex items-center justify-between">
@@ -252,6 +317,7 @@ const ContentManager = () => {
                     }
                   }}
                   disabled={isUploading || isUpdating}
+                  className={theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white max-w-60' : 'max-w-60'}
                 />
               </div>
               
@@ -283,7 +349,7 @@ const ContentManager = () => {
               <Textarea
                 value={typeof content.content === 'object' ? JSON.stringify(content.content, null, 2) : content.content}
                 onChange={(e) => handleContentChange(content.id, "content", e.target.value)}
-                className="font-mono"
+                className={`font-mono ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : ''}`}
                 rows={10}
                 disabled={isUpdating}
               />
@@ -301,10 +367,10 @@ const ContentManager = () => {
 
   return (
     <div className="space-y-6">
-      <Tabs value={activeSection} onValueChange={setActiveSection}>
-        <TabsList>
-          <TabsTrigger value="home">Home Page</TabsTrigger>
-          <TabsTrigger value="about">About Page</TabsTrigger>
+      <Tabs value={activeSection} onValueChange={setActiveSection} className={theme === 'dark' ? 'text-white' : ''}>
+        <TabsList className={theme === 'dark' ? 'bg-gray-700' : ''}>
+          <TabsTrigger value="home" className={theme === 'dark' ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white' : ''}>Home Page</TabsTrigger>
+          <TabsTrigger value="about" className={theme === 'dark' ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white' : ''}>About Page</TabsTrigger>
         </TabsList>
 
         <TabsContent value="home" className="mt-6">

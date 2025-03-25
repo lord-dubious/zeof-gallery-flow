@@ -50,6 +50,25 @@
     display: none;
   }
 
+  /* Admin Dark Mode */
+  .admin-dark-mode .dark-mode {
+    --background: 0 0% 10%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 15%;
+    --popover-foreground: 0 0% 98%;
+    background-color: #1A1A1A;
+    color: #F5F5F5;
+  }
+
+  .admin-dark-mode button,
+  .admin-dark-mode input,
+  .admin-dark-mode textarea,
+  .admin-dark-mode select {
+    color-scheme: dark;
+  }
+
   /* Magazine Styles */
   .magazine {
     background-size: 100% 100%;
