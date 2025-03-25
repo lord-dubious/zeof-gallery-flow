@@ -84,7 +84,6 @@ export const CarouselSection = ({
           <Input
             type="file"
             accept="image/*"
-            className="max-w-60"
             onChange={(e) => {
               if (e.target.files && e.target.files[0]) {
                 handleMultipleImageUpload(e.target.files[0]);
