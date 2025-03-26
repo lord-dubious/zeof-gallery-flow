@@ -1,9 +1,11 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Image as ImageIcon, UploadCloud, Link2 } from "lucide-react";
+import { Image as ImageIcon, UploadCloud, Link2, Trash2 } from "lucide-react";
 import { useImageUpload } from "@/hooks/use-image-upload";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ImageUploadSectionProps {
   content: any;
@@ -19,6 +21,7 @@ export const ImageUploadSection = ({
   theme 
 }: ImageUploadSectionProps) => {
   const { uploadImage, isUploading } = useImageUpload();
+  const { toast } = useToast();
 
   const handleImageUpload = async (id: string, file: File) => {
     try {
@@ -28,6 +31,38 @@ export const ImageUploadSection = ({
       }
     } catch (error) {
       console.error("Error uploading image:", error);
+    }
+  };
+
+  const handleDeleteImage = async (id: string) => {
+    try {
+      // Extract filename from URL
+      if (!content.image_url) return;
+      
+      const urlParts = content.image_url.split('/');
+      const fileName = urlParts[urlParts.length - 1];
+      
+      // Delete the file from storage if it's a Supabase storage URL
+      if (content.image_url.includes('site-images') || content.image_url.includes('design')) {
+        await supabase.storage
+          .from(content.image_url.includes('site-images') ? 'site-images' : 'design')
+          .remove([fileName]);
+      }
+      
+      // Update content in database - set image_url to null
+      handleContentChange(id, "image_url", null);
+      
+      toast({
+        title: "Success",
+        description: "Image removed successfully",
+      });
+    } catch (error) {
+      console.error("Error removing image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove image",
+        variant: "destructive",
+      });
     }
   };
 
@@ -91,14 +126,24 @@ export const ImageUploadSection = ({
               className="w-full max-h-48 object-cover rounded border" 
             />
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                className="bg-white text-black hover:bg-gray-100"
-                onClick={() => window.open(content.image_url, '_blank')}
-              >
-                <ImageIcon className="h-4 w-4 mr-1" /> View Full Size
-              </Button>
+              <div className="flex space-x-2">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="bg-white text-black hover:bg-gray-100"
+                  onClick={() => window.open(content.image_url, '_blank')}
+                >
+                  <ImageIcon className="h-4 w-4 mr-1" /> View Full Size
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={() => handleDeleteImage(content.id)}
+                  disabled={isUpdating}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" /> Delete
+                </Button>
+              </div>
             </div>
           </div>
         </div>

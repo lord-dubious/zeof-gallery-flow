@@ -1,7 +1,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { HeroImageManager } from "./settings/HeroImageManager";
 import { useState } from "react";
 import { useTheme } from "@/hooks/use-theme";
 import { Database, LayoutGrid, Link2, Paintbrush, Server, Settings2, ShieldCheck } from "lucide-react";
@@ -13,7 +12,6 @@ export const SettingsManager = () => {
 
   const tabs = [
     { id: "site", label: "Site Configuration", icon: <Server className="h-4 w-4 mr-2" /> },
-    { id: "hero", label: "Hero Images", icon: <Paintbrush className="h-4 w-4 mr-2" /> },
     { id: "layout", label: "Layout", icon: <LayoutGrid className="h-4 w-4 mr-2" /> },
     { id: "integrations", label: "Integrations", icon: <Link2 className="h-4 w-4 mr-2" /> },
     { id: "permissions", label: "Permissions", icon: <ShieldCheck className="h-4 w-4 mr-2" /> },
@@ -156,10 +154,6 @@ export const SettingsManager = () => {
             </div>
           </Card>
         </div>
-      )}
-
-      {activeTab === "hero" && (
-        <HeroImageManager />
       )}
 
       {(activeTab === "layout" || activeTab === "integrations" || activeTab === "permissions") && (

@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Trash2, Save, Upload, Image as ImageIcon, Info } from "lucide-react";
 import { ImageDragDropUploader } from "./ImageDragDropUploader";
 import { ColorOverlayPicker } from "./ColorOverlayPicker";
-import { useTheme } from "@/hooks/use-theme";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface HeroImage {
@@ -31,10 +30,13 @@ interface HeroContent {
   [key: string]: any;
 }
 
-export const HeroImageManager = () => {
+interface HeroImageManagerProps {
+  theme: string;
+}
+
+export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { theme } = useTheme();
   const [previewImage, setPreviewImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [overlayColor, setOverlayColor] = useState("#000000");
@@ -170,8 +172,16 @@ export const HeroImageManager = () => {
     if (!heroContent || !heroContent.image_url) return;
     
     try {
-      // Optional: Delete the file from storage if needed
-      // For this implementation, we'll just remove the reference
+      // Extract filename from URL
+      const urlParts = heroContent.image_url.split('/');
+      const fileName = urlParts[urlParts.length - 1];
+      
+      // Delete the file from storage if it's a Supabase storage URL
+      if (heroContent.image_url.includes('site-images')) {
+        await supabase.storage
+          .from('site-images')
+          .remove([fileName]);
+      }
       
       // Update in database - set image_url to null
       await supabase

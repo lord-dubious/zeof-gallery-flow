@@ -2,6 +2,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ContentEditorCard } from "./ContentEditorCard";
 import { QueryObserverResult } from "@tanstack/react-query";
+import { HeroImageManager } from "../settings/HeroImageManager";
 
 interface ContentTabsGroupProps {
   activeSection: string;
@@ -42,6 +43,12 @@ export const ContentTabsGroup = ({
           className={theme === 'dark' ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white' : ''}
         >
           Services
+        </TabsTrigger>
+        <TabsTrigger 
+          value="hero" 
+          className={theme === 'dark' ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white' : ''}
+        >
+          Hero Images
         </TabsTrigger>
       </TabsList>
 
@@ -99,6 +106,10 @@ export const ContentTabsGroup = ({
             <p className="text-gray-500">No services content found. Add some content to get started.</p>
           </div>
         )}
+      </TabsContent>
+      
+      <TabsContent value="hero" className="mt-6">
+        <HeroImageManager theme={theme} />
       </TabsContent>
     </Tabs>
   );
