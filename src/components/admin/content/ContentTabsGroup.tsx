@@ -24,7 +24,7 @@ export const ContentTabsGroup = ({
       onValueChange={setActiveSection} 
       className={theme === 'dark' ? 'text-white' : ''}
     >
-      <TabsList className={theme === 'dark' ? 'bg-gray-700' : ''}>
+      <TabsList className={`${theme === 'dark' ? 'bg-gray-700' : ''} flex flex-wrap`}>
         <TabsTrigger 
           value="home" 
           className={theme === 'dark' ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white' : ''}
@@ -36,6 +36,12 @@ export const ContentTabsGroup = ({
           className={theme === 'dark' ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white' : ''}
         >
           About Page
+        </TabsTrigger>
+        <TabsTrigger 
+          value="services" 
+          className={theme === 'dark' ? 'data-[state=active]:bg-gray-600 data-[state=active]:text-white' : ''}
+        >
+          Services
         </TabsTrigger>
       </TabsList>
 
@@ -71,6 +77,28 @@ export const ContentTabsGroup = ({
               theme={theme}
             />
           ))}
+      </TabsContent>
+
+      <TabsContent value="services" className="mt-6">
+        {siteContent
+          ?.filter((content) => content.page === "services")
+          .sort((a, b) => {
+            const sectionOrder = { "hero": 1, "services": 2, "testimonials": 3 };
+            return (sectionOrder[a.section] || 99) - (sectionOrder[b.section] || 99);
+          })
+          .map((content) => (
+            <ContentEditorCard 
+              key={content.id} 
+              content={content} 
+              refetch={refetch}
+              theme={theme}
+            />
+          ))}
+        {(siteContent?.filter(content => content.page === "services")?.length || 0) === 0 && (
+          <div className="text-center py-8 border rounded-lg">
+            <p className="text-gray-500">No services content found. Add some content to get started.</p>
+          </div>
+        )}
       </TabsContent>
     </Tabs>
   );
