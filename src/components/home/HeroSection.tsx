@@ -6,6 +6,17 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+// Define type for hero content
+interface HeroContent {
+  content?: {
+    overlayColor?: string;
+    overlayOpacity?: number;
+    [key: string]: any;
+  };
+  image_url?: string;
+  [key: string]: any;
+}
+
 const HeroSection = () => {
   // Fetch hero content from database
   const { data: heroContent } = useQuery({
@@ -19,7 +30,7 @@ const HeroSection = () => {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as HeroContent;
     },
   });
 

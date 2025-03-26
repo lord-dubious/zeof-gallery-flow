@@ -18,6 +18,18 @@ interface HeroImage {
   overlay_opacity: number;
 }
 
+// Define a type for the hero content structure
+interface HeroContent {
+  content?: {
+    overlayColor?: string;
+    overlayOpacity?: number;
+    [key: string]: any;
+  };
+  image_url?: string;
+  id: string;
+  [key: string]: any;
+}
+
 export const HeroImageManager = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -41,15 +53,18 @@ export const HeroImageManager = () => {
 
       if (error) throw error;
       
+      // Type assertion to ensure we're working with the correct structure
+      const typedData = data as HeroContent;
+      
       // Set initial overlay values if they exist
-      if (data.content?.overlayColor) {
-        setOverlayColor(data.content.overlayColor);
+      if (typedData.content?.overlayColor) {
+        setOverlayColor(typedData.content.overlayColor);
       }
-      if (data.content?.overlayOpacity !== undefined) {
-        setOverlayOpacity(data.content.overlayOpacity);
+      if (typedData.content?.overlayOpacity !== undefined) {
+        setOverlayOpacity(typedData.content.overlayOpacity);
       }
       
-      return data;
+      return typedData;
     },
   });
 
