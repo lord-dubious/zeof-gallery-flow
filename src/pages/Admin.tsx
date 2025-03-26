@@ -32,6 +32,12 @@ const AdminPage = () => {
     checkAdminRole();
   }, [session, isLoading, navigate]);
 
+  // Add the handleSignOut function that was missing
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
+
   // Hide the site navigation in admin panel
   useEffect(() => {
     const mainNav = document.querySelector('nav');
