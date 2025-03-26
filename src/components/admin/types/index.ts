@@ -1,3 +1,4 @@
+
 export * from './database';
 export * from './forms';
 export * from './images';
@@ -10,5 +11,5 @@ export interface NavigationItem {
   path: string;
   title: string;
   updated_at?: string;
-  is_external?: boolean; // Added this field to match how it's used in NavigationManager
+  is_external?: boolean;
 }

@@ -24,10 +24,10 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
-      <HeroSection content={homeContent?.find(content => content.section === "hero")} />
-      <FeaturedCollections content={homeContent?.find(content => content.section === "featured")} />
-      <AtelierSection content={homeContent?.find(content => content.section === "atelier")} />
-      <ShopCategories content={homeContent?.find(content => content.section === "shop")} />
+      <HeroSection />
+      <FeaturedCollections />
+      <AtelierSection />
+      <ShopCategories />
     </div>
   );
 };

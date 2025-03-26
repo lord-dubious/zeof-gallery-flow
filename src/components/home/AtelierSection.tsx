@@ -1,8 +1,31 @@
+
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const AtelierSection = () => {
+  // Fetch atelier content from database
+  const { data: atelierContent } = useQuery({
+    queryKey: ["site-content", "atelier"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("site_content")
+        .select("*")
+        .eq("page", "home")
+        .eq("section", "atelier")
+        .single();
+
+      if (error) {
+        // Handle the error silently for this non-critical section
+        console.error("Error fetching atelier content:", error);
+        return null;
+      }
+      return data;
+    },
+  });
+
   return (
     <section className="py-24 bg-white">
       <div className="container mx-auto px-4">
@@ -15,13 +38,11 @@ const AtelierSection = () => {
           >
             <span className="text-zeof-gold font-serif italic mb-4 block">Our Atelier</span>
             <h2 className="text-4xl font-serif mb-6 text-zeof-black">
-              The House of Zeof Legacy
+              {atelierContent?.title || "The House of Zeof Legacy"}
             </h2>
             <p className="text-gray-700 mb-6 font-light leading-relaxed">
-              For over three decades, our atelier has been crafting exceptional garments for 
-              distinguished gentlemen, heads of state, and connoisseurs of fine tailoring. 
-              Each piece is a testament to our unwavering commitment to excellence and 
-              the preservation of traditional craftsmanship.
+              {atelierContent?.description || 
+                "For over three decades, our atelier has been crafting exceptional garments for distinguished gentlemen, heads of state, and connoisseurs of fine tailoring. Each piece is a testament to our unwavering commitment to excellence and the preservation of traditional craftsmanship."}
             </p>
             <Link
               to="/about"
@@ -38,7 +59,7 @@ const AtelierSection = () => {
             className="relative"
           >
             <img
-              src="https://images.unsplash.com/photo-1585914924626-15adac1e6402?q=80&w=2671"
+              src={atelierContent?.image_url || "https://images.unsplash.com/photo-1585914924626-15adac1e6402?q=80&w=2671"}
               alt="Atelier"
               className="w-full h-[600px] object-cover"
             />

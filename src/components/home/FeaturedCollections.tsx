@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -26,6 +27,25 @@ const collections = [
 ];
 
 const FeaturedCollections = () => {
+  // Fetch featured section content
+  const { data: featuredContent } = useQuery({
+    queryKey: ["site-content", "featured"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("site_content")
+        .select("*")
+        .eq("page", "home")
+        .eq("section", "featured")
+        .single();
+
+      if (error) {
+        console.error("Error fetching featured content:", error);
+        return null;
+      }
+      return data;
+    }
+  });
+
   const { data: images, isLoading } = useQuery({
     queryKey: ['featured-collection-images'],
     queryFn: async () => {
@@ -55,9 +75,9 @@ const FeaturedCollections = () => {
           className="text-center mb-16"
         >
           <span className="text-zeof-gold font-serif italic mb-4 block">Collections</span>
-          <h2 className="text-4xl font-serif mb-4 text-white">Masterpieces of Craftsmanship</h2>
+          <h2 className="text-4xl font-serif mb-4 text-white">{featuredContent?.title || "Masterpieces of Craftsmanship"}</h2>
           <p className="text-gray-300 max-w-2xl mx-auto font-light">
-            Discover our curated collections, where each piece embodies the pinnacle of sartorial excellence
+            {featuredContent?.description || "Discover our curated collections, where each piece embodies the pinnacle of sartorial excellence"}
           </p>
         </motion.div>
 

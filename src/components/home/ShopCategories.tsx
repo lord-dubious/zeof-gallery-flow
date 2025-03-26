@@ -1,8 +1,30 @@
+
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const ShopCategories = () => {
+  // Fetch shop content from database
+  const { data: shopContent } = useQuery({
+    queryKey: ["site-content", "shop"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("site_content")
+        .select("*")
+        .eq("page", "home")
+        .eq("section", "shop")
+        .single();
+
+      if (error) {
+        console.error("Error fetching shop content:", error);
+        return null;
+      }
+      return data;
+    },
+  });
+
   return (
     <section className="py-32 bg-zeof-cream">
       <div className="container mx-auto px-8">
@@ -13,9 +35,9 @@ const ShopCategories = () => {
           className="text-center mb-24"
         >
           <span className="text-zeof-gold font-serif tracking-wider mb-4 block text-sm uppercase">Collections</span>
-          <h2 className="text-4xl font-serif mb-4 text-zeof-black">Discover Our Atelier</h2>
+          <h2 className="text-4xl font-serif mb-4 text-zeof-black">{shopContent?.title || "Discover Our Atelier"}</h2>
           <p className="text-gray-700 max-w-2xl mx-auto font-light tracking-wide">
-            Experience the epitome of bespoke craftsmanship
+            {shopContent?.description || "Experience the epitome of bespoke craftsmanship"}
           </p>
         </motion.div>
 
@@ -28,7 +50,7 @@ const ShopCategories = () => {
           >
             <div className="relative overflow-hidden h-[70vh]">
               <img
-                src="https://images.unsplash.com/photo-1594938328870-9623159c8c99"
+                src={shopContent?.image_url || "https://images.unsplash.com/photo-1594938328870-9623159c8c99"}
                 alt="Luxury Collection"
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
               />
