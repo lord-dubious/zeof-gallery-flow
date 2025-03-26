@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useTheme } from "@/hooks/use-theme";
-import { EyeDropper } from "lucide-react";
+import { Palette } from "lucide-react";
 
 interface ColorOverlayPickerProps {
   color: string;
@@ -51,7 +51,7 @@ export const ColorOverlayPicker = ({
       <div className="space-y-5">
         <div>
           <Label htmlFor="color-picker" className="block mb-3 flex items-center">
-            <EyeDropper className="h-4 w-4 mr-2" /> 
+            <Palette className="h-4 w-4 mr-2" /> 
             Overlay Color
           </Label>
           <div className="flex items-center space-x-3 mb-3">
