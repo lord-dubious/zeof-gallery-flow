@@ -1,18 +1,51 @@
+
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const HeroSection = () => {
+  // Fetch hero content from database
+  const { data: heroContent } = useQuery({
+    queryKey: ["site-content", "hero"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("site_content")
+        .select("*")
+        .eq("page", "home")
+        .eq("section", "hero")
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Extract overlay settings
+  const overlayColor = heroContent?.content?.overlayColor || "#000000";
+  const overlayOpacity = heroContent?.content?.overlayOpacity !== undefined 
+    ? heroContent.content.overlayOpacity 
+    : 0.6;
+  
+  const imageUrl = heroContent?.image_url || 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=2574';
+
   return (
     <section className="relative h-screen">
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{ 
-          backgroundImage: 'url(https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=2574)', 
+          backgroundImage: `url(${imageUrl})`, 
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/60" />
+        <div 
+          className="absolute inset-0" 
+          style={{ 
+            background: `${overlayColor}`,
+            opacity: overlayOpacity
+          }} 
+        />
       </div>
       
       <div className="relative h-full flex items-center">
