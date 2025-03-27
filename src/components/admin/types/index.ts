@@ -8,8 +8,8 @@ export interface NavigationItem {
   display_order: number;
   id?: string;
   is_active?: boolean;
+  is_external?: boolean;
   path: string;
   title: string;
   updated_at?: string;
-  is_external?: boolean;
 }
