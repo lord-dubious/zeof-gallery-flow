@@ -70,7 +70,7 @@ const HeroSection = () => {
         <img 
           src={imageUrl}
           alt="Hero background"
-          className="absolute w-auto h-auto min-w-full min-h-full object-cover"
+          className="absolute w-full h-full object-cover"
           style={{ 
             objectPosition: `${imagePosition.x}% ${imagePosition.y}%`
           }}
