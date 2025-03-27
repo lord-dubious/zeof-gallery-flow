@@ -5,10 +5,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Loader2, Trash2, Save, Upload, Image as ImageIcon, Info } from "lucide-react";
+import { Loader2, Trash2, Save, Upload, Image as ImageIcon, Info, Crop } from "lucide-react";
 import { ImageDragDropUploader } from "./ImageDragDropUploader";
 import { ColorOverlayPicker } from "./ColorOverlayPicker";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Slider } from "@/components/ui/slider";
 
 interface HeroImage {
   id: string;
@@ -23,6 +24,10 @@ interface HeroContent {
   content?: {
     overlayColor?: string;
     overlayOpacity?: number;
+    imagePosition?: {
+      x: number;
+      y: number;
+    };
     [key: string]: any;
   };
   image_url?: string;
@@ -41,6 +46,7 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [overlayColor, setOverlayColor] = useState("#000000");
   const [overlayOpacity, setOverlayOpacity] = useState(0.5);
+  const [imagePosition, setImagePosition] = useState({ x: 50, y: 50 });
   const isDark = theme === 'dark';
 
   // Fetch hero section information
@@ -66,6 +72,11 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
       if (typedData.content?.overlayOpacity !== undefined) {
         setOverlayOpacity(typedData.content.overlayOpacity);
       }
+      if (typedData.content?.imagePosition) {
+        setImagePosition(typedData.content.imagePosition);
+      } else {
+        setImagePosition({ x: 50, y: 50 }); // Default center position
+      }
       
       return typedData;
     },
@@ -77,12 +88,14 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
       file, 
       id, 
       overlayColor, 
-      overlayOpacity 
+      overlayOpacity,
+      imagePosition 
     }: { 
       file?: File | null;
       id: string;
       overlayColor: string;
       overlayOpacity: number;
+      imagePosition: { x: number; y: number };
     }) => {
       let image_url = heroContent?.image_url || "";
       
@@ -109,7 +122,8 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
       const updatedContent = {
         ...currentContent,
         overlayColor,
-        overlayOpacity
+        overlayOpacity,
+        imagePosition
       };
       
       // Update in database
@@ -156,7 +170,8 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
       file: previewImage,
       id: heroContent.id,
       overlayColor,
-      overlayOpacity
+      overlayOpacity,
+      imagePosition
     });
   };
   
@@ -209,6 +224,14 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
     }
   };
 
+  const handleImagePositionXChange = (values: number[]) => {
+    setImagePosition(prev => ({ ...prev, x: values[0] }));
+  };
+
+  const handleImagePositionYChange = (values: number[]) => {
+    setImagePosition(prev => ({ ...prev, y: values[0] }));
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -239,7 +262,7 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="max-w-xs">
-                    Upload a high-quality image for your hero section and adjust the overlay to ensure text remains readable.
+                    Upload a high-quality image for your hero section, adjust the positioning, and set the overlay to ensure text remains readable.
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -285,6 +308,61 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
               </div>
               
               <ImageDragDropUploader onUpload={handleImageUpload} />
+
+              {displayImageUrl && (
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-lg font-medium mb-3 flex items-center">
+                      <Crop className="h-5 w-5 mr-2" /> Image Position
+                    </h4>
+                    <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Adjust how the image is positioned in the hero section
+                    </p>
+                    
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <label className="text-sm font-medium">Horizontal Position</label>
+                          <span className="text-xs text-gray-500">{imagePosition.x}%</span>
+                        </div>
+                        <Slider 
+                          value={[imagePosition.x]} 
+                          min={0} 
+                          max={100} 
+                          step={1} 
+                          onValueChange={handleImagePositionXChange}
+                          className={isDark ? 'bg-gray-700' : ''}
+                        />
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>Left</span>
+                          <span>Center</span>
+                          <span>Right</span>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <label className="text-sm font-medium">Vertical Position</label>
+                          <span className="text-xs text-gray-500">{imagePosition.y}%</span>
+                        </div>
+                        <Slider 
+                          value={[imagePosition.y]} 
+                          min={0} 
+                          max={100} 
+                          step={1} 
+                          onValueChange={handleImagePositionYChange}
+                          className={isDark ? 'bg-gray-700' : ''}
+                        />
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>Top</span>
+                          <span>Center</span>
+                          <span>Bottom</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="space-y-6">
@@ -306,11 +384,16 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
                 <div className="relative h-60 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                   {displayImageUrl ? (
                     <>
-                      <img 
-                        src={displayImageUrl} 
-                        alt="Preview" 
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
+                      <div className="absolute inset-0 overflow-hidden">
+                        <img 
+                          src={displayImageUrl} 
+                          alt="Preview" 
+                          className="absolute w-auto h-auto min-w-full min-h-full object-cover"
+                          style={{ 
+                            objectPosition: `${imagePosition.x}% ${imagePosition.y}%`,
+                          }}
+                        />
+                      </div>
                       <div 
                         className="absolute inset-0" 
                         style={{ 

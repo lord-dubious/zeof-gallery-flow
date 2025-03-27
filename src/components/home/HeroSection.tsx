@@ -11,6 +11,16 @@ interface HeroContent {
   content?: {
     overlayColor?: string;
     overlayOpacity?: number;
+    imagePosition?: {
+      x: number;
+      y: number;
+    };
+    heroText?: {
+      heading?: string;
+      subheading?: string;
+      buttonText?: string;
+      buttonUrl?: string;
+    };
     [key: string]: any;
   };
   image_url?: string;
@@ -40,16 +50,31 @@ const HeroSection = () => {
     ? heroContent.content.overlayOpacity 
     : 0.6;
   
+  // Extract image position
+  const imagePosition = heroContent?.content?.imagePosition || { x: 50, y: 50 };
+  
+  // Extract hero text content
+  const heroText = heroContent?.content?.heroText || {};
+  const heading = heroText.heading || "The Art of Refined Elegance";
+  const subheading = heroText.subheading || "Where timeless craftsmanship meets contemporary sophistication";
+  const buttonText = heroText.buttonText || "Explore Collection";
+  const buttonUrl = heroText.buttonUrl || "/gallery";
+  
   const imageUrl = heroContent?.image_url || 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=2574';
 
   return (
     <section className="relative h-screen">
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-fixed"
-        style={{ 
-          backgroundImage: `url(${imageUrl})`, 
-        }}
+        className="absolute inset-0 overflow-hidden"
       >
+        <img 
+          src={imageUrl}
+          alt="Hero background"
+          className="absolute w-auto h-auto min-w-full min-h-full object-cover"
+          style={{ 
+            objectPosition: `${imagePosition.x}% ${imagePosition.y}%`
+          }}
+        />
         <div 
           className="absolute inset-0" 
           style={{ 
@@ -71,14 +96,14 @@ const HeroSection = () => {
               Est. 1985
             </span>
             <h1 className="text-6xl md:text-7xl font-serif text-white mb-8 leading-tight">
-              The Art of Refined Elegance
+              {heading}
             </h1>
             <p className="text-lg text-gray-100 mb-12 font-light tracking-wide max-w-xl">
-              Where timeless craftsmanship meets contemporary sophistication
+              {subheading}
             </p>
-            <Link to="/gallery">
+            <Link to={buttonUrl}>
               <Button className="bg-zeof-gold hover:bg-zeof-brown text-white px-8 py-6 text-sm tracking-wider transition-all duration-300 rounded-none uppercase">
-                Explore Collection <ArrowRight className="ml-2 h-4 w-4" />
+                {buttonText} <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </motion.div>
