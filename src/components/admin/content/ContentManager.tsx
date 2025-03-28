@@ -6,15 +6,22 @@ import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { ContentTabsGroup } from "./ContentTabsGroup";
+import { SettingsManagerExtension } from "../SettingsManagerExtension";
 
 const ContentManager = () => {
   const { theme } = useTheme();
   const [activeSection, setActiveSection] = useState("home");
+  const useLocalStorage = localStorage.getItem('use_local_storage') === 'true';
 
   // Fetch site content
   const { data: siteContent, refetch, isLoading } = useQuery({
     queryKey: ["site-content"],
     queryFn: async () => {
+      if (useLocalStorage) {
+        const storedContent = localStorage.getItem('local_site_content');
+        return storedContent ? JSON.parse(storedContent) : [];
+      }
+
       const { data, error } = await supabase
         .from("site_content")
         .select("*")
@@ -36,6 +43,7 @@ const ContentManager = () => {
 
   return (
     <div className="space-y-6">
+      <SettingsManagerExtension />
       <ContentTabsGroup 
         activeSection={activeSection}
         setActiveSection={setActiveSection}
