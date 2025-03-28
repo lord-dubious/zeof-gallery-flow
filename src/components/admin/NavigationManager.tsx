@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,18 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Edit, Trash2, Plus, Move, GripVertical, ExternalLink } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
-import type { Database } from "@/integrations/supabase/types";
-
-type NavigationItem = Database['public']['Tables']['navigation_items']['Row'];
-type NavigationItemUpdate = Database['public']['Tables']['navigation_items']['Update'];
-type NavigationItemInsert = Database['public']['Tables']['navigation_items']['Insert'];
+import { useNavigation } from "@/hooks/useContentService";
+import type { NavigationItem } from "@/components/admin/types";
 
 export const NavigationManager = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [editingItem, setEditingItem] = useState<NavigationItem | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [newItem, setNewItem] = useState<NavigationItemInsert>({
+  const [newItem, setNewItem] = useState<Omit<NavigationItem, "id" | "created_at" | "updated_at">>({
     title: "",
     path: "",
     display_order: 0,
@@ -30,137 +26,42 @@ export const NavigationManager = () => {
   });
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  
+  // Use our new useNavigation hook
+  const { 
+    navigationItems, 
+    isLoading, 
+    createItem, 
+    updateItem, 
+    deleteItem,
+    isPending
+  } = useNavigation();
 
-  // Fetch navigation items
-  const { data: navigationItems, isLoading } = useQuery({
-    queryKey: ['navigation'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('navigation_items')
-        .select('*')
-        .order('display_order', { ascending: true });
-      
-      if (error) throw error;
-      return data as NavigationItem[];
-    }
-  });
-
-  // Create mutation
-  const createMutation = useMutation({
-    mutationFn: async (data: NavigationItemInsert) => {
-      const { error } = await supabase
-        .from('navigation_items')
-        .insert([data]);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['navigation'] });
-      toast({
-        title: "Success",
-        description: "Navigation item created successfully",
-      });
-      setIsAddDialogOpen(false);
-      setNewItem({
-        title: "",
-        path: "",
-        display_order: navigationItems?.length || 0,
-        is_external: false,
-        is_active: true
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to create navigation item",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Update mutation
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: NavigationItemUpdate }) => {
-      const { error } = await supabase
-        .from('navigation_items')
-        .update(data)
-        .eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['navigation'] });
-      toast({
-        title: "Success",
-        description: "Navigation item updated successfully",
-      });
-      setEditingItem(null);
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to update navigation item",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('navigation_items')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['navigation'] });
-      toast({
-        title: "Success",
-        description: "Navigation item deleted successfully",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to delete navigation item",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Reorder mutation
-  const reorderMutation = useMutation({
-    mutationFn: async ({ id, newOrder }: { id: string; newOrder: number }) => {
-      const { error } = await supabase
-        .from('navigation_items')
-        .update({ display_order: newOrder })
-        .eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['navigation'] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to reorder navigation items",
-        variant: "destructive",
-      });
-    },
-  });
-
+  // Move item handler
   const handleMoveItem = (item: NavigationItem, direction: 'up' | 'down') => {
     if (!navigationItems) return;
     
     const currentIndex = navigationItems.findIndex(navItem => navItem.id === item.id);
     if (direction === 'up' && currentIndex > 0) {
       const swapWithItem = navigationItems[currentIndex - 1];
-      reorderMutation.mutate({ id: item.id, newOrder: swapWithItem.display_order });
-      reorderMutation.mutate({ id: swapWithItem.id, newOrder: item.display_order });
+      updateItem({ 
+        id: item.id!, 
+        data: { display_order: swapWithItem.display_order }
+      });
+      updateItem({
+        id: swapWithItem.id!,
+        data: { display_order: item.display_order }
+      });
     } else if (direction === 'down' && currentIndex < navigationItems.length - 1) {
       const swapWithItem = navigationItems[currentIndex + 1];
-      reorderMutation.mutate({ id: item.id, newOrder: swapWithItem.display_order });
-      reorderMutation.mutate({ id: swapWithItem.id, newOrder: item.display_order });
+      updateItem({
+        id: item.id!,
+        data: { display_order: swapWithItem.display_order }
+      });
+      updateItem({
+        id: swapWithItem.id!,
+        data: { display_order: item.display_order }
+      });
     }
   };
 
@@ -234,11 +135,11 @@ export const NavigationManager = () => {
               </div>
               <div className="pt-4">
                 <Button 
-                  onClick={() => createMutation.mutate(newItem)}
-                  disabled={!newItem.title || !newItem.path || createMutation.isPending}
+                  onClick={() => createItem(newItem)}
+                  disabled={!newItem.title || !newItem.path || isPending}
                   className="w-full"
                 >
-                  {createMutation.isPending ? (
+                  {isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : (
                     <Plus className="h-4 w-4 mr-2" />
@@ -315,10 +216,10 @@ export const NavigationManager = () => {
                     <Button 
                       variant="destructive" 
                       size="sm"
-                      onClick={() => deleteMutation.mutate(item.id)}
-                      disabled={deleteMutation.isPending}
+                      onClick={() => deleteItem(item.id!)}
+                      disabled={isPending}
                     >
-                      {deleteMutation.isPending ? (
+                      {isPending ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <Trash2 className="h-4 w-4" />
@@ -388,12 +289,12 @@ export const NavigationManager = () => {
                 <Button 
                   onClick={() => {
                     const { id, ...data } = editingItem;
-                    updateMutation.mutate({ id, data });
+                    updateItem({ id: id!, data });
                   }}
-                  disabled={!editingItem.title || !editingItem.path || updateMutation.isPending}
+                  disabled={!editingItem.title || !editingItem.path || isPending}
                   className="w-full"
                 >
-                  {updateMutation.isPending ? (
+                  {isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : (
                     <Edit className="h-4 w-4 mr-2" />

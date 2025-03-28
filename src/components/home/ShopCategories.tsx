@@ -2,28 +2,14 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useContent } from "@/hooks/useContentService";
 
 const ShopCategories = () => {
-  // Fetch shop content from database
-  const { data: shopContent } = useQuery({
-    queryKey: ["site-content", "shop"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("site_content")
-        .select("*")
-        .eq("page", "home")
-        .eq("section", "shop")
-        .single();
-
-      if (error) {
-        console.error("Error fetching shop content:", error);
-        return null;
-      }
-      return data;
-    },
-  });
+  // Fetch shop content using our Ghost-backed service
+  const { content } = useContent("home", "shop");
+  
+  // Use the first content item if available
+  const shopContent = content && content.length > 0 ? content[0] : null;
 
   return (
     <section className="py-32 bg-zeof-cream">
