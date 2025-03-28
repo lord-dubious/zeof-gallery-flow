@@ -2,14 +2,29 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useContent } from "@/hooks/useContentService";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const AtelierSection = () => {
-  // Fetch atelier content using our Ghost-backed service
-  const { content } = useContent("home", "atelier");
-  
-  // Use the first content item if available
-  const atelierContent = content && content.length > 0 ? content[0] : null;
+  // Fetch atelier content from database
+  const { data: atelierContent } = useQuery({
+    queryKey: ["site-content", "atelier"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("site_content")
+        .select("*")
+        .eq("page", "home")
+        .eq("section", "atelier")
+        .single();
+
+      if (error) {
+        // Handle the error silently for this non-critical section
+        console.error("Error fetching atelier content:", error);
+        return null;
+      }
+      return data;
+    },
+  });
 
   return (
     <section className="py-24 bg-white">
