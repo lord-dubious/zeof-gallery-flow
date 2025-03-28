@@ -1,6 +1,6 @@
 
 import { directusClient } from '../client';
-import type { NavigationItem } from '@/components/admin/types';
+import type { NavigationItem } from '@/components/admin/types/index';
 
 export const navigationService = {
   async getItems(): Promise<NavigationItem[]> {

@@ -1,10 +1,9 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { navigationService } from '@/integrations/directus/services/navigation';
 import { contentService } from '@/integrations/directus/services/content';
 import { supabase } from '@/integrations/supabase/client';
-import type { NavigationItem } from '@/components/admin/types';
+import type { NavigationItem } from '@/components/admin/types/index';
 
 export function useNavigation() {
   const queryClient = useQueryClient();
@@ -46,7 +45,13 @@ export function useNavigation() {
         // Fallback to Supabase
         const { error: supabaseError } = await supabase
           .from('navigation_items')
-          .insert([data]);
+          .insert([{ 
+            title: data.title, 
+            path: data.path, 
+            display_order: data.display_order,
+            is_active: data.is_active,
+            is_external: data.is_external
+          }]);
         if (supabaseError) throw supabaseError;
       }
     },
