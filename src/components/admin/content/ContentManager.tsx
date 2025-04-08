@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchSiteContent } from "@/services/content";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
@@ -11,25 +11,19 @@ import { SettingsManagerExtension } from "../SettingsManagerExtension";
 const ContentManager = () => {
   const { theme } = useTheme();
   const [activeSection, setActiveSection] = useState("home");
-  const useLocalStorage = localStorage.getItem('use_local_storage') === 'true';
-
+  
   // Fetch site content
   const { data: siteContent, refetch, isLoading } = useQuery({
     queryKey: ["site-content"],
     queryFn: async () => {
-      if (useLocalStorage) {
-        const storedContent = localStorage.getItem('local_site_content');
-        return storedContent ? JSON.parse(storedContent) : [];
+      try {
+        // Fetch all site content
+        const content = await fetchSiteContent("");
+        return content;
+      } catch (error) {
+        console.error("Error fetching site content:", error);
+        return [];
       }
-
-      const { data, error } = await supabase
-        .from("site_content")
-        .select("*")
-        .order("page", { ascending: true })
-        .order("section", { ascending: true });
-
-      if (error) throw error;
-      return data;
     },
   });
 

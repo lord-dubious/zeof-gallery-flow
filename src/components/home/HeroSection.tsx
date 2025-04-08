@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchSiteContent } from "@/services/content";
 
 // Define type for hero content
 interface HeroContent {
@@ -32,15 +32,8 @@ const HeroSection = () => {
   const { data: heroContent } = useQuery({
     queryKey: ["site-content", "hero"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("site_content")
-        .select("*")
-        .eq("page", "home")
-        .eq("section", "hero")
-        .single();
-
-      if (error) throw error;
-      return data as HeroContent;
+      const data = await fetchSiteContent("home", "hero");
+      return data && data.length > 0 ? data[0] as HeroContent : null;
     },
   });
 

@@ -3,25 +3,15 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchSiteContent } from "@/services/content";
 
 const ShopCategories = () => {
   // Fetch shop content from database
   const { data: shopContent } = useQuery({
     queryKey: ["site-content", "shop"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("site_content")
-        .select("*")
-        .eq("page", "home")
-        .eq("section", "shop")
-        .single();
-
-      if (error) {
-        console.error("Error fetching shop content:", error);
-        return null;
-      }
-      return data;
+      const data = await fetchSiteContent("home", "shop");
+      return data && data.length > 0 ? data[0] : null;
     },
   });
 
