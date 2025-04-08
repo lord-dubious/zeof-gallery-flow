@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSiteContent } from "@/services/content";
-import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { ContentTabsGroup } from "./ContentTabsGroup";
@@ -17,7 +16,7 @@ const ContentManager = () => {
     queryKey: ["site-content"],
     queryFn: async () => {
       try {
-        // Fetch all site content
+        // Fetch all site content from Strapi
         const content = await fetchSiteContent("");
         return content;
       } catch (error) {

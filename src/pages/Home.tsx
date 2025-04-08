@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchSiteContent } from "@/services/content";
 import HeroSection from "@/components/home/HeroSection";
 import FeaturedCollections from "@/components/home/FeaturedCollections";
 import AtelierSection from "@/components/home/AtelierSection";
@@ -11,14 +11,8 @@ const Home = () => {
   const { data: homeContent } = useQuery({
     queryKey: ["home-content"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("site_content")
-        .select("*")
-        .eq("page", "home")
-        .order("section", { ascending: true });
-
-      if (error) throw error;
-      return data;
+      const content = await fetchSiteContent("home");
+      return content;
     },
   });
 

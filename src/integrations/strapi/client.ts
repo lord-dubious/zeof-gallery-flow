@@ -8,6 +8,14 @@ const STRAPI_TOKEN = import.meta.env.VITE_STRAPI_API_TOKEN || '';
 export const strapi = new Strapi({
   url: STRAPI_URL,
   prefix: '/api',
-  apiToken: STRAPI_TOKEN,
+  store: {
+    key: 'strapi_jwt',
+    useLocalStorage: true,
+    cookieOptions: { path: '/' }
+  },
+  axiosOptions: {
+    headers: {
+      Authorization: `Bearer ${STRAPI_TOKEN}`,
+    },
+  },
 });
-
