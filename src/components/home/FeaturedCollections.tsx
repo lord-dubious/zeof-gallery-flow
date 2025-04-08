@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchSiteContent, fetchImages } from "@/services/content";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const collections = [
@@ -31,32 +31,15 @@ const FeaturedCollections = () => {
   const { data: featuredContent } = useQuery({
     queryKey: ["site-content", "featured"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("site_content")
-        .select("*")
-        .eq("page", "home")
-        .eq("section", "featured")
-        .single();
-
-      if (error) {
-        console.error("Error fetching featured content:", error);
-        return null;
-      }
-      return data;
+      const data = await fetchSiteContent("home", "featured");
+      return data && data.length > 0 ? data[0] : null;
     }
   });
 
   const { data: images, isLoading } = useQuery({
     queryKey: ['featured-collection-images'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('images')
-        .select('*')
-        .in('image_role', ['suits_collection', 'evening_collection', 'accessories_collection'])
-        .eq('is_published', true);
-      
-      if (error) throw error;
-      return data;
+      return fetchImages();
     }
   });
 

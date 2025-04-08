@@ -1,15 +1,19 @@
 
 import { strapi } from '@/integrations/strapi/client';
-import { supabase } from '@/integrations/supabase/client';
-import type { NavigationItem } from '@/components/admin/types';
 
-const useLocalStorage = () => {
-  return localStorage.getItem('use_local_storage') === 'true';
-};
+export interface NavigationItem {
+  id: string;
+  title: string;
+  path: string;
+  display_order: number;
+  is_active: boolean;
+  is_external: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
 
 export async function fetchNavigation(): Promise<NavigationItem[]> {
   try {
-    // Try to fetch from Strapi first
     const { data } = await strapi.find('navigation-items', {
       sort: 'display_order:asc',
       populate: '*',
@@ -27,29 +31,15 @@ export async function fetchNavigation(): Promise<NavigationItem[]> {
         updated_at: item.attributes.updatedAt,
       }));
     }
-  } catch (strapiError) {
-    console.error("Error fetching from Strapi, falling back to Supabase/local:", strapiError);
+    return [];
+  } catch (error) {
+    console.error("Error fetching navigation from Strapi:", error);
+    return [];
   }
-  
-  // Fallback to local storage or Supabase
-  if (useLocalStorage()) {
-    const storedItems = localStorage.getItem('local_navigation_items');
-    return storedItems ? JSON.parse(storedItems) : [];
-  }
-  
-  // Final fallback to Supabase
-  const { data, error } = await supabase
-    .from('navigation_items')
-    .select('*')
-    .order('display_order', { ascending: true });
-  
-  if (error) throw error;
-  return data || [];
 }
 
 export async function fetchSiteContent(page: string, section?: string) {
   try {
-    // Try Strapi first
     const query = {
       filters: {
         page: { $eq: page },
@@ -74,35 +64,11 @@ export async function fetchSiteContent(page: string, section?: string) {
           : null,
       }));
     }
-  } catch (strapiError) {
-    console.error("Error fetching content from Strapi, falling back:", strapiError);
+    return [];
+  } catch (error) {
+    console.error("Error fetching content from Strapi:", error);
+    return [];
   }
-  
-  // Fallback to local storage
-  if (useLocalStorage()) {
-    const storedContent = localStorage.getItem('local_site_content');
-    if (storedContent) {
-      const content = JSON.parse(storedContent);
-      return content.filter((item: any) => 
-        item.page === page && (!section || item.section === section)
-      );
-    }
-  }
-  
-  // Final fallback to Supabase
-  let query = supabase
-    .from('site_content')
-    .select('*')
-    .eq('page', page);
-    
-  if (section) {
-    query = query.eq('section', section);
-  }
-  
-  const { data, error } = await query;
-  
-  if (error) throw error;
-  return data || [];
 }
 
 export async function fetchCategories() {
@@ -127,18 +93,11 @@ export async function fetchCategories() {
         updated_at: item.attributes.updatedAt,
       }));
     }
-  } catch (strapiError) {
-    console.error("Error fetching categories from Strapi, falling back:", strapiError);
+    return [];
+  } catch (error) {
+    console.error("Error fetching categories from Strapi:", error);
+    return [];
   }
-  
-  // Fallback to Supabase
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*, category_items(*)')
-    .order('display_order', { ascending: true });
-  
-  if (error) throw error;
-  return data || [];
 }
 
 export async function fetchImages() {
@@ -165,16 +124,9 @@ export async function fetchImages() {
         updated_at: item.attributes.updatedAt,
       }));
     }
-  } catch (strapiError) {
-    console.error("Error fetching images from Strapi, falling back:", strapiError);
+    return [];
+  } catch (error) {
+    console.error("Error fetching images from Strapi:", error);
+    return [];
   }
-  
-  // Fallback to Supabase
-  const { data, error } = await supabase
-    .from('images')
-    .select('*');
-  
-  if (error) throw error;
-  return data || [];
 }
-
