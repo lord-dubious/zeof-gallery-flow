@@ -33,7 +33,6 @@ export interface Category {
   is_active: boolean;
   created_at?: string;
   updated_at?: string;
-  category_items?: any[];
 }
 
 export interface CategoryItem {
@@ -71,5 +70,5 @@ export interface CategoryFormData {
   is_active: boolean;
 }
 
-export type CategoryInsert = Omit<Category, 'id' | 'created_at' | 'updated_at' | 'category_items'>;
+export type CategoryInsert = Omit<Category, 'id' | 'created_at' | 'updated_at'>;
 export type CategoryUpdate = Partial<CategoryInsert>;

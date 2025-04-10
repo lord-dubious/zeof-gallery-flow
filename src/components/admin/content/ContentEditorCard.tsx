@@ -1,16 +1,15 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Image as ImageIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { QueryObserverResult } from "@tanstack/react-query";
 import { ImageUploadSection } from "./ImageUploadSection";
 import { CarouselSection } from "./CarouselSection";
 import { HeroTextSection } from "./HeroTextSection";
 import { JsonContentSection } from "./JsonContentSection";
+import { db } from "@/services/db";
 
 interface ContentEditorCardProps {
   content: any;
@@ -32,12 +31,9 @@ export const ContentEditorCard = ({
   const updateContent = async (id: string, updates: any) => {
     setIsUpdating(true);
     try {
-      const { error } = await supabase
-        .from("site_content")
-        .update(updates)
-        .eq("id", id);
+      const success = await db.content.update(id, updates);
 
-      if (error) {
+      if (!success) {
         toast({
           title: "Error",
           description: "Failed to update content",

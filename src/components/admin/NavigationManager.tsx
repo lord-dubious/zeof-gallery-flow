@@ -1,27 +1,22 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Edit, Trash2, Plus, Move, GripVertical, ExternalLink } from "lucide-react";
+import { Loader2, Edit, Trash2, Plus, GripVertical, ExternalLink } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
-import type { Database } from "@/integrations/supabase/types";
-
-type NavigationItem = Database['public']['Tables']['navigation_items']['Row'];
-type NavigationItemUpdate = Database['public']['Tables']['navigation_items']['Update'];
-type NavigationItemInsert = Database['public']['Tables']['navigation_items']['Insert'];
+import { NavigationItem } from "../types";
+import { db } from "@/services/db";
 
 export const NavigationManager = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [editingItem, setEditingItem] = useState<NavigationItem | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [newItem, setNewItem] = useState<NavigationItemInsert>({
+  const [newItem, setNewItem] = useState<Omit<NavigationItem, 'id' | 'created_at' | 'updated_at'>>({
     title: "",
     path: "",
     display_order: 0,
@@ -34,25 +29,12 @@ export const NavigationManager = () => {
   // Fetch navigation items
   const { data: navigationItems, isLoading } = useQuery({
     queryKey: ['navigation'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('navigation_items')
-        .select('*')
-        .order('display_order', { ascending: true });
-      
-      if (error) throw error;
-      return data as NavigationItem[];
-    }
+    queryFn: db.navigation.getAll
   });
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (data: NavigationItemInsert) => {
-      const { error } = await supabase
-        .from('navigation_items')
-        .insert([data]);
-      if (error) throw error;
-    },
+    mutationFn: db.navigation.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['navigation'] });
       toast({
@@ -79,12 +61,10 @@ export const NavigationManager = () => {
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: NavigationItemUpdate }) => {
-      const { error } = await supabase
-        .from('navigation_items')
-        .update(data)
-        .eq('id', id);
-      if (error) throw error;
+    mutationFn: async ({ id, data }: { id: string; data: Partial<NavigationItem> }) => {
+      const result = await db.navigation.update(id, data);
+      if (!result) throw new Error("Failed to update");
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['navigation'] });
@@ -105,13 +85,7 @@ export const NavigationManager = () => {
 
   // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('navigation_items')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-    },
+    mutationFn: db.navigation.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['navigation'] });
       toast({
@@ -131,11 +105,9 @@ export const NavigationManager = () => {
   // Reorder mutation
   const reorderMutation = useMutation({
     mutationFn: async ({ id, newOrder }: { id: string; newOrder: number }) => {
-      const { error } = await supabase
-        .from('navigation_items')
-        .update({ display_order: newOrder })
-        .eq('id', id);
-      if (error) throw error;
+      const result = await db.navigation.update(id, { display_order: newOrder });
+      if (!result) throw new Error("Failed to reorder");
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['navigation'] });

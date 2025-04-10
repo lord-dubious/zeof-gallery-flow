@@ -1,8 +1,6 @@
-
-import { useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Loader2, Trash2, Save, Upload, Image as ImageIcon, Info, Crop } from "lucide-react";
@@ -10,6 +8,8 @@ import { ImageDragDropUploader } from "./ImageDragDropUploader";
 import { ColorOverlayPicker } from "./ColorOverlayPicker";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Slider } from "@/components/ui/slider";
+import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/services/db";
 
 interface HeroImage {
   id: string;
@@ -19,7 +19,6 @@ interface HeroImage {
   overlay_opacity: number;
 }
 
-// Define a type for the hero content structure
 interface HeroContent {
   content?: {
     overlayColor?: string;
@@ -49,7 +48,6 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
   const [imagePosition, setImagePosition] = useState({ x: 50, y: 50 });
   const isDark = theme === 'dark';
 
-  // Fetch hero section information
   const { data: heroContent, isLoading } = useQuery({
     queryKey: ["site-content", "hero"],
     queryFn: async () => {
@@ -62,10 +60,8 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
 
       if (error) throw error;
       
-      // Type assertion to ensure we're working with the correct structure
       const typedData = data as HeroContent;
       
-      // Set initial overlay values if they exist
       if (typedData.content?.overlayColor) {
         setOverlayColor(typedData.content.overlayColor);
       }
@@ -75,14 +71,13 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
       if (typedData.content?.imagePosition) {
         setImagePosition(typedData.content.imagePosition);
       } else {
-        setImagePosition({ x: 50, y: 50 }); // Default center position
+        setImagePosition({ x: 50, y: 50 });
       }
       
       return typedData;
     },
   });
 
-  // Update hero settings
   const mutation = useMutation({
     mutationFn: async ({ 
       file, 
@@ -99,7 +94,6 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
     }) => {
       let image_url = heroContent?.image_url || "";
       
-      // Upload new image if provided
       if (file) {
         const fileExt = file.name.split(".").pop();
         const fileName = `hero-${Date.now()}.${fileExt}`;
@@ -117,7 +111,6 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
         image_url = publicUrl;
       }
       
-      // Update content with new values
       const currentContent = heroContent?.content || {};
       const updatedContent = {
         ...currentContent,
@@ -126,7 +119,6 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
         imagePosition
       };
       
-      // Update in database
       const { error } = await supabase
         .from("site_content")
         .update({
@@ -187,18 +179,15 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
     if (!heroContent || !heroContent.image_url) return;
     
     try {
-      // Extract filename from URL
       const urlParts = heroContent.image_url.split('/');
       const fileName = urlParts[urlParts.length - 1];
       
-      // Delete the file from storage if it's a Supabase storage URL
       if (heroContent.image_url.includes('site-images')) {
         await supabase.storage
           .from('site-images')
           .remove([fileName]);
       }
       
-      // Update in database - set image_url to null
       await supabase
         .from("site_content")
         .update({
