@@ -1,4 +1,5 @@
 
+// Basic types for navigation, content, and categories
 export interface NavigationItem {
   id: string;
   title: string;
@@ -18,7 +19,7 @@ export interface SiteContent {
   subtitle?: string;
   description?: string;
   content?: any;
-  image_url?: string;
+  image_url?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -30,37 +31,35 @@ export interface Category {
   description?: string | null;
   display_order: number;
   image_url?: string | null;
-  is_active: boolean | null;
+  is_active: boolean;
   created_at?: string;
   updated_at?: string;
-  category_items?: CategoryItem[];
 }
 
 export interface CategoryItem {
   id: string;
+  category_id: string;
   title: string;
   description?: string | null;
-  price?: number;
-  image_url?: string;
-  is_featured: boolean;
-  category_id: string;
+  image_url?: string | null;
   created_at?: string;
   updated_at?: string;
 }
 
 export interface Image {
   id: string;
-  title?: string;
-  description?: string;
+  title?: string | null;
+  description?: string | null;
   url: string;
-  thumbnail_url?: string;
-  is_published?: boolean;
-  image_role?: string;
-  metadata?: any;
+  thumbnail_url?: string | null;
+  is_published?: boolean | null;
+  image_role?: string | null;
+  metadata?: any | null;
   created_at?: string;
   updated_at?: string;
 }
 
+// Form data interfaces
 export interface CategoryFormData {
   title: string;
   slug: string;
@@ -71,5 +70,11 @@ export interface CategoryFormData {
   is_active?: boolean;
 }
 
-export type CategoryInsert = Omit<Category, 'id' | 'created_at' | 'updated_at' | 'category_items'>;
-export type CategoryUpdate = Partial<CategoryInsert>;
+export interface ImageFormData {
+  title?: string | null;
+  description?: string | null;
+  image?: File;
+  url?: string;
+  image_role?: string | null;
+  is_published?: boolean;
+}

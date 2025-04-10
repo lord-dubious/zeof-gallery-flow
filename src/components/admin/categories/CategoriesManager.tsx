@@ -1,6 +1,6 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -8,7 +8,8 @@ import { Loader2, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CategoryForm } from "./CategoryForm";
 import { CategoryItem } from "./CategoryItem";
-import { Category, CategoryFormData } from "../types";
+import { db } from "@/services/db";
+import type { Category, CategoryFormData } from "../types";
 
 export const CategoriesManager = () => {
   const { toast } = useToast();
@@ -18,33 +19,17 @@ export const CategoriesManager = () => {
   // Fetch categories
   const { data: categories, isLoading } = useQuery({
     queryKey: ['categories'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*, category_items(*)')
-        .order('display_order', { ascending: true });
-      
-      if (error) throw error;
-      return data as Category[];
-    }
+    queryFn: db.categories.getAll
   });
 
-  // Handle file upload
-  const uploadImage = async (file: File) => {
-    const fileExt = file.name.split('.').pop();
-    const filePath = `${crypto.randomUUID()}.${fileExt}`;
-    
-    const { error: uploadError } = await supabase.storage
-      .from('images')
-      .upload(filePath, file);
-
-    if (uploadError) throw uploadError;
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('images')
-      .getPublicUrl(filePath);
-
-    return publicUrl;
+  // Handle file upload - converted to use base64 for local storage
+  const handleFileUpload = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
   };
 
   // Create mutation
@@ -53,19 +38,13 @@ export const CategoriesManager = () => {
       let imageUrl = newCategory.image_url;
       
       if (newCategory.image instanceof File) {
-        imageUrl = await uploadImage(newCategory.image);
+        imageUrl = await handleFileUpload(newCategory.image);
       }
       
-      const { error } = await supabase
-        .from('categories')
-        .insert([{ 
-          title: newCategory.title,
-          slug: newCategory.slug,
-          description: newCategory.description,
-          display_order: newCategory.display_order,
-          image_url: imageUrl
-        }]);
-      if (error) throw error;
+      return db.categories.create({
+        ...newCategory,
+        image_url: imageUrl
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
@@ -90,20 +69,17 @@ export const CategoriesManager = () => {
       let imageUrl = data.image_url;
       
       if (data.image instanceof File) {
-        imageUrl = await uploadImage(data.image);
+        imageUrl = await handleFileUpload(data.image);
       }
       
-      const { error } = await supabase
-        .from('categories')
-        .update({ 
-          title: data.title,
-          slug: data.slug,
-          description: data.description,
-          display_order: data.display_order,
-          image_url: imageUrl
-        })
-        .eq('id', id);
-      if (error) throw error;
+      return db.categories.update(id, {
+        title: data.title,
+        slug: data.slug,
+        description: data.description,
+        display_order: data.display_order,
+        image_url: imageUrl,
+        is_active: data.is_active
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
@@ -123,13 +99,7 @@ export const CategoriesManager = () => {
 
   // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('categories')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-    },
+    mutationFn: db.categories.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast({
@@ -182,8 +152,8 @@ export const CategoriesManager = () => {
             <CategoryItem
               key={category.id}
               category={category}
-              onUpdate={(id, data) => updateMutation.mutate({ id, data })}
-              onDelete={(id) => deleteMutation.mutate(id)}
+              onUpdate={(data) => updateMutation.mutate({ id: category.id, data })}
+              onDelete={() => deleteMutation.mutate(category.id)}
               isUpdating={updateMutation.isPending}
               isDeleting={deleteMutation.isPending}
             />

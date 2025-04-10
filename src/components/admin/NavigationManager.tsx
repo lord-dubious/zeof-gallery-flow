@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -27,13 +26,11 @@ export const NavigationManager = () => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Fetch navigation items
   const { data: navigationItems, isLoading } = useQuery({
     queryKey: ['navigation'],
     queryFn: db.navigation.getAll
   });
 
-  // Create mutation
   const createMutation = useMutation({
     mutationFn: db.navigation.create,
     onSuccess: () => {
@@ -60,12 +57,9 @@ export const NavigationManager = () => {
     },
   });
 
-  // Update mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<NavigationItem> }) => {
-      const result = await db.navigation.update(id, data);
-      if (!result) throw new Error("Failed to update");
-      return result;
+      return db.navigation.update(id, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['navigation'] });
@@ -84,7 +78,6 @@ export const NavigationManager = () => {
     },
   });
 
-  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: db.navigation.delete,
     onSuccess: () => {
@@ -103,12 +96,9 @@ export const NavigationManager = () => {
     },
   });
 
-  // Reorder mutation
   const reorderMutation = useMutation({
     mutationFn: async ({ id, newOrder }: { id: string; newOrder: number }) => {
-      const result = await db.navigation.update(id, { display_order: newOrder });
-      if (!result) throw new Error("Failed to reorder");
-      return result;
+      return db.navigation.update(id, { display_order: newOrder });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['navigation'] });
@@ -305,7 +295,6 @@ export const NavigationManager = () => {
         </div>
       </CardContent>
 
-      {/* Edit Dialog */}
       {editingItem && (
         <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
           <DialogContent className={isDark ? 'bg-gray-800 border-gray-700' : ''}>

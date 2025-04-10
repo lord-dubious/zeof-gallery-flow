@@ -1,5 +1,3 @@
 
-import type { Database } from "@/integrations/supabase/types";
-
-// We'll just export types from the main types file now
-export { Category, CategoryInsert, CategoryUpdate } from "../types";
+// Simply re-export types from the main types file
+export type { Category, CategoryFormData } from "../types";

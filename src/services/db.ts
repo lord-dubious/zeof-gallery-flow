@@ -1,37 +1,36 @@
 
-import { supabase } from "@/integrations/supabase/client";
 import { 
   NavigationItem, 
   SiteContent, 
   Category, 
   CategoryItem, 
   Image,
-  CategoryInsert 
+  CategoryFormData 
 } from "@/components/admin/types";
+
+// Helper to generate UUIDs
+const generateId = (): string => {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+};
+
+// Helper to get current ISO datetime
+const now = (): string => new Date().toISOString();
+
+// Local storage keys
+const STORAGE_KEYS = {
+  NAVIGATION: "local_navigation_items",
+  CONTENT: "local_site_content",
+  CATEGORIES: "local_categories",
+  IMAGES: "local_images"
+};
 
 export const db = {
   // Navigation methods
   navigation: {
     async getAll(): Promise<NavigationItem[]> {
       try {
-        const { data, error } = await supabase
-          .from("categories") // Use existing tables as fallback
-          .select("*")
-          .order("display_order", { ascending: true });
-          
-        if (error) throw error;
-
-        // Map the categories to navigation items as a fallback
-        return data.map((cat: any) => ({
-          id: cat.id,
-          title: cat.title,
-          path: `/category/${cat.slug}`,
-          display_order: cat.display_order,
-          is_active: cat.is_active,
-          is_external: false,
-          created_at: cat.created_at,
-          updated_at: cat.updated_at
-        }));
+        const items = localStorage.getItem(STORAGE_KEYS.NAVIGATION);
+        return items ? JSON.parse(items) : [];
       } catch (error) {
         console.error("Error fetching navigation items:", error);
         return [];
@@ -40,33 +39,17 @@ export const db = {
     
     async create(item: Omit<NavigationItem, 'id' | 'created_at' | 'updated_at'>): Promise<NavigationItem | null> {
       try {
-        // Simulate creating a navigation item by creating a category
-        const { data, error } = await supabase
-          .from("categories")
-          .insert([{
-            title: item.title,
-            slug: item.title.toLowerCase().replace(/\s+/g, '-'),
-            display_order: item.display_order,
-            is_active: item.is_active,
-            description: `Navigation item: ${item.path}`
-          }])
-          .select();
-          
-        if (error) throw error;
+        const items = await this.getAll();
+        const newItem = {
+          ...item,
+          id: generateId(),
+          created_at: now(),
+          updated_at: now()
+        };
         
-        if (data && data.length > 0) {
-          return {
-            id: data[0].id,
-            title: data[0].title,
-            path: item.path,
-            display_order: data[0].display_order,
-            is_active: data[0].is_active,
-            is_external: item.is_external,
-            created_at: data[0].created_at,
-            updated_at: data[0].updated_at
-          };
-        }
-        return null;
+        items.push(newItem);
+        localStorage.setItem(STORAGE_KEYS.NAVIGATION, JSON.stringify(items));
+        return newItem;
       } catch (error) {
         console.error("Error creating navigation item:", error);
         return null;
@@ -75,17 +58,11 @@ export const db = {
     
     async update(id: string, updates: Partial<NavigationItem>): Promise<boolean> {
       try {
-        // Simulate updating a navigation item by updating a category
-        const { error } = await supabase
-          .from("categories")
-          .update({
-            title: updates.title,
-            display_order: updates.display_order,
-            is_active: updates.is_active
-          })
-          .eq("id", id);
-          
-        if (error) throw error;
+        const items = await this.getAll();
+        const updatedItems = items.map(item => 
+          item.id === id ? { ...item, ...updates, updated_at: now() } : item
+        );
+        localStorage.setItem(STORAGE_KEYS.NAVIGATION, JSON.stringify(updatedItems));
         return true;
       } catch (error) {
         console.error("Error updating navigation item:", error);
@@ -95,13 +72,9 @@ export const db = {
     
     async delete(id: string): Promise<boolean> {
       try {
-        // Delete from categories
-        const { error } = await supabase
-          .from("categories")
-          .delete()
-          .eq("id", id);
-          
-        if (error) throw error;
+        const items = await this.getAll();
+        const filteredItems = items.filter(item => item.id !== id);
+        localStorage.setItem(STORAGE_KEYS.NAVIGATION, JSON.stringify(filteredItems));
         return true;
       } catch (error) {
         console.error("Error deleting navigation item:", error);
@@ -114,37 +87,14 @@ export const db = {
   content: {
     async getByPage(page: string, section?: string): Promise<SiteContent[]> {
       try {
-        // Use images table as a temporary content storage
-        const query = supabase
-          .from("images")
-          .select("*");
-          
-        if (section) {
-          query.eq("image_role", `${page}/${section}`);
-        } else {
-          query.like("image_role", `${page}/%`);
-        }
+        const contents = localStorage.getItem(STORAGE_KEYS.CONTENT);
+        const allContent: SiteContent[] = contents ? JSON.parse(contents) : [];
         
-        const { data, error } = await query;
-        
-        if (error) throw error;
-        
-        // Map the images to content items as a fallback
-        return data.map((image: any) => {
-          // Parse section from image_role
-          const [imagePage, imageSection] = (image.image_role || "/").split("/");
-          
-          return {
-            id: image.id,
-            page: imagePage || page,
-            section: imageSection || "content",
-            title: image.title,
-            description: image.description,
-            image_url: image.url,
-            content: image.metadata || {},
-            created_at: image.created_at,
-            updated_at: image.updated_at
-          };
+        return allContent.filter(item => {
+          if (section) {
+            return item.page === page && item.section === section;
+          }
+          return item.page === page;
         });
       } catch (error) {
         console.error("Error fetching content:", error);
@@ -154,18 +104,14 @@ export const db = {
     
     async update(id: string, updates: Partial<SiteContent>): Promise<boolean> {
       try {
-        // Update in images table
-        const { error } = await supabase
-          .from("images")
-          .update({
-            title: updates.title,
-            description: updates.description,
-            url: updates.image_url,
-            metadata: updates.content
-          })
-          .eq("id", id);
-          
-        if (error) throw error;
+        const contents = localStorage.getItem(STORAGE_KEYS.CONTENT);
+        const allContent: SiteContent[] = contents ? JSON.parse(contents) : [];
+        
+        const updatedContent = allContent.map(item => 
+          item.id === id ? { ...item, ...updates, updated_at: now() } : item
+        );
+        
+        localStorage.setItem(STORAGE_KEYS.CONTENT, JSON.stringify(updatedContent));
         return true;
       } catch (error) {
         console.error("Error updating content:", error);
@@ -178,30 +124,28 @@ export const db = {
   categories: {
     async getAll(): Promise<Category[]> {
       try {
-        const { data, error } = await supabase
-          .from("categories")
-          .select("*")
-          .order("display_order", { ascending: true });
-          
-        if (error) throw error;
-        
-        return data;
+        const categories = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
+        return categories ? JSON.parse(categories) : [];
       } catch (error) {
         console.error("Error fetching categories:", error);
         return [];
       }
     },
     
-    async create(category: CategoryInsert): Promise<Category | null> {
+    async create(category: CategoryFormData): Promise<Category | null> {
       try {
-        const { data, error } = await supabase
-          .from("categories")
-          .insert([category])
-          .select();
-          
-        if (error) throw error;
+        const categories = await this.getAll();
+        const newCategory: Category = {
+          ...category,
+          id: generateId(),
+          is_active: category.is_active ?? true,
+          created_at: now(),
+          updated_at: now()
+        };
         
-        return data && data.length > 0 ? data[0] : null;
+        categories.push(newCategory);
+        localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+        return newCategory;
       } catch (error) {
         console.error("Error creating category:", error);
         return null;
@@ -210,12 +154,11 @@ export const db = {
     
     async update(id: string, updates: Partial<Category>): Promise<boolean> {
       try {
-        const { error } = await supabase
-          .from("categories")
-          .update(updates)
-          .eq("id", id);
-          
-        if (error) throw error;
+        const categories = await this.getAll();
+        const updatedCategories = categories.map(cat => 
+          cat.id === id ? { ...cat, ...updates, updated_at: now() } : cat
+        );
+        localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(updatedCategories));
         return true;
       } catch (error) {
         console.error("Error updating category:", error);
@@ -225,15 +168,70 @@ export const db = {
     
     async delete(id: string): Promise<boolean> {
       try {
-        const { error } = await supabase
-          .from("categories")
-          .delete()
-          .eq("id", id);
-          
-        if (error) throw error;
+        const categories = await this.getAll();
+        const filteredCategories = categories.filter(cat => cat.id !== id);
+        localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(filteredCategories));
         return true;
       } catch (error) {
         console.error("Error deleting category:", error);
+        return false;
+      }
+    }
+  },
+  
+  // Images methods
+  images: {
+    async getAll(): Promise<Image[]> {
+      try {
+        const images = localStorage.getItem(STORAGE_KEYS.IMAGES);
+        return images ? JSON.parse(images) : [];
+      } catch (error) {
+        console.error("Error fetching images:", error);
+        return [];
+      }
+    },
+    
+    async create(image: Omit<Image, 'id' | 'created_at' | 'updated_at'>): Promise<Image | null> {
+      try {
+        const images = await this.getAll();
+        const newImage: Image = {
+          ...image,
+          id: generateId(),
+          created_at: now(),
+          updated_at: now()
+        };
+        
+        images.push(newImage);
+        localStorage.setItem(STORAGE_KEYS.IMAGES, JSON.stringify(images));
+        return newImage;
+      } catch (error) {
+        console.error("Error creating image:", error);
+        return null;
+      }
+    },
+    
+    async update(id: string, updates: Partial<Image>): Promise<boolean> {
+      try {
+        const images = await this.getAll();
+        const updatedImages = images.map(img => 
+          img.id === id ? { ...img, ...updates, updated_at: now() } : img
+        );
+        localStorage.setItem(STORAGE_KEYS.IMAGES, JSON.stringify(updatedImages));
+        return true;
+      } catch (error) {
+        console.error("Error updating image:", error);
+        return false;
+      }
+    },
+    
+    async delete(id: string): Promise<boolean> {
+      try {
+        const images = await this.getAll();
+        const filteredImages = images.filter(img => img.id !== id);
+        localStorage.setItem(STORAGE_KEYS.IMAGES, JSON.stringify(filteredImages));
+        return true;
+      } catch (error) {
+        console.error("Error deleting image:", error);
         return false;
       }
     }
