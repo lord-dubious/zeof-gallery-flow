@@ -10,29 +10,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { db } from "@/services/db";
-
-interface HeroImage {
-  id: string;
-  title: string;
-  image_url: string;
-  overlay_color: string;
-  overlay_opacity: number;
-}
-
-interface HeroContent {
-  content?: {
-    overlayColor?: string;
-    overlayOpacity?: number;
-    imagePosition?: {
-      x: number;
-      y: number;
-    };
-    [key: string]: any;
-  };
-  image_url?: string;
-  id: string;
-  [key: string]: any;
-}
+import { SiteContent } from "@/components/admin/types";
 
 interface HeroImageManagerProps {
   theme: string;
@@ -48,35 +26,32 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
   const [imagePosition, setImagePosition] = useState({ x: 50, y: 50 });
   const isDark = theme === 'dark';
 
-  const { data: heroContent, isLoading } = useQuery({
+  const { data: heroContentList, isLoading } = useQuery({
     queryKey: ["site-content", "hero"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("site_content")
-        .select("*")
-        .eq("page", "home")
-        .eq("section", "hero")
-        .single();
-
-      if (error) throw error;
+      const contents = await db.content.getByPage("home", "hero");
       
-      const typedData = data as HeroContent;
+      const heroContent = contents && contents.length > 0 ? contents[0] : null;
       
-      if (typedData.content?.overlayColor) {
-        setOverlayColor(typedData.content.overlayColor);
-      }
-      if (typedData.content?.overlayOpacity !== undefined) {
-        setOverlayOpacity(typedData.content.overlayOpacity);
-      }
-      if (typedData.content?.imagePosition) {
-        setImagePosition(typedData.content.imagePosition);
-      } else {
-        setImagePosition({ x: 50, y: 50 });
+      if (heroContent) {
+        if (heroContent.content?.overlayColor) {
+          setOverlayColor(heroContent.content.overlayColor);
+        }
+        if (heroContent.content?.overlayOpacity !== undefined) {
+          setOverlayOpacity(heroContent.content.overlayOpacity);
+        }
+        if (heroContent.content?.imagePosition) {
+          setImagePosition(heroContent.content.imagePosition);
+        } else {
+          setImagePosition({ x: 50, y: 50 });
+        }
       }
       
-      return typedData;
-    },
+      return heroContent ? [heroContent] : [];
+    }
   });
+
+  const heroContent = heroContentList && heroContentList.length > 0 ? heroContentList[0] : null;
 
   const mutation = useMutation({
     mutationFn: async ({ 
@@ -99,16 +74,16 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
         const fileName = `hero-${Date.now()}.${fileExt}`;
         
         const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('site-images')
+          .from('gallery')
           .upload(fileName, file);
           
         if (uploadError) throw uploadError;
         
-        const { data: { publicUrl } } = supabase.storage
-          .from('site-images')
+        const { data } = supabase.storage
+          .from('gallery')
           .getPublicUrl(fileName);
           
-        image_url = publicUrl;
+        image_url = data.publicUrl;
       }
       
       const currentContent = heroContent?.content || {};
@@ -119,15 +94,12 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
         imagePosition
       };
       
-      const { error } = await supabase
-        .from("site_content")
-        .update({
-          image_url,
-          content: updatedContent
-        })
-        .eq("id", id);
-        
-      if (error) throw error;
+      const success = await db.content.update(id, {
+        image_url,
+        content: updatedContent
+      });
+      
+      if (!success) throw new Error("Failed to update hero image settings");
       
       return { success: true };
     },

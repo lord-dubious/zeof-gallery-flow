@@ -27,18 +27,19 @@ export interface Category {
   id: string;
   title: string;
   slug: string;
-  description?: string;
+  description?: string | null;
   display_order: number;
-  image_url?: string;
-  is_active: boolean;
+  image_url?: string | null;
+  is_active: boolean | null;
   created_at?: string;
   updated_at?: string;
+  category_items?: CategoryItem[];
 }
 
 export interface CategoryItem {
   id: string;
   title: string;
-  description?: string;
+  description?: string | null;
   price?: number;
   image_url?: string;
   is_featured: boolean;
@@ -63,12 +64,12 @@ export interface Image {
 export interface CategoryFormData {
   title: string;
   slug: string;
-  description?: string;
+  description?: string | null;
   display_order: number;
-  image_url?: string;
   image?: File;
-  is_active: boolean;
+  image_url?: string | null;
+  is_active?: boolean;
 }
 
-export type CategoryInsert = Omit<Category, 'id' | 'created_at' | 'updated_at'>;
+export type CategoryInsert = Omit<Category, 'id' | 'created_at' | 'updated_at' | 'category_items'>;
 export type CategoryUpdate = Partial<CategoryInsert>;

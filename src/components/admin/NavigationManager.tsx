@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Edit, Trash2, Plus, GripVertical, ExternalLink } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
-import { NavigationItem } from "../types";
+import { NavigationItem } from "@/components/admin/types";
 import { db } from "@/services/db";
 
 export const NavigationManager = () => {
