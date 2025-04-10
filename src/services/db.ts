@@ -5,7 +5,8 @@ import {
   SiteContent, 
   Category, 
   CategoryItem, 
-  Image 
+  Image,
+  CategoryInsert 
 } from "@/components/admin/types";
 
 export const db = {
