@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
@@ -6,8 +7,8 @@ import { Category, CategoryFormData } from "../types";
 
 interface CategoryItemProps {
   category: Category;
-  onUpdate: (id: string, data: CategoryFormData) => void;
-  onDelete: (id: string) => void;
+  onUpdate: (data: CategoryFormData) => void;
+  onDelete: () => void;
   isUpdating: boolean;
   isDeleting: boolean;
 }
@@ -31,10 +32,11 @@ export const CategoryItem = ({
             slug: category.slug,
             description: category.description || "",
             display_order: category.display_order,
-            image_url: category.image_url || undefined
+            image_url: category.image_url || undefined,
+            is_active: category.is_active
           }}
           onSubmit={(data) => {
-            onUpdate(category.id, data);
+            onUpdate(data);
             setIsEditing(false);
           }}
           onCancel={() => setIsEditing(false)}
@@ -59,7 +61,7 @@ export const CategoryItem = ({
               <Button 
                 variant="destructive" 
                 size="sm"
-                onClick={() => onDelete(category.id)}
+                onClick={onDelete}
                 disabled={isDeleting}
               >
                 {isDeleting ? (

@@ -6,21 +6,21 @@ const createMockClient = () => {
   console.warn("Supabase is disabled. Using mock client instead.");
   
   return {
-    from: (table: string) => ({
-      select: (columns?: string) => ({
+    from: () => ({
+      select: () => ({
         eq: () => ({ data: [], error: null }),
         order: () => ({ data: [], error: null }),
         limit: () => ({ data: [], error: null }),
         single: () => ({ data: null, error: null })
       }),
-      insert: (data: any) => ({ data: null, error: null }),
-      update: (data: any) => ({ data: null, error: null }),
+      insert: () => ({ data: null, error: null }),
+      update: () => ({ data: null, error: null }),
       delete: () => ({ data: null, error: null })
     }),
     storage: {
-      from: (bucket: string) => ({
+      from: () => ({
         upload: () => ({ data: null, error: null }),
-        getPublicUrl: (path: string) => ({ data: { publicUrl: "" }, error: null }),
+        getPublicUrl: () => ({ data: { publicUrl: "" }, error: null }),
         remove: () => ({ data: null, error: null })
       })
     },
