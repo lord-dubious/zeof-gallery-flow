@@ -2,8 +2,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { strapi } from '@/integrations/strapi/client';
-import { fetchNavigation, fetchSiteContent } from '@/services/content';
-import type { NavigationItem } from '@/services/content';
+import { fetchNavigation, fetchSiteContent, NavigationItem } from '@/services/content';
 
 // Storage keys
 const STORAGE_KEYS = {

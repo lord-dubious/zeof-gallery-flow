@@ -20,14 +20,26 @@ const createMockClient = () => {
     storage: {
       from: (bucket: string) => ({
         upload: () => ({ data: null, error: null }),
-        getPublicUrl: (path: string) => ({ data: { publicUrl: "" }, error: null })
+        getPublicUrl: (path: string) => ({ data: { publicUrl: "" }, error: null }),
+        remove: () => ({ data: null, error: null })
       })
     },
     auth: {
       getUser: () => ({ data: { user: null }, error: null }),
       signOut: () => ({ error: null })
-    }
-  };
+    },
+    supabaseUrl: "",
+    supabaseKey: "",
+    realtime: { channel: () => ({ subscribe: () => ({}) }) },
+    realtimeUrl: "",
+    setAuth: () => {},
+    getChannels: () => [],
+    removeChannel: () => {},
+    removeAllChannels: () => {},
+    getSubscriptions: () => ({}),
+    _closeChannel: () => {},
+    _isClientInitialized: true
+  } as any;
 };
 
 export const supabase = createMockClient();

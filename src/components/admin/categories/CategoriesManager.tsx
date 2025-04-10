@@ -75,9 +75,9 @@ export const CategoriesManager = () => {
       return db.categories.update(id, {
         title: data.title,
         slug: data.slug,
-        description: data.description,
+        description: data.description || null,
         display_order: data.display_order,
-        image_url: imageUrl,
+        image_url: imageUrl || null,
         is_active: data.is_active
       });
     },

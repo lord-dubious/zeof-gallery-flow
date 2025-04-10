@@ -8,9 +8,8 @@ import { ImageDragDropUploader } from "./ImageDragDropUploader";
 import { ColorOverlayPicker } from "./ColorOverlayPicker";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Slider } from "@/components/ui/slider";
-import { supabase } from "@/integrations/supabase/client";
+import { SiteContent } from "@/services/content";
 import { db } from "@/services/db";
-import { SiteContent } from "@/components/admin/types";
 
 interface HeroImageManagerProps {
   theme: string;
@@ -53,6 +52,15 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
 
   const heroContent = heroContentList && heroContentList.length > 0 ? heroContentList[0] : null;
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
   const mutation = useMutation({
     mutationFn: async ({ 
       file, 
@@ -70,20 +78,7 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
       let image_url = heroContent?.image_url || "";
       
       if (file) {
-        const fileExt = file.name.split(".").pop();
-        const fileName = `hero-${Date.now()}.${fileExt}`;
-        
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('gallery')
-          .upload(fileName, file);
-          
-        if (uploadError) throw uploadError;
-        
-        const { data } = supabase.storage
-          .from('gallery')
-          .getPublicUrl(fileName);
-          
-        image_url = data.publicUrl;
+        image_url = await fileToBase64(file);
       }
       
       const currentContent = heroContent?.content || {};
@@ -151,21 +146,9 @@ export const HeroImageManager = ({ theme }: HeroImageManagerProps) => {
     if (!heroContent || !heroContent.image_url) return;
     
     try {
-      const urlParts = heroContent.image_url.split('/');
-      const fileName = urlParts[urlParts.length - 1];
-      
-      if (heroContent.image_url.includes('site-images')) {
-        await supabase.storage
-          .from('site-images')
-          .remove([fileName]);
-      }
-      
-      await supabase
-        .from("site_content")
-        .update({
-          image_url: null
-        })
-        .eq("id", heroContent.id);
+      await db.content.update(heroContent.id, {
+        image_url: null
+      });
         
       queryClient.invalidateQueries({ queryKey: ["site-content", "hero"] });
       setPreviewImage(null);
