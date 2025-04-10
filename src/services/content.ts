@@ -2,6 +2,9 @@
 import { db } from "./db";
 import { NavigationItem, Category, Image, SiteContent } from "@/components/admin/types";
 
+// Re-export types to maintain compatibility with existing imports
+export type { NavigationItem, SiteContent, Category, Image };
+
 // Legacy functions that use the db service to maintain compatibility
 export async function fetchNavigation(): Promise<NavigationItem[]> {
   try {

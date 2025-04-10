@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,7 +9,7 @@ import { ImageDragDropUploader } from "./ImageDragDropUploader";
 import { ColorOverlayPicker } from "./ColorOverlayPicker";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Slider } from "@/components/ui/slider";
-import { SiteContent } from "@/services/content";
+import { SiteContent } from "@/components/admin/types";
 import { db } from "@/services/db";
 
 interface HeroImageManagerProps {
