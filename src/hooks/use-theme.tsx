@@ -1,13 +1,13 @@
 
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useTheme } from './use-theme';
+import { useTheme as useThemeHook } from './use-theme';
 
 // Create context
-const ThemeContext = createContext<ReturnType<typeof useTheme> | undefined>(undefined);
+const ThemeContext = createContext<ReturnType<typeof useThemeHook> | undefined>(undefined);
 
 // Provider component
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const themeValues = useTheme();
+  const themeValues = useThemeHook();
   return <ThemeContext.Provider value={themeValues}>{children}</ThemeContext.Provider>;
 };
 
