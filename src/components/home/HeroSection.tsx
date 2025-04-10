@@ -4,10 +4,10 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { fetchSiteContent } from "@/services/content";
+import { fetchSiteContent, SiteContent } from "@/services/content";
 
 // Define type for hero content
-interface HeroContent {
+interface HeroContent extends SiteContent {
   content?: {
     overlayColor?: string;
     overlayOpacity?: number;
@@ -23,12 +23,10 @@ interface HeroContent {
     };
     [key: string]: any;
   };
-  image_url?: string;
-  [key: string]: any;
 }
 
 const HeroSection = () => {
-  // Fetch hero content from database
+  // Fetch hero content from static data
   const { data: heroContent } = useQuery({
     queryKey: ["site-content", "hero"],
     queryFn: async () => {

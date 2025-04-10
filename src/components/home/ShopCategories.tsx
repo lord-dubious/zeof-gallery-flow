@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchSiteContent } from "@/services/content";
 
 const ShopCategories = () => {
-  // Fetch shop content from database
+  // Fetch shop content from static data
   const { data: shopContent } = useQuery({
     queryKey: ["site-content", "shop"],
     queryFn: async () => {

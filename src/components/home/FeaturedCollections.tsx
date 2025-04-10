@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { fetchSiteContent, fetchImages } from "@/services/content";
+import { fetchSiteContent, fetchImages, SiteContent, Image } from "@/services/content";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const collections = [
@@ -28,7 +28,7 @@ const collections = [
 
 const FeaturedCollections = () => {
   // Fetch featured section content
-  const { data: featuredContent } = useQuery({
+  const { data: featuredContent, isLoading: isLoadingContent } = useQuery({
     queryKey: ["site-content", "featured"],
     queryFn: async () => {
       const data = await fetchSiteContent("home", "featured");
@@ -36,7 +36,7 @@ const FeaturedCollections = () => {
     }
   });
 
-  const { data: images, isLoading } = useQuery({
+  const { data: images, isLoading: isLoadingImages } = useQuery({
     queryKey: ['featured-collection-images'],
     queryFn: async () => {
       return fetchImages();
@@ -47,6 +47,8 @@ const FeaturedCollections = () => {
     const image = images?.find(img => img.image_role === imageRole);
     return image?.url || 'https://images.unsplash.com/photo-1594938328870-9623159c8c99?q=80&w=2680';
   };
+
+  const isLoading = isLoadingContent || isLoadingImages;
 
   return (
     <section className="py-24 bg-zeof-black">
