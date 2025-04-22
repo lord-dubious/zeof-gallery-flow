@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -5,16 +6,13 @@ import { useSessionContext } from "@supabase/auth-helpers-react";
 import AdminAuth from "@/components/admin/AdminAuth";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { NavigationManager } from "@/components/admin/NavigationManager";
-import { CategoriesManager } from "@/components/admin/CategoriesManager";
 import { ImagesManager } from "@/components/admin/ImagesManager";
 import { SettingsManager } from "@/components/admin/SettingsManager";
-import ContentManager from "@/components/admin/ContentManager";
 
 const AdminPage = () => {
   const navigate = useNavigate();
   const { session, isLoading } = useSessionContext();
-  const [activeTab, setActiveTab] = useState("navigation");
+  const [activeTab, setActiveTab] = useState("images");
 
   useEffect(() => {
     const checkAdminRole = async () => {
@@ -53,28 +51,13 @@ const AdminPage = () => {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
-          <TabsTrigger value="navigation">Navigation</TabsTrigger>
-          <TabsTrigger value="categories">Categories</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 lg:w-auto">
           <TabsTrigger value="images">Images</TabsTrigger>
-          <TabsTrigger value="content">Content</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="navigation" className="mt-6">
-          <NavigationManager />
-        </TabsContent>
-
-        <TabsContent value="categories" className="mt-6">
-          <CategoriesManager />
-        </TabsContent>
-
         <TabsContent value="images" className="mt-6">
           <ImagesManager />
-        </TabsContent>
-
-        <TabsContent value="content" className="mt-6">
-          <ContentManager />
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">

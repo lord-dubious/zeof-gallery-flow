@@ -11,6 +11,7 @@ import { Loader2, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ImageUpload } from "./images/ImageUpload";
 import { useImageUpload } from "@/hooks/use-image-upload";
+import { ImagePreview } from "./images/ImagePreview";
 import type { Image } from "./types/images";
 
 export const ImagesManager = () => {
@@ -81,21 +82,17 @@ export const ImagesManager = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {images?.map((image) => (
             <div key={image.id} className="relative group">
-              <img
-                src={image.url}
-                alt={image.magazine_title || 'Gallery image'}
-                className="w-full aspect-[3/4] object-cover rounded-lg shadow-md"
-              />
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex flex-col justify-end p-4">
-                <h3 className="text-lg font-serif text-white mb-2">
-                  {image.magazine_title || 'Untitled'}
+              <ImagePreview image={image} />
+              <div className="space-y-2">
+                <h3 className="text-lg font-serif truncate">
+                  {image.magazine_title || image.title || 'Untitled'}
                 </h3>
                 <Button
                   onClick={() => {
                     setSelectedImage(image);
                     setIsDialogOpen(true);
                   }}
-                  variant="secondary"
+                  variant="outline"
                   className="w-full"
                 >
                   Edit Details
@@ -113,18 +110,34 @@ export const ImagesManager = () => {
             {selectedImage && (
               <div className="space-y-4">
                 <div className="space-y-2">
+                  <label className="text-sm font-medium">Title</label>
+                  <Input
+                    defaultValue={selectedImage.title || ''}
+                    onChange={(e) => {
+                      if (selectedImage) {
+                        setSelectedImage({
+                          ...selectedImage,
+                          title: e.target.value
+                        });
+                      }
+                    }}
+                    className="text-base"
+                    placeholder="Enter a title for the image"
+                  />
+                </div>
+                <div className="space-y-2">
                   <label className="text-sm font-medium">Magazine Title</label>
                   <Input
                     defaultValue={selectedImage.magazine_title || ''}
                     onChange={(e) => {
                       if (selectedImage) {
-                        updateMutation.mutate({
-                          id: selectedImage.id,
-                          data: { magazine_title: e.target.value }
+                        setSelectedImage({
+                          ...selectedImage,
+                          magazine_title: e.target.value
                         });
                       }
                     }}
-                    className="text-base sm:text-lg md:text-xl"
+                    className="text-base"
                     placeholder="Enter a title for the magazine spread"
                   />
                 </div>
@@ -134,23 +147,52 @@ export const ImagesManager = () => {
                     defaultValue={selectedImage.description || ''}
                     onChange={(e) => {
                       if (selectedImage) {
-                        updateMutation.mutate({
-                          id: selectedImage.id,
-                          data: { description: e.target.value }
+                        setSelectedImage({
+                          ...selectedImage,
+                          description: e.target.value
                         });
                       }
                     }}
-                    className="text-base sm:text-lg"
+                    className="text-base"
                     placeholder="Enter a description for the image"
                     rows={4}
                   />
                 </div>
-                <Button
-                  onClick={() => setIsDialogOpen(false)}
-                  className="w-full"
-                >
-                  Done
-                </Button>
+                <div className="flex justify-between gap-4">
+                  <Button
+                    onClick={() => {
+                      updateMutation.mutate({
+                        id: selectedImage.id,
+                        data: {
+                          title: selectedImage.title,
+                          magazine_title: selectedImage.magazine_title,
+                          description: selectedImage.description,
+                        }
+                      });
+                    }}
+                    className="flex-1"
+                    disabled={updateMutation.isPending}
+                  >
+                    {updateMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Save Changes
+                  </Button>
+                  
+                  <Button
+                    onClick={() => {
+                      updateMutation.mutate({
+                        id: selectedImage.id,
+                        data: {
+                          is_published: !selectedImage.is_published
+                        }
+                      });
+                    }}
+                    variant="outline"
+                    className="flex-1"
+                    disabled={updateMutation.isPending}
+                  >
+                    {selectedImage.is_published ? 'Hide Image' : 'Publish Image'}
+                  </Button>
+                </div>
               </div>
             )}
           </DialogContent>
