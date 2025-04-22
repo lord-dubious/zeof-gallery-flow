@@ -166,37 +166,17 @@ CREATE POLICY "Allow admin full access" ON public.images
 CREATE POLICY "Allow admin full access" ON public.site_content
     FOR ALL USING (auth.jwt() ->> 'role' = 'admin');
 
--- Create storage bucket for categories and gallery
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('gallery', 'gallery', true);
-
--- Add storage RLS policies
-CREATE POLICY "Allow public read access for gallery" ON storage.objects
-    FOR SELECT USING (bucket_id = 'gallery');
-
-CREATE POLICY "Allow admin to upload to gallery" ON storage.objects
-    FOR INSERT USING (bucket_id = 'gallery' AND auth.jwt() ->> 'role' = 'admin');
-
-CREATE POLICY "Allow admin to update gallery objects" ON storage.objects
-    FOR UPDATE USING (bucket_id = 'gallery' AND auth.jwt() ->> 'role' = 'admin');
-
-CREATE POLICY "Allow admin to delete gallery objects" ON storage.objects
-    FOR DELETE USING (bucket_id = 'gallery' AND auth.jwt() ->> 'role' = 'admin');
-
--- Create thumbnails directory in gallery bucket
-INSERT INTO storage.objects (bucket_id, name) VALUES ('gallery', 'thumbnails/');
-
 -- Comments for future updates
 /*
- * Database Schema Version: 1.1
- * Last Updated: 2024-04-01
+ * Database Schema Version: 1.0
+ * Last Updated: 2024-03-19
  * 
  * Update History:
- * - 1.0: Initial schema creation with core tables and RLS policies
- * - 1.1: Added storage bucket for gallery and categories, added storage RLS policies
+ * - Initial schema creation with core tables and RLS policies
  *
  * How to use this file:
  * 1. Connect to your PostgreSQL database
  * 2. Run this entire script to set up the schema
  * 3. For updates, new versions will be added at the bottom with version numbers
  */
+

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +8,7 @@ import { Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CategoryForm } from "./CategoryForm";
 import { CategoryItem } from "./CategoryItem";
-import type { Category, CategoryInsert, CategoryUpdate, CategoryFormData } from "./types";
+import type { Category, CategoryInsert, CategoryUpdate } from "./types";
 
 export const CategoriesManager = () => {
   const { toast } = useToast();
@@ -30,48 +29,12 @@ export const CategoriesManager = () => {
     }
   });
 
-  // Function to upload image to storage
-  const uploadImage = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${crypto.randomUUID()}.${fileExt}`;
-    const filePath = `categories/${fileName}`;
-    
-    const { error: uploadError } = await supabase.storage
-      .from('gallery')
-      .upload(filePath, file);
-    
-    if (uploadError) throw uploadError;
-    
-    const { data: { publicUrl } } = supabase.storage
-      .from('gallery')
-      .getPublicUrl(filePath);
-    
-    return publicUrl;
-  };
-
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (newCategory: CategoryFormData) => {
-      let image_url = newCategory.image_url || null;
-      
-      // If there's an image file, upload it first
-      if (newCategory.image) {
-        image_url = await uploadImage(newCategory.image);
-      }
-      
-      const categoryData: CategoryInsert = {
-        title: newCategory.title,
-        slug: newCategory.slug,
-        description: newCategory.description,
-        display_order: newCategory.display_order,
-        image_url,
-        is_active: newCategory.is_active
-      };
-      
+    mutationFn: async (newCategory: CategoryInsert) => {
       const { error } = await supabase
         .from('categories')
-        .insert([categoryData]);
-      
+        .insert([newCategory]);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -83,7 +46,6 @@ export const CategoriesManager = () => {
       setIsDialogOpen(false);
     },
     onError: (error) => {
-      console.error("Create error:", error);
       toast({
         title: "Error",
         description: "Failed to create category",
@@ -94,28 +56,11 @@ export const CategoriesManager = () => {
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: CategoryFormData }) => {
-      let image_url = data.image_url || null;
-      
-      // If there's an image file, upload it first
-      if (data.image) {
-        image_url = await uploadImage(data.image);
-      }
-      
-      const categoryData: CategoryUpdate = {
-        title: data.title,
-        slug: data.slug,
-        description: data.description,
-        display_order: data.display_order,
-        image_url,
-        is_active: data.is_active
-      };
-      
+    mutationFn: async ({ id, data }: { id: string; data: CategoryUpdate }) => {
       const { error } = await supabase
         .from('categories')
-        .update(categoryData)
+        .update(data)
         .eq('id', id);
-      
       if (error) throw error;
     },
     onSuccess: () => {
@@ -126,7 +71,6 @@ export const CategoriesManager = () => {
       });
     },
     onError: (error) => {
-      console.error("Update error:", error);
       toast({
         title: "Error",
         description: "Failed to update category",
@@ -152,7 +96,6 @@ export const CategoriesManager = () => {
       });
     },
     onError: (error) => {
-      console.error("Delete error:", error);
       toast({
         title: "Error",
         description: "Failed to delete category",

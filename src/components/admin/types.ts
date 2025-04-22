@@ -1,4 +1,3 @@
-
 import type { Database } from "@/integrations/supabase/types";
 
 export type Category = Database['public']['Tables']['categories']['Row'] & {
@@ -16,6 +15,6 @@ export interface CategoryFormData {
   description?: string | null;
   display_order: number;
   image?: File;
-  image_url?: string | null;
+  image_url?: string;
   is_active?: boolean;
 }
