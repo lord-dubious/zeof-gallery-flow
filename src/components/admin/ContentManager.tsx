@@ -1,14 +1,13 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { SiteContent, SiteContentUpdate } from "./types";
+import { RichTextEditor } from "./editor/RichTextEditor";
 
 const ContentManager = () => {
   const { toast } = useToast();
@@ -25,7 +24,6 @@ const ContentManager = () => {
 
       if (error) throw error;
       
-      // Cast the result to SiteContent[] to fix the type error
       return (data || []) as SiteContent[];
     },
   });
@@ -102,10 +100,9 @@ const ContentManager = () => {
         )}
         <div>
           <label className="block text-sm font-medium mb-1">Description</label>
-          <Textarea
-            value={content.description || ""}
-            onChange={(e) => handleContentChange(content.id, "description", e.target.value)}
-            disabled={updateContent.isPending}
+          <RichTextEditor
+            content={content.description || ""}
+            onChange={(value) => handleContentChange(content.id, "description", value)}
           />
         </div>
         <div>
@@ -118,15 +115,10 @@ const ContentManager = () => {
         </div>
         {content.content && (
           <div>
-            <label className="block text-sm font-medium mb-1">
-              Additional Content (JSON)
-            </label>
-            <Textarea
-              value={typeof content.content === 'object' ? JSON.stringify(content.content, null, 2) : String(content.content)}
-              onChange={(e) => handleContentChange(content.id, "content", e.target.value)}
-              className="font-mono"
-              rows={10}
-              disabled={updateContent.isPending}
+            <label className="block text-sm font-medium mb-1">Additional Content</label>
+            <RichTextEditor
+              content={typeof content.content === 'object' ? JSON.stringify(content.content, null, 2) : String(content.content)}
+              onChange={(value) => handleContentChange(content.id, "content", value)}
             />
           </div>
         )}
