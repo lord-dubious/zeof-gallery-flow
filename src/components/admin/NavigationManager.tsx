@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { NavigationItem, NavigationItemInsert, NavigationItemUpdate } from "./types";
 
@@ -21,11 +21,11 @@ export const NavigationManager = () => {
     is_active: true
   });
 
-  // Fetch navigation items - Use as any to bypass the type check for now
-  // This is a temporary solution until the navigation_items table is properly added to the Supabase types
+  // Fetch navigation items
   const { data: navigationItems, isLoading } = useQuery<NavigationItem[]>({
     queryKey: ['navigation_items'],
     queryFn: async () => {
+      // Use a type assertion since navigation_items might not be in the type definition
       const { data, error } = await supabase
         .from('navigation_items' as any)
         .select('*')
@@ -158,11 +158,13 @@ export const NavigationManager = () => {
       </div>
       <Button 
         onClick={() => createMutation.mutate(newNavigationItem)}
-        disabled={!newNavigationItem.title || !newNavigationItem.path}
+        disabled={!newNavigationItem.title || !newNavigationItem.path || createMutation.isPending}
       >
         {createMutation.isPending ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : null}
+        ) : (
+          <Plus className="mr-2 h-4 w-4" />
+        )}
         Add Navigation Item
       </Button>
     </div>
@@ -182,7 +184,10 @@ export const NavigationManager = () => {
         <CardTitle>Navigation Management</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>Add New</Button>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add New
+            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -218,7 +223,11 @@ export const NavigationManager = () => {
                 <Button 
                   variant="destructive"
                   onClick={() => deleteMutation.mutate(item.id)}
+                  disabled={deleteMutation.isPending}
                 >
+                  {deleteMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : null}
                   Delete
                 </Button>
               </div>

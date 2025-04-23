@@ -1,20 +1,26 @@
 
-import type { Database } from "@/integrations/supabase/types";
+// This file is maintained only for compatibility with existing imports
+// The main type definitions are now in src/components/admin/types.ts
+import { 
+  Category, 
+  CategoryItem, 
+  SiteContent,
+  SiteContentInsert,
+  SiteContentUpdate,
+  NavigationItem,
+  NavigationItemInsert,
+  NavigationItemUpdate,
+  CategoryWithItems
+} from "../types";
 
-export type SiteContent = Database['public']['Tables']['site_content']['Row'];
-export type SiteContentInsert = Database['public']['Tables']['site_content']['Insert'];
-export type SiteContentUpdate = Database['public']['Tables']['site_content']['Update'];
-
-export type Category = Database['public']['Tables']['categories']['Row'] & {
-  category_items?: CategoryItem[];
+export type {
+  Category,
+  CategoryItem,
+  SiteContent,
+  SiteContentInsert,
+  SiteContentUpdate,
+  NavigationItem,
+  NavigationItemInsert,
+  NavigationItemUpdate,
+  CategoryWithItems
 };
-
-export type CategoryItem = Database['public']['Tables']['category_items']['Row'];
-
-export type CategoryInsert = Database['public']['Tables']['categories']['Insert'];
-export type CategoryUpdate = Database['public']['Tables']['categories']['Update'];
-
-// Add types for navigation items
-export type NavigationItem = Database['public']['Tables']['navigation_items']['Row'];
-export type NavigationItemInsert = Database['public']['Tables']['navigation_items']['Insert'];
-export type NavigationItemUpdate = Database['public']['Tables']['navigation_items']['Update'];

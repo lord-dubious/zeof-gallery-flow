@@ -1,10 +1,6 @@
-import type { Database } from "@/integrations/supabase/types";
 
-export type Category = Database['public']['Tables']['categories']['Row'] & {
-  category_items?: CategoryItem[];
-};
+// This file is maintained only for compatibility with existing imports
+// The main type definitions are now in src/components/admin/types.ts
+import { Category, CategoryItem } from "../types";
 
-export type CategoryItem = Database['public']['Tables']['category_items']['Row'];
-
-export type CategoryInsert = Database['public']['Tables']['categories']['Insert'];
-export type CategoryUpdate = Database['public']['Tables']['categories']['Update'];
+export type { Category, CategoryItem };

@@ -1,11 +1,12 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { CategoryForm } from "./CategoryForm";
-import { Category, CategoryFormData } from "../types";
+import { CategoryWithItems, CategoryFormData } from "../types";
 
 interface CategoryItemProps {
-  category: Category;
+  category: CategoryWithItems;
   onUpdate: (id: string, data: CategoryFormData) => void;
   onDelete: (id: string) => void;
   isUpdating: boolean;

@@ -5,18 +5,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CategoryForm } from "./CategoryForm";
 import { CategoryItem } from "./CategoryItem";
-import { Category, CategoryInsert, CategoryUpdate, CategoryFormData } from "./types";
+import { Category, CategoryWithItems, CategoryFormData } from "./types";
 
 export const CategoriesManager = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
-  // Fetch categories with category items
+  // Fetch categories
   const { data: categories, isLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
@@ -26,35 +27,40 @@ export const CategoriesManager = () => {
       
       if (error) throw error;
       
-      // Ensure the data follows the expected structure
-      // Map returned data to ensure category_items is always an array
+      // Handle the returned data to ensure it matches our CategoryWithItems type
       return (data || []).map((category: any) => ({
         ...category,
         category_items: Array.isArray(category.category_items) ? category.category_items : []
-      })) as (Category & { category_items: any[] })[];
+      })) as CategoryWithItems[];
     }
   });
 
-  // Create mutation for categories
+  // Handle file upload
+  const uploadImage = async (file: File) => {
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${crypto.randomUUID()}.${fileExt}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('images')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('images')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
+  // Create mutation
   const createMutation = useMutation({
     mutationFn: async (newCategory: CategoryFormData) => {
+      setIsCreating(true);
       let imageUrl = newCategory.image_url;
       
       if (newCategory.image instanceof File) {
-        const fileExt = newCategory.image.name.split('.').pop();
-        const filePath = `${crypto.randomUUID()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('images')
-          .upload(filePath, newCategory.image);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('images')
-          .getPublicUrl(filePath);
-
-        imageUrl = publicUrl;
+        imageUrl = await uploadImage(newCategory.image);
       }
       
       const { error } = await supabase
@@ -69,6 +75,7 @@ export const CategoriesManager = () => {
         }]);
         
       if (error) throw error;
+      setIsCreating(false);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
@@ -84,6 +91,7 @@ export const CategoriesManager = () => {
         description: "Failed to create category",
         variant: "destructive",
       });
+      setIsCreating(false);
     },
   });
 
@@ -93,20 +101,7 @@ export const CategoriesManager = () => {
       let imageUrl = data.image_url;
       
       if (data.image instanceof File) {
-        const fileExt = data.image.name.split('.').pop();
-        const filePath = `${crypto.randomUUID()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('images')
-          .upload(filePath, data.image);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('images')
-          .getPublicUrl(filePath);
-
-        imageUrl = publicUrl;
+        imageUrl = await uploadImage(data.image);
       }
       
       const { error } = await supabase
@@ -178,7 +173,7 @@ export const CategoriesManager = () => {
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" data-testid="create-loader" hidden={!createMutation.isPending} />
+              <Plus className="h-4 w-4 mr-2" />
               Add New Category
             </Button>
           </DialogTrigger>
@@ -198,9 +193,9 @@ export const CategoriesManager = () => {
           {categories?.map((category) => (
             <CategoryItem
               key={category.id}
-              category={category as (Category & { category_items: any[] })}
-              onUpdate={(data) => updateMutation.mutate({ id: category.id, data })}
-              onDelete={() => deleteMutation.mutate(category.id)}
+              category={category}
+              onUpdate={(id, data) => updateMutation.mutate({ id, data })}
+              onDelete={(id) => deleteMutation.mutate(id)}
               isUpdating={updateMutation.isPending}
               isDeleting={deleteMutation.isPending}
             />
