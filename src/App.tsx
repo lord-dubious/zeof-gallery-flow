@@ -1,3 +1,5 @@
+
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -23,26 +25,28 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SessionContextProvider supabaseClient={supabase}>
-        <Router>
-          <div className="flex flex-col min-h-screen">
-            <Navigation />
-            <main className="flex-grow">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/gallery" element={<Gallery />} />
-                <Route path="/gallery/:category" element={<CategoryGallery />} />
-                <Route path="/admin" element={<Admin />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </Router>
-      </SessionContextProvider>
-    </QueryClientProvider>
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <SessionContextProvider supabaseClient={supabase}>
+          <Router>
+            <div className="flex flex-col min-h-screen">
+              <Navigation />
+              <main className="flex-grow">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/gallery" element={<Gallery />} />
+                  <Route path="/gallery/:category" element={<CategoryGallery />} />
+                  <Route path="/admin" element={<Admin />} />
+                </Routes>
+              </main>
+              <Footer />
+            </div>
+          </Router>
+        </SessionContextProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
   );
 }
 
