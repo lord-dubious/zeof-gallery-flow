@@ -1,12 +1,13 @@
 
 import type { Database } from "@/integrations/supabase/types";
+import { Json } from "@/integrations/supabase/types";
 
 // Base types from the database
 export type SiteContent = {
   id: string;
   created_at: string;
   updated_at: string;
-  content: Record<string, any>;
+  content: Record<string, any>; // Changed from Json to Record<string, any>
   page: string;
   section: string;
   title: string | null;
@@ -61,6 +62,14 @@ export interface CategoryFormData {
   image?: File;
   image_url?: string;
   is_active?: boolean;
+}
+
+// Add CategoryFormProps interface with onCancel property
+export interface CategoryFormProps {
+  initialData?: CategoryFormData;
+  onSubmit: (data: CategoryFormData) => void;
+  onCancel?: () => void;
+  isLoading?: boolean;
 }
 
 // Add a type that combines Category with the category_items relationship

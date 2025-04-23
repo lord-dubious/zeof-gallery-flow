@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { SiteContent, SiteContentUpdate } from "./types";
@@ -15,7 +15,7 @@ const ContentManager = () => {
   const [activeSection, setActiveSection] = useState("home");
   const queryClient = useQueryClient();
 
-  const { data: siteContent, isLoading } = useQuery<SiteContent[]>({
+  const { data: siteContent, isLoading } = useQuery({
     queryKey: ["site-content"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -24,7 +24,9 @@ const ContentManager = () => {
         .order("page", { ascending: true });
 
       if (error) throw error;
-      return data || [];
+      
+      // Cast the result to SiteContent[] to fix the type error
+      return (data || []) as SiteContent[];
     },
   });
 
@@ -120,7 +122,7 @@ const ContentManager = () => {
               Additional Content (JSON)
             </label>
             <Textarea
-              value={typeof content.content === 'object' ? JSON.stringify(content.content, null, 2) : (content.content as string)}
+              value={typeof content.content === 'object' ? JSON.stringify(content.content, null, 2) : String(content.content)}
               onChange={(e) => handleContentChange(content.id, "content", e.target.value)}
               className="font-mono"
               rows={10}

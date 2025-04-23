@@ -1,17 +1,11 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2, Image as ImageIcon } from "lucide-react";
-import { CategoryFormData } from "../types";
-
-interface CategoryFormProps {
-  initialData?: CategoryFormData;
-  onSubmit: (data: CategoryFormData) => void;
-  onCancel?: () => void;
-  isLoading?: boolean;
-}
+import { CategoryFormData, CategoryFormProps } from "../types";
 
 export const CategoryForm = ({ initialData, onSubmit, onCancel, isLoading }: CategoryFormProps) => {
   const [formData, setFormData] = useState<CategoryFormData>({
@@ -114,7 +108,7 @@ export const CategoryForm = ({ initialData, onSubmit, onCancel, isLoading }: Cat
           )}
         </Button>
         {onCancel && (
-          <Button variant="outline" onClick={onCancel}>
+          <Button variant="outline" onClick={onCancel} type="button">
             Cancel
           </Button>
         )}

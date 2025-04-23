@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { NavigationItem, NavigationItemInsert, NavigationItemUpdate } from "./types";
@@ -33,7 +33,9 @@ export const NavigationManager = () => {
           .order('display_order', { ascending: true });
         
         if (error) throw error;
-        return (data || []) as NavigationItem[];
+        
+        // Explicitly cast the result to NavigationItem[] to fix the type error
+        return (data || []) as unknown as NavigationItem[];
       } catch (error) {
         console.error("Error fetching navigation items:", error);
         return [] as NavigationItem[];

@@ -1,18 +1,13 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import type { CategoryFormData } from "./types";
+import type { CategoryFormData, CategoryFormProps } from "./types";
 
-interface CategoryFormProps {
-  initialData?: CategoryFormData;
-  onSubmit: (data: CategoryFormData) => void;
-  isLoading?: boolean;
-}
-
-export const CategoryForm = ({ initialData, onSubmit, isLoading }: CategoryFormProps) => {
+export const CategoryForm = ({ initialData, onSubmit, onCancel, isLoading }: CategoryFormProps) => {
   const [formData, setFormData] = useState<CategoryFormData>({
     title: initialData?.title || "",
     slug: initialData?.slug || "",
@@ -73,12 +68,19 @@ export const CategoryForm = ({ initialData, onSubmit, isLoading }: CategoryFormP
           onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
         />
       </div>
-      <Button type="submit" disabled={isLoading}>
-        {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-        ) : null}
-        {initialData ? 'Update Category' : 'Create Category'}
-      </Button>
+      <div className="flex gap-2">
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          ) : null}
+          {initialData ? 'Update Category' : 'Create Category'}
+        </Button>
+        {onCancel && (
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+        )}
+      </div>
     </form>
   );
 };

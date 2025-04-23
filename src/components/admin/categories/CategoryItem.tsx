@@ -104,7 +104,7 @@ export const CategoryItem = ({
                     className="w-full h-32 object-cover rounded mb-2"
                   />
                   <h4 className="font-medium">{item.title}</h4>
-                  <p className="text-sm text-gray-500">{item.description}</p>
+                  <p className="text-sm text-gray-500">{item.description || ""}</p>
                 </div>
               ))}
             </div>

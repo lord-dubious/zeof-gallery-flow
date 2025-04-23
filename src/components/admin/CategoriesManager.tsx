@@ -9,7 +9,7 @@ import { Loader2, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CategoryForm } from "./CategoryForm";
 import { CategoryItem } from "./CategoryItem";
-import { Category, CategoryWithItems, CategoryFormData } from "./types";
+import { CategoryWithItems, CategoryFormData } from "./types";
 
 export const CategoriesManager = () => {
   const { toast } = useToast();
@@ -19,7 +19,7 @@ export const CategoriesManager = () => {
   const [selectedCategory, setSelectedCategory] = useState<CategoryWithItems | null>(null);
 
   // Fetch categories
-  const { data: categories, isLoading } = useQuery({
+  const { data: categories, isLoading } = useQuery<CategoryWithItems[]>({
     queryKey: ['categories'],
     queryFn: async () => {
       const { data, error } = await supabase
