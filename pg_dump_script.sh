@@ -1,7 +1,9 @@
 
 #!/bin/bash
 
-# Replace these values with your actual database connection details
+# PostgreSQL Database Dump Script
+
+# Configuration
 DB_NAME="your_database_name"
 DB_USER="your_database_user"
 DB_HOST="localhost"

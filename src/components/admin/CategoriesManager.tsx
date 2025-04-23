@@ -1,22 +1,23 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CategoryForm } from "./CategoryForm";
 import { CategoryItem } from "./CategoryItem";
-import type { Category, CategoryInsert, CategoryUpdate } from "./types";
+import { Category, CategoryInsert, CategoryUpdate } from "./types";
 
 export const CategoriesManager = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Fetch categories
-  const { data: categories, isLoading } = useQuery({
+  // Fetch categories with category items
+  const { data: categories, isLoading } = useQuery<Category[]>({
     queryKey: ['categories'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -25,17 +26,19 @@ export const CategoriesManager = () => {
         .order('display_order', { ascending: true });
       
       if (error) throw error;
-      return data as Category[];
+      return data || [];
     }
   });
 
-  // Create mutation
+  // Create mutation for categories
   const createMutation = useMutation({
     mutationFn: async (newCategory: CategoryInsert) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('categories')
-        .insert([newCategory]);
+        .insert([newCategory])
+        .select();
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
@@ -54,7 +57,7 @@ export const CategoriesManager = () => {
     },
   });
 
-  // Update mutation
+  // Update mutation for categories
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: CategoryUpdate }) => {
       const { error } = await supabase
@@ -79,7 +82,7 @@ export const CategoriesManager = () => {
     },
   });
 
-  // Delete mutation
+  // Delete mutation for categories
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
