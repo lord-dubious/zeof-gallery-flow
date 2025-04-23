@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { SiteContent, SiteContentUpdate } from "./types";
 import { RichTextEditor } from "./editor/RichTextEditor";
+import { useImageUpload } from "@/hooks/use-image-upload";
+import { ImageUpload } from "./images/ImageUpload";
 
 const ContentManager = () => {
   const { toast } = useToast();
@@ -53,6 +55,24 @@ const ContentManager = () => {
       });
     },
   });
+
+  const { uploadImage, isUploading } = useImageUpload();
+
+  const handleImageUpload = async (file: File, contentId: string) => {
+    try {
+      const response = await uploadImage(file);
+      if (response?.publicUrl) {
+        handleContentChange(contentId, "image_url", response.publicUrl);
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleContentChange = (id: string, field: keyof SiteContentUpdate, value: any) => {
     try {
@@ -106,12 +126,20 @@ const ContentManager = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Image URL</label>
-          <Input
-            value={content.image_url || ""}
-            onChange={(e) => handleContentChange(content.id, "image_url", e.target.value)}
-            disabled={updateContent.isPending}
+          <label className="block text-sm font-medium mb-1">Image</label>
+          <ImageUpload
+            onUpload={(file) => handleImageUpload(file, content.id)}
+            isUploading={isUploading}
           />
+          {content.image_url && (
+            <div className="mt-2">
+              <img
+                src={content.image_url}
+                alt="Content image"
+                className="max-w-[200px] h-auto rounded-md"
+              />
+            </div>
+          )}
         </div>
         {content.content && (
           <div>
