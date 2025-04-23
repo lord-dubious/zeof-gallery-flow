@@ -1,3 +1,4 @@
+
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
@@ -55,6 +56,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       const reader = new FileReader();
       reader.onload = () => {
         if (typeof reader.result === 'string' && editor) {
+          // Using the correct method to insert an image
           editor.chain().focus().setImage({ src: reader.result }).run();
           setIsImageDialogOpen(false);
         }
