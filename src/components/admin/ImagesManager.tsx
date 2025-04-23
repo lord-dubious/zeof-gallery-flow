@@ -7,11 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ImageUpload } from "./images/ImageUpload";
 import { useImageUpload } from "@/hooks/use-image-upload";
 import { ImagePreview } from "./images/ImagePreview";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Image } from "./types/images";
 
 export const ImagesManager = () => {
@@ -158,6 +159,34 @@ export const ImagesManager = () => {
                     rows={4}
                   />
                 </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Image Role</label>
+                  <Select
+                    defaultValue={selectedImage.image_role || ''}
+                    onValueChange={(value) => {
+                      if (selectedImage) {
+                        setSelectedImage({
+                          ...selectedImage,
+                          image_role: value
+                        });
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select image role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="suits_collection">Suits Collection</SelectItem>
+                      <SelectItem value="evening_collection">Evening Collection</SelectItem>
+                      <SelectItem value="accessories_collection">Accessories Collection</SelectItem>
+                      <SelectItem value="logo">Magazine Logo</SelectItem>
+                      <SelectItem value="front_cover">Magazine Front Cover</SelectItem>
+                      <SelectItem value="back_cover">Magazine Back Cover</SelectItem>
+                      <SelectItem value="content">Magazine Content</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="flex justify-between gap-4">
                   <Button
                     onClick={() => {
@@ -167,6 +196,7 @@ export const ImagesManager = () => {
                           title: selectedImage.title,
                           magazine_title: selectedImage.magazine_title,
                           description: selectedImage.description,
+                          image_role: selectedImage.image_role
                         }
                       });
                     }}
