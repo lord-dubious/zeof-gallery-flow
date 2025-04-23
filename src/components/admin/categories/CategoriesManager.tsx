@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +17,7 @@ export const CategoriesManager = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Fetch categories
-  const { data: categories, isLoading } = useQuery({
+  const { data: categories, isLoading } = useQuery<Category[]>({
     queryKey: ['categories'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -25,7 +26,7 @@ export const CategoriesManager = () => {
         .order('display_order', { ascending: true });
       
       if (error) throw error;
-      return data as Category[];
+      return data || [];
     }
   });
 

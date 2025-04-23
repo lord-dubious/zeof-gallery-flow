@@ -14,10 +14,9 @@ import { SiteContent, SiteContentUpdate } from "./types";
 const ContentManager = () => {
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState("home");
-  const [isUpdating, setIsUpdating] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: siteContent, refetch } = useQuery<SiteContent[]>({
+  const { data: siteContent, isLoading } = useQuery<SiteContent[]>({
     queryKey: ["site-content"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -44,7 +43,7 @@ const ContentManager = () => {
         title: "Success",
         description: "Content updated successfully",
       });
-      refetch();
+      queryClient.invalidateQueries({ queryKey: ["site-content"] });
     },
     onError: (error) => {
       console.error("Error updating content:", error);
@@ -56,8 +55,7 @@ const ContentManager = () => {
     },
   });
 
-  const handleContentChange = (id: string, field: string, value: any) => {
-    setIsUpdating(true);
+  const handleContentChange = (id: string, field: keyof SiteContentUpdate, value: any) => {
     try {
       const parsedContent = typeof value === 'string' && field === 'content' 
         ? JSON.parse(value) 
@@ -74,8 +72,6 @@ const ContentManager = () => {
         description: "Invalid JSON format",
         variant: "destructive",
       });
-    } finally {
-      setIsUpdating(false);
     }
   };
 
@@ -141,6 +137,14 @@ const ContentManager = () => {
       )}
     </Card>
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
