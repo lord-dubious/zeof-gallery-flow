@@ -61,14 +61,15 @@ const ContentManager = () => {
 
   const handleImageUpload = async (file: File, contentId: string) => {
     try {
-      // Call the uploadImage function and await its response
-      const response = await uploadImage(file);
+      // Call the uploadImage function and get the result
+      const result = await uploadImage(file);
       
-      // Check if response exists and has a url property before updating content
-      if (response && response.url) {
-        handleContentChange(contentId, "image_url", response.url);
+      // Since uploadImage might return undefined, we check if we received anything
+      // and if it contains a publicUrl property
+      if (result && 'publicUrl' in result) {
+        handleContentChange(contentId, "image_url", result.publicUrl);
       } else {
-        console.error("Invalid response from uploadImage:", response);
+        console.error("Invalid response from uploadImage:", result);
         toast({
           title: "Error",
           description: "Failed to get image URL",
