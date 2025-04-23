@@ -1,7 +1,7 @@
-
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
+import Image from '@tiptap/extension-image';
 import { Button } from "@/components/ui/button";
 import {
   Bold,
@@ -14,7 +14,11 @@ import {
   Quote,
   Undo,
   Redo,
+  Image as ImageIcon
 } from "lucide-react";
+import { ImageUpload } from '../images/ImageUpload';
+import { Dialog, DialogContent, DialogTitle, DialogHeader } from "@/components/ui/dialog";
+import { useState } from "react";
 
 interface RichTextEditorProps {
   content: string;
@@ -22,6 +26,9 @@ interface RichTextEditorProps {
 }
 
 export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -30,12 +37,35 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         alignments: ['left', 'center', 'right'],
         defaultAlignment: 'left',
       }),
+      Image.configure({
+        HTMLAttributes: {
+          class: 'max-w-full h-auto',
+        },
+      }),
     ],
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
   });
+
+  const handleImageUpload = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string' && editor) {
+          editor.chain().focus().setImage({ src: reader.result }).run();
+          setIsImageDialogOpen(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   if (!editor) {
     return null;
@@ -122,11 +152,31 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         >
           <Redo className="h-4 w-4" />
         </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsImageDialogOpen(true)}
+          className="ml-2"
+        >
+          <ImageIcon className="h-4 w-4" />
+        </Button>
       </div>
       <EditorContent 
         editor={editor} 
         className="prose prose-sm max-w-none p-4 min-h-[200px] focus:outline-none"
       />
+
+      <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Upload Image</DialogTitle>
+          </DialogHeader>
+          <ImageUpload 
+            onUpload={handleImageUpload}
+            isUploading={isUploading}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
