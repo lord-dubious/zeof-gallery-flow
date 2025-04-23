@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -61,12 +60,9 @@ const ContentManager = () => {
 
   const handleImageUpload = async (file: File, contentId: string) => {
     try {
-      // Call the uploadImage function and get the result
       const result = await uploadImage(file);
       
-      // Since uploadImage might return undefined, we check if we received anything
-      // and if it contains a publicUrl property
-      if (result && 'publicUrl' in result) {
+      if (result && result.publicUrl) {
         handleContentChange(contentId, "image_url", result.publicUrl);
       } else {
         console.error("Invalid response from uploadImage:", result);

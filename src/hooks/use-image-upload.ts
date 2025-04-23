@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -76,7 +77,7 @@ export const useImageUpload = () => {
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const thumbnailName = `thumbnails/${fileName}`;
       
-      const { error: uploadError, data: uploadData } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('gallery')
         .upload(fileName, compressedFile);
 

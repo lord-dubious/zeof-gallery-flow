@@ -19,6 +19,10 @@ export const ImagePreview = ({ image }: ImagePreviewProps) => {
           src={image.thumbnail_url || image.url} 
           alt={image.title || 'Preview'}
           className="w-full h-full object-cover rounded"
+          onError={(e) => {
+            console.log("Thumbnail failed to load, falling back to original image");
+            e.currentTarget.src = image.url;
+          }}
         />
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <Button 
