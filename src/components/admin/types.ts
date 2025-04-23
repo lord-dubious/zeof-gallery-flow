@@ -1,4 +1,3 @@
-
 import type { Database } from "@/integrations/supabase/types";
 import { Json } from "@/integrations/supabase/types";
 
@@ -53,7 +52,7 @@ export type NavigationItem = {
 export type NavigationItemInsert = Omit<NavigationItem, 'id' | 'created_at' | 'updated_at'>;
 export type NavigationItemUpdate = Partial<NavigationItemInsert>;
 
-// Interface for form data
+// Update CategoryFormData to include proper image handling
 export interface CategoryFormData {
   title: string;
   slug: string;
@@ -64,7 +63,7 @@ export interface CategoryFormData {
   is_active?: boolean;
 }
 
-// Add CategoryFormProps interface with onCancel property
+// Update CategoryFormProps
 export interface CategoryFormProps {
   initialData?: CategoryFormData;
   onSubmit: (data: CategoryFormData) => void;

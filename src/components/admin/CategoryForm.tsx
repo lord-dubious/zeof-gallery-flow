@@ -1,11 +1,11 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import type { CategoryFormData, CategoryFormProps } from "./types";
+import { CategoryFormData, CategoryFormProps } from "./types";
+import { ImageUpload } from "./images/ImageUpload";
 
 export const CategoryForm = ({ initialData, onSubmit, onCancel, isLoading }: CategoryFormProps) => {
   const [formData, setFormData] = useState<CategoryFormData>({
@@ -16,6 +16,10 @@ export const CategoryForm = ({ initialData, onSubmit, onCancel, isLoading }: Cat
     image_url: initialData?.image_url || "",
     is_active: initialData?.is_active ?? true
   });
+
+  const handleImageUpload = (file: File) => {
+    setFormData({ ...formData, image: file });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,13 +64,21 @@ export const CategoryForm = ({ initialData, onSubmit, onCancel, isLoading }: Cat
           required
         />
       </div>
-      <div>
-        <Label htmlFor="image_url">Image URL</Label>
-        <Input
-          id="image_url"
-          value={formData.image_url || ""}
-          onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+      <div className="space-y-2">
+        <Label>Category Image</Label>
+        <ImageUpload 
+          onUpload={handleImageUpload}
+          isUploading={isLoading}
         />
+        {formData.image_url && !formData.image && (
+          <div className="relative w-full h-48 mt-2">
+            <img 
+              src={formData.image_url}
+              alt="Current category image"
+              className="w-full h-full object-cover rounded-md"
+            />
+          </div>
+        )}
       </div>
       <div className="flex gap-2">
         <Button type="submit" disabled={isLoading}>
