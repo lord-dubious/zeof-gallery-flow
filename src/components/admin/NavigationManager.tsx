@@ -21,12 +21,13 @@ export const NavigationManager = () => {
     is_active: true
   });
 
-  // Fetch navigation items
+  // Fetch navigation items - Use as any to bypass the type check for now
+  // This is a temporary solution until the navigation_items table is properly added to the Supabase types
   const { data: navigationItems, isLoading } = useQuery<NavigationItem[]>({
     queryKey: ['navigation_items'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('navigation_items')
+        .from('navigation_items' as any)
         .select('*')
         .order('display_order', { ascending: true });
       
@@ -39,7 +40,7 @@ export const NavigationManager = () => {
   const createMutation = useMutation({
     mutationFn: async (newItem: NavigationItemInsert) => {
       const { data, error } = await supabase
-        .from('navigation_items')
+        .from('navigation_items' as any)
         .insert([newItem])
         .select();
       if (error) throw error;
@@ -73,7 +74,7 @@ export const NavigationManager = () => {
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: NavigationItemUpdate }) => {
       const { error } = await supabase
-        .from('navigation_items')
+        .from('navigation_items' as any)
         .update(data)
         .eq('id', id);
       if (error) throw error;
@@ -98,7 +99,7 @@ export const NavigationManager = () => {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('navigation_items')
+        .from('navigation_items' as any)
         .delete()
         .eq('id', id);
       if (error) throw error;
@@ -206,7 +207,6 @@ export const NavigationManager = () => {
                 <Button 
                   variant="outline" 
                   onClick={() => {
-                    const updatedItem = { ...item, is_active: !item.is_active };
                     updateMutation.mutate({ 
                       id: item.id, 
                       data: { is_active: !item.is_active } 

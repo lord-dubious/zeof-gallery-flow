@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
@@ -121,7 +120,7 @@ const ContentManager = () => {
               Additional Content (JSON)
             </label>
             <Textarea
-              value={typeof content.content === 'object' ? JSON.stringify(content.content, null, 2) : content.content}
+              value={typeof content.content === 'object' ? JSON.stringify(content.content, null, 2) : (content.content as string)}
               onChange={(e) => handleContentChange(content.id, "content", e.target.value)}
               className="font-mono"
               rows={10}

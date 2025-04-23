@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CategoryForm } from "./CategoryForm";
 import { CategoryItem } from "./CategoryItem";
-import { Category, CategoryInsert, CategoryUpdate } from "./types";
+import { Category, CategoryInsert, CategoryUpdate, CategoryFormData } from "./types";
 
 export const CategoriesManager = () => {
   const { toast } = useToast();
@@ -17,28 +17,58 @@ export const CategoriesManager = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Fetch categories with category items
-  const { data: categories, isLoading } = useQuery<Category[]>({
+  const { data: categories, isLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('categories')
-        .select('*, category_items(*)')
-        .order('display_order', { ascending: true });
+        .select('*, category_items(*)');
       
       if (error) throw error;
-      return data || [];
+      
+      // Ensure the data follows the expected structure
+      // Map returned data to ensure category_items is always an array
+      return (data || []).map((category: any) => ({
+        ...category,
+        category_items: Array.isArray(category.category_items) ? category.category_items : []
+      })) as (Category & { category_items: any[] })[];
     }
   });
 
   // Create mutation for categories
   const createMutation = useMutation({
-    mutationFn: async (newCategory: CategoryInsert) => {
-      const { data, error } = await supabase
+    mutationFn: async (newCategory: CategoryFormData) => {
+      let imageUrl = newCategory.image_url;
+      
+      if (newCategory.image instanceof File) {
+        const fileExt = newCategory.image.name.split('.').pop();
+        const filePath = `${crypto.randomUUID()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('images')
+          .upload(filePath, newCategory.image);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('images')
+          .getPublicUrl(filePath);
+
+        imageUrl = publicUrl;
+      }
+      
+      const { error } = await supabase
         .from('categories')
-        .insert([newCategory])
-        .select();
+        .insert([{ 
+          title: newCategory.title,
+          slug: newCategory.slug,
+          description: newCategory.description,
+          display_order: newCategory.display_order,
+          image_url: imageUrl,
+          is_active: newCategory.is_active ?? true
+        }]);
+        
       if (error) throw error;
-      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
@@ -57,12 +87,38 @@ export const CategoriesManager = () => {
     },
   });
 
-  // Update mutation for categories
+  // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: CategoryUpdate }) => {
+    mutationFn: async ({ id, data }: { id: string; data: CategoryFormData }) => {
+      let imageUrl = data.image_url;
+      
+      if (data.image instanceof File) {
+        const fileExt = data.image.name.split('.').pop();
+        const filePath = `${crypto.randomUUID()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('images')
+          .upload(filePath, data.image);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('images')
+          .getPublicUrl(filePath);
+
+        imageUrl = publicUrl;
+      }
+      
       const { error } = await supabase
         .from('categories')
-        .update(data)
+        .update({ 
+          title: data.title,
+          slug: data.slug,
+          description: data.description,
+          display_order: data.display_order,
+          image_url: imageUrl,
+          is_active: data.is_active ?? true
+        })
         .eq('id', id);
       if (error) throw error;
     },
@@ -82,7 +138,7 @@ export const CategoriesManager = () => {
     },
   });
 
-  // Delete mutation for categories
+  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -121,7 +177,10 @@ export const CategoriesManager = () => {
         <CardTitle>Categories Management</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>Add New</Button>
+            <Button>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" data-testid="create-loader" hidden={!createMutation.isPending} />
+              Add New Category
+            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -139,7 +198,7 @@ export const CategoriesManager = () => {
           {categories?.map((category) => (
             <CategoryItem
               key={category.id}
-              category={category}
+              category={category as (Category & { category_items: any[] })}
               onUpdate={(data) => updateMutation.mutate({ id: category.id, data })}
               onDelete={() => deleteMutation.mutate(category.id)}
               isUpdating={updateMutation.isPending}

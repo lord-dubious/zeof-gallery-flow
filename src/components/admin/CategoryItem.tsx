@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
@@ -5,7 +6,7 @@ import { CategoryForm } from "./CategoryForm";
 import type { Category, CategoryFormData } from "./types";
 
 interface CategoryItemProps {
-  category: Category;
+  category: Category & { category_items?: any[] };
   onUpdate: (data: CategoryFormData) => void;
   onDelete: () => void;
   isUpdating: boolean;
@@ -93,7 +94,7 @@ export const CategoryItem = ({
           {category.description && (
             <p className="text-sm text-gray-500">{category.description}</p>
           )}
-          {isExpanded && category.category_items && category.category_items.length > 0 && (
+          {isExpanded && category.category_items && Array.isArray(category.category_items) && category.category_items.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
               {category.category_items.map((item) => (
                 <div key={item.id} className="border rounded p-3">
