@@ -3,12 +3,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { CategoryForm } from "./CategoryForm";
-import type { Category, CategoryFormData } from "./types";
+import { CategoryWithItems, CategoryFormData } from "./types";
 
 interface CategoryItemProps {
-  category: Category & { category_items?: any[] };
-  onUpdate: (data: CategoryFormData) => void;
-  onDelete: () => void;
+  category: CategoryWithItems;
+  onUpdate: (id: string, data: CategoryFormData) => void;
+  onDelete: (id: string) => void;
   isUpdating: boolean;
   isDeleting: boolean;
 }
@@ -32,13 +32,14 @@ export const CategoryItem = ({
             slug: category.slug,
             description: category.description || "",
             display_order: category.display_order,
-            image_url: category.image_url || "",
-            is_active: category.is_active || true
+            image_url: category.image_url || undefined,
+            is_active: category.is_active ?? true
           }}
           onSubmit={(data) => {
-            onUpdate(data);
+            onUpdate(category.id, data);
             setIsEditing(false);
           }}
+          onCancel={() => setIsEditing(false)}
           isLoading={isUpdating}
         />
       ) : (
@@ -60,7 +61,7 @@ export const CategoryItem = ({
               <Button 
                 variant="destructive" 
                 size="sm"
-                onClick={onDelete}
+                onClick={() => onDelete(category.id)}
                 disabled={isDeleting}
               >
                 {isDeleting ? (
@@ -82,6 +83,7 @@ export const CategoryItem = ({
               </Button>
             </div>
           </div>
+          
           {category.image_url && (
             <div className="relative w-full h-48">
               <img 
@@ -91,10 +93,12 @@ export const CategoryItem = ({
               />
             </div>
           )}
+          
           {category.description && (
             <p className="text-sm text-gray-500">{category.description}</p>
           )}
-          {isExpanded && category.category_items && Array.isArray(category.category_items) && category.category_items.length > 0 && (
+          
+          {isExpanded && category.category_items && category.category_items.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
               {category.category_items.map((item) => (
                 <div key={item.id} className="border rounded p-3">
@@ -104,7 +108,7 @@ export const CategoryItem = ({
                     className="w-full h-32 object-cover rounded mb-2"
                   />
                   <h4 className="font-medium">{item.title}</h4>
-                  <p className="text-sm text-gray-500">{item.description}</p>
+                  <p className="text-sm text-gray-500">{item.description || ""}</p>
                 </div>
               ))}
             </div>

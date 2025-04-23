@@ -21,18 +21,23 @@ export const NavigationManager = () => {
     is_active: true
   });
 
-  // Fetch navigation items
-  const { data: navigationItems, isLoading } = useQuery<NavigationItem[]>({
+  // Fetch navigation items with a workaround for type issues
+  const { data: navigationItems, isLoading } = useQuery({
     queryKey: ['navigation_items'],
     queryFn: async () => {
-      // Use a type assertion since navigation_items might not be in the type definition
-      const { data, error } = await supabase
-        .from('navigation_items' as any)
-        .select('*')
-        .order('display_order', { ascending: true });
-      
-      if (error) throw error;
-      return data || [];
+      try {
+        // Use a type assertion since navigation_items might not be in the type definition
+        const { data, error } = await supabase
+          .from('navigation_items' as any)
+          .select('*')
+          .order('display_order', { ascending: true });
+        
+        if (error) throw error;
+        return (data || []) as NavigationItem[];
+      } catch (error) {
+        console.error("Error fetching navigation items:", error);
+        return [] as NavigationItem[];
+      }
     }
   });
 
@@ -199,40 +204,44 @@ export const NavigationManager = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {navigationItems?.map((item) => (
-            <div 
-              key={item.id} 
-              className="flex justify-between items-center p-4 border rounded"
-            >
-              <div>
-                <h3 className="font-medium">{item.title}</h3>
-                <p className="text-sm text-gray-500">{item.path}</p>
+          {navigationItems && navigationItems.length > 0 ? (
+            navigationItems.map((item) => (
+              <div 
+                key={item.id} 
+                className="flex justify-between items-center p-4 border rounded"
+              >
+                <div>
+                  <h3 className="font-medium">{item.title}</h3>
+                  <p className="text-sm text-gray-500">{item.path}</p>
+                </div>
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      updateMutation.mutate({ 
+                        id: item.id, 
+                        data: { is_active: !item.is_active } 
+                      });
+                    }}
+                  >
+                    {item.is_active ? 'Disable' : 'Enable'}
+                  </Button>
+                  <Button 
+                    variant="destructive"
+                    onClick={() => deleteMutation.mutate(item.id)}
+                    disabled={deleteMutation.isPending}
+                  >
+                    {deleteMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : null}
+                    Delete
+                  </Button>
+                </div>
               </div>
-              <div className="flex space-x-2">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    updateMutation.mutate({ 
-                      id: item.id, 
-                      data: { is_active: !item.is_active } 
-                    });
-                  }}
-                >
-                  {item.is_active ? 'Disable' : 'Enable'}
-                </Button>
-                <Button 
-                  variant="destructive"
-                  onClick={() => deleteMutation.mutate(item.id)}
-                  disabled={deleteMutation.isPending}
-                >
-                  {deleteMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : null}
-                  Delete
-                </Button>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-center py-4 text-gray-500">No navigation items found</p>
+          )}
         </div>
       </CardContent>
     </Card>

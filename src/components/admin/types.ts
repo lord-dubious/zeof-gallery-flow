@@ -2,9 +2,20 @@
 import type { Database } from "@/integrations/supabase/types";
 
 // Base types from the database
-export type SiteContent = Database['public']['Tables']['site_content']['Row'];
-export type SiteContentInsert = Database['public']['Tables']['site_content']['Insert'];
-export type SiteContentUpdate = Database['public']['Tables']['site_content']['Update'];
+export type SiteContent = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  content: Record<string, any>;
+  page: string;
+  section: string;
+  title: string | null;
+  subtitle: string | null;
+  description: string | null;
+  image_url: string | null;
+};
+export type SiteContentInsert = Omit<SiteContent, 'id' | 'created_at' | 'updated_at'>;
+export type SiteContentUpdate = Partial<SiteContentInsert>;
 
 // Define Category type without relying on category_items from Database type
 export type Category = Database['public']['Tables']['categories']['Row'];

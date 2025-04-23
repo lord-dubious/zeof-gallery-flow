@@ -16,6 +16,7 @@ export const CategoriesManager = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryWithItems | null>(null);
 
   // Fetch categories
   const { data: categories, isLoading } = useQuery({
@@ -23,15 +24,13 @@ export const CategoriesManager = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('categories')
-        .select('*, category_items(*)');
+        .select('*');
       
       if (error) throw error;
       
-      // Handle the returned data to ensure it matches our CategoryWithItems type
-      return (data || []).map((category: any) => ({
-        ...category,
-        category_items: Array.isArray(category.category_items) ? category.category_items : []
-      })) as CategoryWithItems[];
+      // Since the database doesn't have a category_items relation yet,
+      // we'll just return the categories without it
+      return (data || []) as CategoryWithItems[];
     }
   });
 
@@ -158,6 +157,15 @@ export const CategoriesManager = () => {
     },
   });
 
+  // Handlers
+  const handleUpdateCategory = (id: string, data: CategoryFormData) => {
+    updateMutation.mutate({ id, data });
+  };
+
+  const handleDeleteCategory = (id: string) => {
+    deleteMutation.mutate(id);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -194,8 +202,8 @@ export const CategoriesManager = () => {
             <CategoryItem
               key={category.id}
               category={category}
-              onUpdate={(id, data) => updateMutation.mutate({ id, data })}
-              onDelete={(id) => deleteMutation.mutate(id)}
+              onUpdate={handleUpdateCategory}
+              onDelete={handleDeleteCategory}
               isUpdating={updateMutation.isPending}
               isDeleting={deleteMutation.isPending}
             />
