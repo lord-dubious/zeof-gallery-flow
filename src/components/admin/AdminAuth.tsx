@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,12 +10,34 @@ const AdminAuth = () => {
   const [authError, setAuthError] = useState<string | null>(null);
 
   // Listen for authentication events
-  supabase.auth.onAuthStateChange((event) => {
-    if (event === "SIGNED_IN") {
-      // Reset any previous errors when user signs in
-      setAuthError(null);
-    }
-  });
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") {
+        // Reset any previous errors when user signs in
+        setAuthError(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Listen for auth errors
+  useEffect(() => {
+    const handleAuthError = (event: CustomEvent) => {
+      if (event.detail?.error) {
+        setAuthError(event.detail.error.message || 'Authentication error occurred');
+      }
+    };
+
+    // Add event listener for Supabase auth errors
+    window.addEventListener('supabase.auth.error', handleAuthError as EventListener);
+
+    return () => {
+      window.removeEventListener('supabase.auth.error', handleAuthError as EventListener);
+    };
+  }, []);
 
   return (
     <div className="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md">
@@ -39,9 +61,6 @@ const AdminAuth = () => {
         appearance={{ theme: ThemeSupa }}
         theme="light"
         providers={[]}
-        onError={(error) => {
-          setAuthError(error.message);
-        }}
       />
     </div>
   );
