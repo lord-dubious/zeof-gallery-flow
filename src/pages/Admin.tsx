@@ -11,21 +11,45 @@ import { SettingsManager } from "@/components/admin/SettingsManager";
 import ContentManager from "@/components/admin/ContentManager";
 import { CategoriesManager } from "@/components/admin/CategoriesManager";
 import { NavigationManager } from "@/components/admin/NavigationManager";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, Loader2 } from "lucide-react";
 
 const AdminPage = () => {
   const navigate = useNavigate();
   const { session, isLoading } = useSessionContext();
   const [activeTab, setActiveTab] = useState("images");
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [isCheckingRole, setIsCheckingRole] = useState(true);
 
   useEffect(() => {
     const checkAdminRole = async () => {
       if (!isLoading && session) {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user?.app_metadata?.role !== 'admin') {
-          navigate('/');
+        setIsCheckingRole(true);
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          
+          // Check if user has admin role
+          if (user?.app_metadata?.role === 'admin') {
+            setIsAdmin(true);
+          } else {
+            setIsAdmin(false);
+            // If logged in but not admin, wait a moment then redirect
+            setTimeout(() => {
+              navigate('/');
+            }, 3000);
+          }
+        } catch (error) {
+          console.error("Error checking admin role:", error);
+          setIsAdmin(false);
+        } finally {
+          setIsCheckingRole(false);
         }
+      } else if (!isLoading && !session) {
+        setIsCheckingRole(false);
+        setIsAdmin(false);
       }
     };
+    
     checkAdminRole();
   }, [session, isLoading, navigate]);
 
@@ -34,10 +58,19 @@ const AdminPage = () => {
     navigate('/');
   };
 
-  if (isLoading) {
-    return <div className="container mx-auto py-8">Loading...</div>;
+  // Show loading while authentication state is being determined
+  if (isLoading || isCheckingRole) {
+    return (
+      <div className="container mx-auto py-8 flex items-center justify-center min-h-[70vh]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>Verifying authentication...</p>
+        </div>
+      </div>
+    );
   }
 
+  // If not logged in, show the login form
   if (!session) {
     return (
       <div className="container mx-auto py-8">
@@ -46,6 +79,22 @@ const AdminPage = () => {
     );
   }
 
+  // If logged in but not admin, show access denied
+  if (session && isAdmin === false) {
+    return (
+      <div className="container mx-auto py-8">
+        <Alert variant="destructive" className="max-w-md mx-auto">
+          <AlertCircle className="h-4 w-4 mr-2" />
+          <AlertDescription>
+            Access denied. You do not have administrator privileges.
+            Redirecting to home page...
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  // If admin, show the admin dashboard
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">

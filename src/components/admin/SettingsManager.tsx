@@ -1,9 +1,41 @@
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { 
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export const SettingsManager = () => {
   return (
     <div className="space-y-6">
+      <Card className="p-6">
+        <h3 className="text-xl font-medium mb-4">Admin Access Configuration</h3>
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="admin-setup">
+            <AccordionTrigger className="text-left">How to set up admin access</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-4 text-sm">
+                <p>To grant admin access to a user:</p>
+                <ol className="list-decimal list-inside space-y-2">
+                  <li>Go to the Supabase Dashboard</li>
+                  <li>Navigate to Authentication → Users</li>
+                  <li>Find the user and click on the three dots (...)</li>
+                  <li>Select "Edit user"</li>
+                  <li>In the "User Metadata" field, add the following JSON:</li>
+                </ol>
+                <pre className="bg-gray-100 p-3 rounded text-sm overflow-x-auto">
+                  {`{\n  "role": "admin"\n}`}
+                </pre>
+                <p>This will give the user admin privileges on their next sign-in.</p>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </Card>
+
       <Card className="p-6">
         <h3 className="text-xl font-medium mb-4">Supabase Configuration</h3>
         <div className="space-y-4">
