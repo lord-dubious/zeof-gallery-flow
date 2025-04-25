@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -18,7 +19,7 @@ const collections = [
     link: "/gallery/evening-wear"
   },
   {
-    title: "Accessories",
+    title: "Footwears",
     description: "Finishing touches of refinement",
     imageRole: "accessories_collection",
     link: "/gallery/accessories"
