@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { Image } from "@/components/admin/types/images";
+import type { Image } from "@/types/images";
 import { useToast } from "@/hooks/use-toast";
 import { MagazineCover } from "@/components/gallery/MagazineCover";
 import { MagazineContents } from "@/components/gallery/MagazineContents";

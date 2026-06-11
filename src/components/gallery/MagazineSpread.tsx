@@ -1,4 +1,4 @@
-import type { Image } from "@/components/admin/types/images";
+import type { Image } from "@/types/images";
 
 interface MagazineSpreadProps {
   leftImage: Image;
