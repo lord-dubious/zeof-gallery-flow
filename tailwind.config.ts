@@ -90,6 +90,7 @@ export default {
       },
       fontFamily: {
         serif: ["Playfair Display", "serif"],
+        display: ["Cormorant Garamond", "serif"],
         sans: ["Inter", "sans-serif"],
       },
     },
